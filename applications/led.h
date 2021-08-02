@@ -10,7 +10,9 @@
 #ifndef APPLICATIONS_LED_H_
 #define APPLICATIONS_LED_H_
 
-void Led_Init(void);
-void beep_start(uint8_t led_id,int mode);
+void led_Init(void);
+void wifi_led(uint8_t type);
+void beep_start(uint8_t count);
+void rf_led(uint8_t type);
 
 #endif /* APPLICATIONS_LED_H_ */

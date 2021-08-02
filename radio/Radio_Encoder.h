@@ -14,7 +14,8 @@ void Check_Wor_Recv(uint32_t From_ID,uint8_t Command,uint8_t Data);
 void Tx_Done_Callback(uint8_t *rx_buffer,uint8_t rx_len);
 void RadioSend(uint32_t Taget_Id,uint8_t counter,uint8_t Command,uint8_t Data);
 void WorSend(uint32_t Taget_Id,uint8_t counter,uint8_t Command,uint8_t Data);
-void RadioEnqueue(uint32_t wor_flag,uint32_t Taget_Id,uint8_t counter,uint8_t Command,uint8_t Data);
+void RadioEnqueue(uint32_t Taget_Id,uint8_t counter,uint8_t Command,uint8_t Data);
+void GatewayDataEnqueue(uint32_t target_id,uint32_t device_id,uint8_t rssi,uint8_t control,uint8_t value);
 void RadioDequeueTaskInit(void);
 void Start_Learn(void);
 

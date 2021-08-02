@@ -13,6 +13,7 @@
 #include "wifi-uart.h"
 #include "wifi.h"
 #include "wifi-service.h"
+#include "led.h"
 
 /* 用于接收消息的信号量 */
 static struct rt_semaphore rx_sem;
@@ -111,8 +112,6 @@ void wifi_uart_init(void)
 void wifi_status_timer_callback(void *parameter)
 {
     get_wifi_st();
-    rt_timer_start(wifi_detect_timer);
-    LOG_D("Read Wifi Status\r\n");
 }
 void wifi_detect_timer_callback(void *parameter)
 {
@@ -129,6 +128,7 @@ void wifi_detect_timer_callback(void *parameter)
             return;
         }
         LOG_D("No WiFi\r\n");
+        wifi_led(0);
     }
     else if(wifi_status==1)
     {
@@ -137,7 +137,6 @@ void wifi_detect_timer_callback(void *parameter)
     else if(wifi_status==2||3||4)
     {
         LOG_D("Wifi Init Success\r\n");
-        //Sync_Request();
     }
 }
 void WiFi_Init(void)
@@ -146,7 +145,8 @@ void WiFi_Init(void)
     wifi_uart_init();
     wifi_service_init();
 
-    wifi_status_timer = rt_timer_create("wifi_status",wifi_status_timer_callback,RT_NULL,5000,RT_TIMER_FLAG_SOFT_TIMER|RT_TIMER_FLAG_ONE_SHOT);
+    wifi_status_timer = rt_timer_create("wifi_status",wifi_status_timer_callback,RT_NULL,3000,RT_TIMER_FLAG_SOFT_TIMER|RT_TIMER_FLAG_PERIODIC);
     rt_timer_start(wifi_status_timer);
-    wifi_detect_timer = rt_timer_create("wifi_detect",wifi_detect_timer_callback,RT_NULL,1000,RT_TIMER_FLAG_SOFT_TIMER|RT_TIMER_FLAG_ONE_SHOT);
+    wifi_detect_timer = rt_timer_create("wifi_detect",wifi_detect_timer_callback,RT_NULL,5000,RT_TIMER_FLAG_SOFT_TIMER|RT_TIMER_FLAG_ONE_SHOT);
+    //rt_timer_start(wifi_detect_timer);
 }

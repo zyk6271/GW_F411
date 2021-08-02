@@ -33,9 +33,10 @@ typedef struct
 {
     uint8_t NowNum;
     uint8_t TargetNum;
-    uint8_t wor_flag[30];
+    uint8_t Type[30];
     uint32_t Taget_Id[30];
-    uint8_t counter[30];
+    uint32_t Device_Id[30];
+    uint8_t Counter[30];
     uint8_t Command[30];
     uint8_t Data[30];
 }Radio_Queue;
@@ -50,7 +51,6 @@ void Start_Learn(void)
 {
     RadioSend(99999999,1,3,1);
 }
-MSH_CMD_EXPORT(Start_Learn,Start_Learn);
 void RadioSend(uint32_t Taget_Id,uint8_t counter,uint8_t Command,uint8_t Data)
 {
     uint8_t check = 0;
@@ -75,10 +75,10 @@ void RadioSend(uint32_t Taget_Id,uint8_t counter,uint8_t Command,uint8_t Data)
     buf[31] = '\n';
     Normal_send(buf,32);
 }
-void RadioEnqueue(uint32_t wor_flag,uint32_t Taget_Id,uint8_t counter,uint8_t Command,uint8_t Data)
+void GatewayDataEnqueue(uint32_t target_id,uint32_t device_id,uint8_t rssi,uint8_t control,uint8_t value)
 {
     uint8_t NumTemp = Main_Queue.TargetNum;
-    if(NumTemp<20)
+    if(NumTemp<30)
     {
         NumTemp ++;
         LOG_D("Queue Num Increase,Value is %d\r\n",NumTemp);
@@ -88,13 +88,47 @@ void RadioEnqueue(uint32_t wor_flag,uint32_t Taget_Id,uint8_t counter,uint8_t Co
         LOG_I("Queue is Full,Value is %d\r\n",NumTemp);
         return;
     }
-    Main_Queue.wor_flag[NumTemp] = wor_flag;
+    Main_Queue.Type[NumTemp] = 1;
+    Main_Queue.Taget_Id[NumTemp] = target_id;
+    Main_Queue.Device_Id[NumTemp] = device_id;
+    Main_Queue.Counter[NumTemp] = rssi;
+    Main_Queue.Command[NumTemp] = control;
+    Main_Queue.Data[NumTemp] = value;
+    Main_Queue.TargetNum++;
+    LOG_D("GatewayDataEnqueue Success\r\n");
+}
+void GatewayDataSend(uint32_t target_id,uint32_t device_id,uint8_t rssi,uint8_t control,uint8_t value)
+{
+    uint8_t buf[50]={0};
+    sprintf((char *)(&buf),"G{%08ld,%08ld,%08ld,%03d,%03d,%02d}G",\
+                                            target_id,\
+                                            Self_Id,\
+                                            device_id,\
+                                            rssi,\
+                                            control,\
+                                            value);
+    Normal_send(buf,41);
+}
+void RadioEnqueue(uint32_t Taget_Id,uint8_t counter,uint8_t Command,uint8_t Data)
+{
+    uint8_t NumTemp = Main_Queue.TargetNum;
+    if(NumTemp<30)
+    {
+        NumTemp ++;
+        LOG_D("Queue Num Increase,Value is %d\r\n",NumTemp);
+    }
+    else
+    {
+        LOG_I("Queue is Full,Value is %d\r\n",NumTemp);
+        return;
+    }
+    Main_Queue.Type[NumTemp] = 0;
     Main_Queue.Taget_Id[NumTemp] = Taget_Id;
-    Main_Queue.counter[NumTemp] = counter;
+    Main_Queue.Counter[NumTemp] = counter;
     Main_Queue.Command[NumTemp] = Command;
     Main_Queue.Data[NumTemp] = Data;
     Main_Queue.TargetNum++;
-    LOG_D("Enqueue Success\r\n");
+    LOG_D("RadioEnqueue Success\r\n");
 }
 void RadioDequeue(void *paramaeter)
 {
@@ -109,11 +143,16 @@ void RadioDequeue(void *paramaeter)
         else if(Main_Queue.TargetNum>0 && Main_Queue.TargetNum>Main_Queue.NowNum)
         {
             Main_Queue.NowNum++;
-            switch(Main_Queue.wor_flag[Main_Queue.NowNum])
+            switch(Main_Queue.Type[Main_Queue.NowNum])
             {
             case 0:
-                RadioSend(Main_Queue.Taget_Id[Main_Queue.NowNum],Main_Queue.counter[Main_Queue.NowNum],Main_Queue.Command[Main_Queue.NowNum],Main_Queue.Data[Main_Queue.NowNum]);
-                LOG_D("Normal Send With Now Num %d,Target Num is %d,Target_Id %ld,counter %d,command %d,data %d\r\n",Main_Queue.NowNum,Main_Queue.TargetNum,Main_Queue.Taget_Id[Main_Queue.NowNum],Main_Queue.counter[Main_Queue.NowNum],Main_Queue.Command[Main_Queue.NowNum],Main_Queue.Data[Main_Queue.NowNum]);
+                RadioSend(Main_Queue.Taget_Id[Main_Queue.NowNum],Main_Queue.Counter[Main_Queue.NowNum],Main_Queue.Command[Main_Queue.NowNum],Main_Queue.Data[Main_Queue.NowNum]);
+                LOG_D("Normal Send With Now Num %d,Target Num is %d,Target_Id %ld,counter %d,command %d,data %d\r\n",Main_Queue.NowNum,Main_Queue.TargetNum,Main_Queue.Taget_Id[Main_Queue.NowNum],Main_Queue.Counter[Main_Queue.NowNum],Main_Queue.Command[Main_Queue.NowNum],Main_Queue.Data[Main_Queue.NowNum]);
+                rt_thread_mdelay(300);
+                break;
+            case 1:
+                GatewayDataSend(Main_Queue.Taget_Id[Main_Queue.NowNum],Main_Queue.Device_Id[Main_Queue.NowNum],Main_Queue.Counter[Main_Queue.NowNum],Main_Queue.Command[Main_Queue.NowNum],Main_Queue.Data[Main_Queue.NowNum]);
+                LOG_I("GatewaySend With Now Num %d,Type is %d,Target Num is %d,Target_Id %ld,Device_Id %ld,rssi %d,bat %d\r\n",Main_Queue.NowNum,Main_Queue.TargetNum,Main_Queue.Counter[Main_Queue.NowNum],Main_Queue.Taget_Id[Main_Queue.NowNum],Main_Queue.Device_Id[Main_Queue.NowNum],Main_Queue.Command[Main_Queue.NowNum],Main_Queue.Data[Main_Queue.NowNum]);
                 rt_thread_mdelay(300);
                 break;
             default:break;

@@ -555,6 +555,7 @@ void ReceiveData(void)
                 ubDataLen--;
                 SpiReadData(RXBuff,ubDataLen);         //ax5043_readfifo(axradio_rxbuffer, len);  //��FIFO������
                 RxLen = ubDataLen;
+                rf_led(3);
 //                LOG_RAW("\r\nReceive is");
 //                for( int i = 1; i < ubDataLen; i++ )
 //                {
@@ -636,6 +637,7 @@ void transmit_packet_task(uint8_t *Buf, uint8_t u8Len)
     ubRFState = trxstate_tx_xtalwait;
     SpiWriteSingleAddressRegister(REG_AX5043_IRQMASK0, 0x00);     //AX5043_IRQMASK0 = 0x00;
     SpiWriteSingleAddressRegister(REG_AX5043_IRQMASK1, 0x01);     //AX5043_IRQMASK1 = 0x01; // enable xtal ready interrupt
+    rf_led(2);
 }
 void Normal_send(uint8_t *Buf, uint8_t u8Len)
 {
@@ -825,11 +827,13 @@ void Init_Timer_Callback(void *parameter)
     if(!InitFlag)
     {
         LOG_D("Radio Init Fail\r\n");
+        rf_led(0);
         rt_hw_cpu_reset();
     }
 }
 void Radio_Task_Init(void)
 {
+    rf_led(1);
     Radio_IRQ_Sem = rt_sem_create("Radio_IRQ", 0, RT_IPC_FLAG_FIFO);
 
     Radio_Task = rt_thread_create("Radio_Task", Radio_Task_Callback, RT_NULL, 2048, 10, 10);

@@ -29,6 +29,7 @@
 #include "stdio.h"
 #include "wifi-service.h"
 #include "wifi-api.h"
+#include "led.h"
 
 #define DBG_TAG "wifi-decoder"
 #define DBG_LVL DBG_LOG
@@ -174,10 +175,10 @@ static unsigned char dp_download_delay_state_handle(const unsigned char value[],
     delay_state = mcu_get_dp_download_bool(value,length);
     uint32_t device=0;
     device = atol(sub_id_buf);
-    if(delay_state == 0) {
-        Delay_CloseRemote(device);
-    }else {
+    if(delay_state == 1) {
         Delay_OpenRemote(device);
+    }else {
+        Delay_CloseRemote(device);
         //开关开
     }
     return SUCCESS;
@@ -386,13 +387,12 @@ void subdevice_add_result(unsigned char result)
  */
 void subdevice_delete(unsigned char* data_buf,unsigned short data_len)
 {
-    //#error "请自行实现子设备删除成功/失败代码,完成后请删除该行"
     cJSON *root = NULL,*item = NULL;
-    
+
     char* sub_id = NULL;  //子设备id
     char* devkey = NULL;  //子设备key
     unsigned char tp = NULL;  //移除类型
-    
+
     unsigned char pstr[data_len + 1];
     my_memset(pstr, 0x00, data_len+1);
     my_memcpy(pstr, data_buf, data_len);
@@ -409,31 +409,31 @@ void subdevice_delete(unsigned char* data_buf,unsigned short data_len)
         goto EXIT_ERR;
     }
     sub_id = item->valuestring;
-//
+
 //    item = cJSON_GetObjectItem(root, "devkey");
 //    if(NULL == item){
 //        //可在此添加提示信息，如：printf("xxx");
-//        //goto EXIT_ERR;
+//        goto EXIT_ERR;
 //    }
 //    devkey = item->valuestring;
-//
-//    item = cJSON_GetObjectItem(root, "tp");
-//    if(NULL == item){
-//        //可在此添加提示信息，如：printf("xxx");
-//        //goto EXIT_ERR;
-//    }
-//    tp = item->valueint;
+
+    item = cJSON_GetObjectItem(root, "tp");
+    if(NULL == item){
+        //可在此添加提示信息，如：printf("xxx");
+        goto EXIT_ERR;
+    }
+    tp = item->valueint;
 
     ///////////////请在此处根据获取到的相关数据删除对应的子设备/////////////////
     //sub_id: 子设备id
     //devkey: 子设备key
     //tp: 移除类型  0:移除子设备  1:APP恢复出厂设置
-    //Remote_Delete(atol(sub_id));
-    
-    
+
+    Remote_Delete(atol(sub_id));
+
     cJSON_Delete(root);
     return;
-    
+
 EXIT_ERR:
     if(NULL != root) {
         cJSON_Delete(root);
@@ -1053,11 +1053,15 @@ void wifi_test_result(unsigned char result,unsigned char rssi)
 void wifi_status_result(unsigned char result)
 {
     extern uint8_t wifi_status;
-    wifi_status = result;
-    LOG_I("wifi_status is change to %d\r\n",result);
-    if(result == 4)
+    if(wifi_status != result)
     {
-        Sync_Request();
+        wifi_status = result;
+        LOG_I("wifi_status is change to %d\r\n",result);
+        wifi_led(result);
+        if(result == 4)
+        {
+            qur_subdev_list();
+        }
     }
 }
 #endif
@@ -1178,6 +1182,7 @@ void local_subdev_list(unsigned char *subdev_list_buf,unsigned short buf_len)
     
     sub_node = (tSUB_NODE*)malloc(sizeof(tSUB_NODE) * sub_node_num);
     if(NULL == sub_node) {
+        Sync_Request();
         //可在此添加提示信息，如：printf("xxx");
         return;
     }
@@ -1186,11 +1191,13 @@ void local_subdev_list(unsigned char *subdev_list_buf,unsigned short buf_len)
     for(i = 0,offset = 2;i < sub_node_num;i++) {
         my_memcpy(&sub_node[i], subdev_list_buf + offset, subdev_list_buf[offset] + 1);
         offset += subdev_list_buf[offset] + 1; //偏移到下一个节点的位置
+        Remote_Device_Add(atol(&sub_node[i].id));
     }
-    
-    #error "请自行实现子设备列表代码,完成后请删除该行"
+   // #error "请自行实现子设备列表代码,完成后请删除该行"
     if(next_package_flag == FALSE) { //代表后续以及没有包了，结束发送
+        Sync_Request();
         //当前包序号为package_idx
+        //LOG_D("Start to upload Different\r\n");
         //用户自行处理 sub_node 中的子设备信息
         
     }else { //后续还有包，下次还会调用该函数

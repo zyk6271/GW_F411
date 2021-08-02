@@ -53,29 +53,11 @@ void Device_Learn(Message buf)
     switch(buf.Data)
     {
     case 1:
-        if(Check_Valid(buf.From_ID))//如果数据库不存在该值
-        {
-            RadioEnqueue(0,buf.From_ID,buf.Counter,3,2);
-            Add_Main(buf.From_ID);
-            LOG_D("Send ACK\r\n");
-        }
-        else//存在该值
-        {
-            RadioEnqueue(0,buf.From_ID,buf.Counter,3,2);
-            LOG_D("Include This Device，Send Ack\r\n");
-        }
+        RadioEnqueue(buf.From_ID,buf.Counter,3,2);
         break;
     case 2:
-        if(Check_Valid(buf.From_ID))//如果数据库不存在该值
-        {
-            LOG_D("Ack Not Include This Device\r\n");
-        }
-        else//存在该值
-        {
-            LOG_D("Learn Success\r\n");
-            Device_Add(buf.From_ID);
-        }
-        break;
+        LOG_I("Learn Success\r\n");
+        Device_Add(buf.From_ID,0);
     }
 }
 void NormalSolve(uint8_t *rx_buffer,uint8_t rx_len)
@@ -86,14 +68,12 @@ void NormalSolve(uint8_t *rx_buffer,uint8_t rx_len)
          sscanf((const char *)&rx_buffer[1],"{%ld,%ld,%d,%d,%d}",&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Counter,&Rx_message.Command,&Rx_message.Data);
          if(Rx_message.Target_ID==Self_Id)
          {
+             Flash_Set_Heart(Rx_message.From_ID,1);
              LOG_D("NormalSolve verify ok\r\n");
              switch(Rx_message.Command)
              {
              case 3://学习
                  Device_Learn(Rx_message);
-                 break;
-             case 9://学习
-                 //Device_Learn(Rx_message);
                  break;
              }
          }
@@ -108,21 +88,26 @@ void GatewaySyncSolve(uint8_t *rx_buffer,uint8_t rx_len)
         sscanf((const char *)&rx_buffer[2],"{%d,%ld,%ld,%ld,%d,%d}",&Rx_message.type,&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Device_ID,&Rx_message.Command,&Rx_message.Data);
         if(Rx_message.Target_ID == Self_Id && Check_Valid(Rx_message.From_ID) == RT_EOK)
         {
+            Flash_Set_Heart(Rx_message.From_ID,1);
             switch(Rx_message.type)
             {
             case 1:
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Command);//心跳
                 break;
             case 3:
-                Device_Add(Rx_message.Device_ID);//增加终端
+                Device_Add(Rx_message.Device_ID,Rx_message.From_ID);//增加终端
                 break;
-            case 4:
-                Door_Add_WiFi(Rx_message.Device_ID);//增加门控
-                break;
-            case 5://删除全部
+            case 4://删除全部
+                Del_MainBind(Rx_message.From_ID);
                 break;
             }
         }
+        else {
+            LOG_W("GatewaySyncSolve ID %ld Error\r\n",Rx_message.From_ID);
+        }
+    }
+    else {
+        LOG_W("GatewaySyncSolve verify fail\r\n");
     }
 }
 void GatewayWarningSolve(uint8_t *rx_buffer,uint8_t rx_len)
@@ -130,10 +115,10 @@ void GatewayWarningSolve(uint8_t *rx_buffer,uint8_t rx_len)
     Message Rx_message;
     if(rx_buffer[rx_len-1]=='B')
     {
-        LOG_D("GatewayWarningSolve verify ok\r\n");
         sscanf((const char *)&rx_buffer[2],"{%ld,%ld,%ld,%d,%d,%d}",&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Device_ID,&Rx_message.Rssi,&Rx_message.Command,&Rx_message.Data);
         if(Rx_message.Target_ID == Self_Id && Check_Valid(Rx_message.From_ID) == RT_EOK)
         {
+            Flash_Set_Heart(Rx_message.From_ID,1);
             LOG_D("WariningUpload Device ID is %ld,type is %d,value is %d\r\n",Rx_message.Device_ID,Rx_message.Command,Rx_message.Data);
             switch(Rx_message.Command)
             {
@@ -147,14 +132,15 @@ void GatewayWarningSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 WariningUpload(Rx_message.From_ID,2,Rx_message.Data);//主控测水线掉落
                 break;
             case 4:
-                Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);
-                WariningUpload(Rx_message.Device_ID,0,Rx_message.Data);//终端掉线
+                Flash_Set_Heart(Rx_message.Device_ID,0);
                 break;
             case 5:
+                Flash_Set_Heart(Rx_message.Device_ID,1);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);
                 WariningUpload(Rx_message.Device_ID,1,Rx_message.Data);//终端水警
                 break;
             case 6:
+                Flash_Set_Heart(Rx_message.Device_ID,1);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);
                 WariningUpload(Rx_message.Device_ID,2,Rx_message.Data);//终端低电量
                 break;
@@ -167,10 +153,13 @@ void GatewayWarningSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 break;
             }
         }
+        else {
+            LOG_W("GatewayWarningSolve ID %ld Error\r\n",Rx_message.From_ID);
+        }
     }
     else
     {
-        LOG_D("GatewayControlSolve verify Fail\r\n");
+        LOG_W("GatewayControlSolve verify Fail\r\n");
     }
 }
 void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
@@ -182,6 +171,7 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
         sscanf((const char *)&rx_buffer[2],"{%ld,%ld,%ld,%d,%d,%d}",&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Device_ID,&Rx_message.Rssi,&Rx_message.Command,&Rx_message.Data);
         if(Rx_message.Target_ID == Self_Id && Check_Valid(Rx_message.From_ID) == RT_EOK)
         {
+            Flash_Set_Heart(Rx_message.From_ID,1);
             switch(Rx_message.Command)
             {
             case 1:
@@ -189,15 +179,23 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 break;
             case 2:
                 RemoteUpload(Rx_message.From_ID,Rx_message.Data);//终端开关阀
-                //RemoteUpload(Rx_message.Device_ID,Rx_message.Data);//终端开关阀
+                Flash_Set_Heart(Rx_message.Device_ID,1);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//设备RSSI更新
                 break;
             case 3:
-                Delay_WiFi(Rx_message.Device_ID,Rx_message.Data);//延时开关
-                Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//设备RSSI更新
+                if(Rx_message.Device_ID)//远程关闭
+                {
+                    Door_Delay_WiFi(Rx_message.Device_ID,Rx_message.Data);
+                    Flash_Set_Heart(Rx_message.Device_ID,1);
+                    Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//设备RSSI更新
+                }
+                else //本地关闭
+                {
+                    Remote_Delay_WiFi(Rx_message.From_ID,Rx_message.Data);
+                }
                 break;
             case 4:
-                Heart_Report(Rx_message.From_ID);
+                Heart_Report(Rx_message.From_ID,Rx_message.Rssi);
                 break;
             case 5:
                 MotoUpload(Rx_message.From_ID,Rx_message.Data);
@@ -205,10 +203,14 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 break;
             }
         }
+        else
+         {
+             LOG_W("GatewayControlSolve ID %ld Error\r\n",Rx_message.From_ID);
+         }
     }
     else
     {
-        LOG_D("GatewayControlSolve verify Fail\r\n");
+        LOG_W("GatewayControlSolve verify Fail\r\n");
     }
 }
 void Rx_Done_Callback(uint8_t *rx_buffer,uint8_t rx_len,int8_t rssi)

@@ -8,6 +8,7 @@
  * 2020-11-25     Rick       the first version
  */
 #include <rtthread.h>
+#include <rthw.h>
 #include "pin_config.h"
 #include "key.h"
 #include "led.h"
@@ -39,6 +40,7 @@ extern uint8_t Learn_Flag;
 
 void Key_Reponse_Callback(void *parameter)
 {
+    extern void reset_factory_setting(void);
     Key_SemInit();
     LOG_D("Key_Reponse Init Success\r\n");
     while(1)
@@ -58,15 +60,21 @@ void Key_Reponse_Callback(void *parameter)
         }
         else if(K0_K1_Status==RT_EOK)
         {
-
+            beep_start(5);
+            reset_factory_setting();
+            DeleteAllDevice();
+            rt_thread_mdelay(1000);
+            rt_hw_cpu_reset();
         }
         else if(K0_Long_Status==RT_EOK)
         {
             Start_Learn();
+            beep_start(2);
         }
         else if(K1_Long_Status==RT_EOK)
         {
             Reset_WiFi();
+            beep_start(3);
         }
         rt_thread_mdelay(10);
     }

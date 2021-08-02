@@ -171,7 +171,7 @@ wifi_status_result内部有#err提示,完成函数后请删除该#err
                       MCU是否需要支持恢复出厂设置
 如需要请开启该宏,并且mcu在需要恢复出厂设置处调用mcu_api.c文件内reset_factory_setting
 ******************************************************************************/
-//#define         RESET_FACTORY_SET_ENABLE              //开启恢复出厂设置
+#define         RESET_FACTORY_SET_ENABLE              //开启恢复出厂设置
 
 /******************************************************************************
                       MCU是否需要支持报告移除状态
@@ -211,7 +211,7 @@ remain_memory_result内部有#err提示,完成函数后请删除该#err
 并在protocol.c文件remain_memory_result函数内查看结果,
 remain_memory_result内部有#err提示,完成函数后请删除该#err
 ******************************************************************************/
-//#define         QUR_SUBDEV_LIST_ENABLE                //开启查询子设备列表
+#define         QUR_SUBDEV_LIST_ENABLE                //开启查询子设备列表
 
 /******************************************************************************
                       MCU是否需要控制群组指令下发（带sub_id）

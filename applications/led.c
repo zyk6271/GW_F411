@@ -4,63 +4,106 @@
 #include "pin_config.h"
 #include <agile_led.h>
 
-static agile_led_t *led1 = RT_NULL;
-static agile_led_t *led2 = RT_NULL;
-static agile_led_t *led3 = RT_NULL;
-static agile_led_t *led4 = RT_NULL;
+static agile_led_t *RF_G = RT_NULL;
+static agile_led_t *RF_R = RT_NULL;
+static agile_led_t *WIFI_R = RT_NULL;
+static agile_led_t *WIFI_B = RT_NULL;
 static agile_led_t *beep = RT_NULL;
 
 #define DBG_TAG "LED"
 #define DBG_LVL DBG_LOG
 #include <rtdbg.h>
 
-void Led_Init(void)
+void led_Init(void)
 {
-    if(led1 == RT_NULL)
+    if(RF_G == RT_NULL)
     {
-        led1 = agile_led_create(LED1_PIN, PIN_HIGH, "200,200", -1);
-        LOG_D("LED_1 Init Success\r\n");
+        RF_G = agile_led_create(LED1_PIN, PIN_LOW, "200,200", -1);
     }
-    if(led2 == RT_NULL)
+    if(RF_R == RT_NULL)
     {
-        led2 = agile_led_create(LED2_PIN, PIN_HIGH, "200,200", -1);
-        LOG_D("LED_2 Init Success\r\n");
+        RF_R = agile_led_create(LED2_PIN, PIN_LOW, "200,200", -1);
     }
-    if(led3 == RT_NULL)
+    if(WIFI_R == RT_NULL)
     {
-        led3 = agile_led_create(LED3_PIN, PIN_HIGH, "200,200", -1);
-        LOG_D("LED_3 Init Success\r\n");
+        WIFI_R = agile_led_create(LED3_PIN, PIN_LOW, "200,200", -1);
     }
-    if(led4 == RT_NULL)
+    if(WIFI_B == RT_NULL)
     {
-        led4 = agile_led_create(LED4_PIN, PIN_HIGH, "200,200", -1);
-        LOG_D("LED_4 Init Success\r\n");
+        WIFI_B = agile_led_create(LED4_PIN, PIN_LOW, "200,200", -1);
     }
     if(beep == RT_NULL)
     {
         beep = agile_led_create(BUZZER_PIN, PIN_HIGH, "200,200", -1);
-        LOG_D("beep Init Success\r\n");
     }
 }
-void beep_start(uint8_t led_id,int mode)
+void beep_start(uint8_t count)
 {
-    switch (mode)
+    agile_led_set_light_mode(beep, "50,50", count);
+    agile_led_start(beep);
+}
+void wifi_led(uint8_t type)
+{
+    switch(type)
     {
-    case 0://短叫一声
-        if(led_id)//绿灯
-        {
-            agile_led_set_light_mode(beep, "200,200", 1);
-            agile_led_start(beep);
-            agile_led_set_light_mode(led1, "200,200", 1);
-            agile_led_start(led1);
-        }
-        else//红灯
-        {
-            agile_led_set_light_mode(beep, "200,15000", -1);
-            agile_led_start(beep);
-            agile_led_set_light_mode(led3, "200,15000", -1);
-            agile_led_start(led3);
-        }
+    case 0://启动失败
+        agile_led_stop(WIFI_R);
+        agile_led_stop(WIFI_B);
+        break;
+    case 1://AP慢闪
+        agile_led_stop(WIFI_B);
+        agile_led_set_light_mode(WIFI_R, "1000,1000", -1);
+        agile_led_start(WIFI_R);
+        break;
+    case 2://已配置未连接路由器
+        agile_led_stop(WIFI_B);
+        agile_led_set_light_mode(WIFI_R, "150,150", -1);
+        agile_led_start(WIFI_R);
+        break;
+    case 3://已连接路由器未连接互联网
+        agile_led_stop(WIFI_R);
+        agile_led_set_light_mode(WIFI_B, "150,150", -1);
+        agile_led_start(WIFI_B);
+        break;
+    case 4://已连接互联网
+        agile_led_stop(WIFI_R);
+        agile_led_set_light_mode(WIFI_B, "200,0", -1);
+        agile_led_start(WIFI_B);
+        break;
+    }
+}
+
+void rf_led_resume(agile_led_t *led)
+{
+    agile_led_set_compelete_callback(RF_G,RT_NULL);
+    agile_led_set_light_mode(RF_G, "200,0", -1);
+    agile_led_start(RF_G);
+}
+void rf_led(uint8_t type)
+{
+    switch(type)
+    {
+    case 0://AX5043初始化失败
+        agile_led_stop(RF_G);
+        agile_led_set_light_mode(RF_R, "200,0", -1);
+        agile_led_start(RF_R);
+        break;
+    case 1://AX5043初始化成功
+        agile_led_stop(RF_R);
+        agile_led_set_light_mode(RF_G, "200,0", -1);
+        agile_led_start(RF_G);
+        break;
+    case 2://AX5043发送
+        agile_led_stop(RF_R);
+        agile_led_set_light_mode(RF_G, "10,100",1);
+        agile_led_set_compelete_callback(RF_G,rf_led_resume);
+        agile_led_start(RF_G);
+        break;
+    case 3://AX5043接收
+        agile_led_stop(RF_R);
+        agile_led_set_light_mode(RF_G, "10,100",1);
+        agile_led_set_compelete_callback(RF_G,rf_led_resume);
+        agile_led_start(RF_G);
         break;
     }
 }

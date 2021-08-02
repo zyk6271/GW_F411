@@ -13,7 +13,9 @@
 #include "radio.h"
 #include "device.h"
 #include "key.h"
+#include "led.h"
 #include "wifi-uart.h"
+#include "heart.h"
 
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG
@@ -23,10 +25,12 @@ int main(void)
 {
     flash_Init();
     LoadDevice2Memory();
+    led_Init();
     Key_Reponse_Init();
     button_Init();
-    Radio_Task_Init();
     WiFi_Init();
+    Radio_Task_Init();
+    Heart_Init();
     while (1)
     {
         rt_thread_mdelay(1000);

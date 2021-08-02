@@ -44,6 +44,7 @@ void Reset_WiFi_Callback(void *parameter)
         Reset_WiFi_Counter++;
         LOG_D("Wifi Reset Success\r\n");
         rt_timer_stop(Reset_WiFi_Timer);
+        get_wifi_st();
     }
     else if(Reset_WiFi_Counter>=3)
     {
