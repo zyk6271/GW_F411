@@ -29,6 +29,7 @@
 
 typedef struct
 {
+    int ack;
     int type;
     long Target_ID;
     long From_ID;
@@ -58,6 +59,7 @@ void Device_Learn(Message buf)
     case 2:
         LOG_I("Learn Success\r\n");
         Device_Add(buf.From_ID,0);
+        beep_start(2);
     }
 }
 void NormalSolve(uint8_t *rx_buffer,uint8_t rx_len)
@@ -85,9 +87,13 @@ void GatewaySyncSolve(uint8_t *rx_buffer,uint8_t rx_len)
     if(rx_buffer[rx_len-1]=='A')
     {
         LOG_D("GatewaySyncSolve verify ok\r\n");
-        sscanf((const char *)&rx_buffer[2],"{%d,%ld,%ld,%ld,%d,%d}",&Rx_message.type,&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Device_ID,&Rx_message.Command,&Rx_message.Data);
+        sscanf((const char *)&rx_buffer[2],"{%d,%d,%ld,%ld,%ld,%d,%d}",&Rx_message.ack,&Rx_message.type,&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Device_ID,&Rx_message.Command,&Rx_message.Data);
         if(Rx_message.Target_ID == Self_Id && Check_Valid(Rx_message.From_ID) == RT_EOK)
         {
+            if(Rx_message.ack)
+            {
+                GatewayDataEnqueue(Rx_message.From_ID,0,0,7,0);
+            }
             Flash_Set_Heart(Rx_message.From_ID,1);
             switch(Rx_message.type)
             {
@@ -115,9 +121,13 @@ void GatewayWarningSolve(uint8_t *rx_buffer,uint8_t rx_len)
     Message Rx_message;
     if(rx_buffer[rx_len-1]=='B')
     {
-        sscanf((const char *)&rx_buffer[2],"{%ld,%ld,%ld,%d,%d,%d}",&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Device_ID,&Rx_message.Rssi,&Rx_message.Command,&Rx_message.Data);
+        sscanf((const char *)&rx_buffer[2],"{%d,%ld,%ld,%ld,%d,%d,%d}",&Rx_message.ack,&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Device_ID,&Rx_message.Rssi,&Rx_message.Command,&Rx_message.Data);
         if(Rx_message.Target_ID == Self_Id && Check_Valid(Rx_message.From_ID) == RT_EOK)
         {
+            if(Rx_message.ack)
+            {
+                GatewayDataEnqueue(Rx_message.From_ID,0,0,7,0);
+            }
             Flash_Set_Heart(Rx_message.From_ID,1);
             LOG_D("WariningUpload Device ID is %ld,type is %d,value is %d\r\n",Rx_message.Device_ID,Rx_message.Command,Rx_message.Data);
             switch(Rx_message.Command)
@@ -168,9 +178,13 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
     if(rx_buffer[rx_len-1]=='C')
     {
         LOG_D("GatewayControlSolve verify ok\r\n");
-        sscanf((const char *)&rx_buffer[2],"{%ld,%ld,%ld,%d,%d,%d}",&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Device_ID,&Rx_message.Rssi,&Rx_message.Command,&Rx_message.Data);
+        sscanf((const char *)&rx_buffer[2],"{%d,%ld,%ld,%ld,%d,%d,%d}",&Rx_message.ack,&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Device_ID,&Rx_message.Rssi,&Rx_message.Command,&Rx_message.Data);
         if(Rx_message.Target_ID == Self_Id && Check_Valid(Rx_message.From_ID) == RT_EOK)
         {
+            if(Rx_message.ack)
+            {
+                GatewayDataEnqueue(Rx_message.From_ID,0,0,7,0);
+            }
             Flash_Set_Heart(Rx_message.From_ID,1);
             switch(Rx_message.Command)
             {

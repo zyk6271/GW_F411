@@ -39,7 +39,7 @@ void led_Init(void)
 }
 void beep_start(uint8_t count)
 {
-    agile_led_set_light_mode(beep, "50,50", count);
+    agile_led_set_light_mode(beep, "100,100", count);
     agile_led_start(beep);
 }
 void wifi_led(uint8_t type)

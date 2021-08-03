@@ -152,14 +152,14 @@ void RadioDequeue(void *paramaeter)
                 break;
             case 1:
                 GatewayDataSend(Main_Queue.Taget_Id[Main_Queue.NowNum],Main_Queue.Device_Id[Main_Queue.NowNum],Main_Queue.Counter[Main_Queue.NowNum],Main_Queue.Command[Main_Queue.NowNum],Main_Queue.Data[Main_Queue.NowNum]);
-                LOG_I("GatewaySend With Now Num %d,Type is %d,Target Num is %d,Target_Id %ld,Device_Id %ld,rssi %d,bat %d\r\n",Main_Queue.NowNum,Main_Queue.TargetNum,Main_Queue.Counter[Main_Queue.NowNum],Main_Queue.Taget_Id[Main_Queue.NowNum],Main_Queue.Device_Id[Main_Queue.NowNum],Main_Queue.Command[Main_Queue.NowNum],Main_Queue.Data[Main_Queue.NowNum]);
+                LOG_I("GatewaySend With Now Num %d,Target Num is %d,Type is %d,Target_Id %ld,Device_Id %ld,control %d,value %d\r\n",Main_Queue.NowNum,Main_Queue.TargetNum,Main_Queue.Type[Main_Queue.NowNum],Main_Queue.Taget_Id[Main_Queue.NowNum],Main_Queue.Device_Id[Main_Queue.NowNum],Main_Queue.Command[Main_Queue.NowNum],Main_Queue.Data[Main_Queue.NowNum]);
                 rt_thread_mdelay(300);
                 break;
             default:break;
             }
             //LOG_D("Dequeue Success\r\n");
         }
-        rt_thread_mdelay(10);
+        rt_thread_mdelay(100);
     }
 }
 void RadioDequeueTaskInit(void)

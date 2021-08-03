@@ -141,6 +141,8 @@ void wifi_detect_timer_callback(void *parameter)
 }
 void WiFi_Init(void)
 {
+    rt_pin_mode(WIFI_EN,0);
+    rt_pin_write(WIFI_EN,1);
     wifi_protocol_init();
     wifi_uart_init();
     wifi_service_init();

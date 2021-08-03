@@ -63,13 +63,13 @@ void Key_Reponse_Callback(void *parameter)
             beep_start(5);
             reset_factory_setting();
             DeleteAllDevice();
-            rt_thread_mdelay(1000);
+            LOG_I("Reboot now\r\n");
+            rt_thread_mdelay(2000);
             rt_hw_cpu_reset();
         }
         else if(K0_Long_Status==RT_EOK)
         {
             Start_Learn();
-            beep_start(2);
         }
         else if(K1_Long_Status==RT_EOK)
         {

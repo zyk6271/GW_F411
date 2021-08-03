@@ -208,7 +208,6 @@ void Heart_Report(uint32_t device_id,int rssi)
 {
     char *id = rt_malloc(20);
     sprintf(id,"%ld",device_id);
-    //heart_beat_report(id,0);
     mcu_dp_value_update(105,abs(rssi),id,my_strlen(id)); //VALUE型数据上报;
     LOG_I("Heart_Report %d is upload\r\n",device_id);
 }
@@ -226,16 +225,6 @@ void Heart_Change(uint32_t device_id,uint8_t heart)
         heart_beat_report(id,0);
     }
 }
-void online_test(void)
-{
-    Flash_Set_Heart(25000003,1);
-}
-MSH_CMD_EXPORT(online_test,online_test);
-void offline_test(void)
-{
-    Flash_Set_Heart(25000003,0);
-}
-MSH_CMD_EXPORT(offline_test,offline_test);
 void Heart_Request(char *device_id)
 {
     uint32_t id = 0;
