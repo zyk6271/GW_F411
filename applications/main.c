@@ -31,8 +31,10 @@ int main(void)
     WiFi_Init();
     Radio_Task_Init();
     Heart_Init();
+    wdt_sample();
     while (1)
     {
+        FeedDog();
         rt_thread_mdelay(1000);
     }
 }

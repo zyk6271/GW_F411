@@ -47,7 +47,6 @@ void heart_callback(void *parameter)
                         break;
                     case 2:
                         Global_Device.HeartRetry[num] = 0;
-                        Global_Device.Heart[num] = 0;
                         Flash_Set_Heart(Global_Device.ID[num],0);
                         LOG_D("Rerty 3 fail\r\n");
                         break;
@@ -68,8 +67,7 @@ void heart_callback(void *parameter)
 }
 void Heart_Init(void)
 {
-    //Sync_Request();
-    heart_t = rt_thread_create("heart", heart_callback, RT_NULL, 1024, 10, 10);
+    heart_t = rt_thread_create("heart", heart_callback, RT_NULL, 2048, 10, 10);
     if(heart_t == RT_NULL)
     {
         return;

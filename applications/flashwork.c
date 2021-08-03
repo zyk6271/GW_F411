@@ -304,8 +304,8 @@ void LoadDevice2Memory(void)
         Global_Device.ID[i] = Flash_Get_Key_Value(0,i);
         if(Global_Device.ID[i])
         {
-            Global_Device.Bind_ID[i] = Flash_Get_Key_Value(2,i);
-            Global_Device.Heart[i] = Flash_Get_Key_Value(3,i);
+            Global_Device.Bind_ID[i] = Flash_Get_Key_Value(2,Global_Device.ID[i]);
+            Global_Device.Heart[i] = Flash_Get_Key_Value(3,Global_Device.ID[i]);
         }
         //LOG_I("GOT ID is %ld,Device_Type is %d,Bind_ID is %ld\r\n",Global_Device.ID[i],Global_Device.Device_Type[i],Global_Device.Bind_ID[i]);
     }
@@ -343,7 +343,10 @@ uint8_t Flash_Set_Heart(uint32_t Device_ID,uint8_t heart)//数据载入到内存
     {
         if(Global_Device.ID[num]==Device_ID)
         {
-            Global_Device.HeartRecv[num] = 1;
+            if(heart)
+            {
+                Global_Device.HeartRecv[num] = 1;
+            }
             if(Global_Device.Heart[num] == 0 && heart == 1)
             {
                 Global_Device.Heart[num] = heart;
