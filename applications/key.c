@@ -60,11 +60,10 @@ void Key_Reponse_Callback(void *parameter)
         }
         else if(K0_K1_Status==RT_EOK)
         {
-            beep_start(5);
-            reset_factory_setting();
+            beep_start(4);
             DeleteAllDevice();
             LOG_I("Reboot now\r\n");
-            rt_thread_mdelay(2000);
+            rt_thread_mdelay(3000);
             rt_hw_cpu_reset();
         }
         else if(K0_Long_Status==RT_EOK)

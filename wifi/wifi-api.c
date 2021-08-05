@@ -248,7 +248,7 @@ void Sync_Request_Callback(void *parameter)
     else
     {
         rt_timer_stop(Sync_Request_t);
-        Remote_Sync();
+        //Remote_Sync();
     }
 }
 void Sync_Request(void)
@@ -256,7 +256,7 @@ void Sync_Request(void)
     Sync_Counter = 1;
     if(Sync_Request_t==RT_NULL)
     {
-        Sync_Request_t = rt_timer_create("Sync_Request", Sync_Request_Callback, RT_NULL, 5000, RT_TIMER_FLAG_PERIODIC|RT_TIMER_FLAG_SOFT_TIMER);
+        Sync_Request_t = rt_timer_create("Sync_Request", Sync_Request_Callback, RT_NULL, 8000, RT_TIMER_FLAG_PERIODIC|RT_TIMER_FLAG_SOFT_TIMER);
     }
     rt_timer_start(Sync_Request_t);
 }
@@ -264,28 +264,28 @@ void Remote_Device_Add(uint32_t device_id)
 {
     Remote_Device.ID[++Remote_Device.Num]=device_id;
 }
-void Remote_Sync(void)
-{
-    LOG_I("Remote Num is %d",Remote_Device.Num);
-    uint8_t Add_Flag = 1;
-    if(Global_Device.Num==0)
-    {
-        return;
-    }
-    for(uint8_t i=1;i<=Global_Device.Num;i++)
-    {
-        Add_Flag = 1;
-        for(uint8_t num=1;num<=Remote_Device.Num;num++)
-        {
-            if(Global_Device.ID[i]==Remote_Device.ID[num])
-            {
-                Add_Flag = 0;
-                break;
-            }
-        }
-        if(Add_Flag)
-        {
-            Device_Add(Global_Device.ID[i],Global_Device.Bind_ID[i]);
-        }
-    }
-}
+//void Remote_Sync(void)
+//{
+//    LOG_I("Remote Num is %d",Remote_Device.Num);
+//    uint8_t Add_Flag = 1;
+//    if(Global_Device.Num==0)
+//    {
+//        return;
+//    }
+//    for(uint8_t i=1;i<=Global_Device.Num;i++)
+//    {
+//        Add_Flag = 1;
+//        for(uint8_t num=1;num<=Remote_Device.Num;num++)
+//        {
+//            if(Global_Device.ID[i]==Remote_Device.ID[num])
+//            {
+//                Add_Flag = 0;
+//                break;
+//            }
+//        }
+//        if(Add_Flag)
+//        {
+//            Device_Add(Global_Device.ID[i],Global_Device.Bind_ID[i]);
+//        }
+//    }
+//}

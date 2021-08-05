@@ -19,14 +19,14 @@
 #include <stdio.h>
 
 #define DBG_TAG "RF_EN"
-#define DBG_LVL DBG_LOG
+#define DBG_LVL DBG_INFO
 #include <rtdbg.h>
 
 rt_thread_t Radio_QueueTask = RT_NULL;
 rt_timer_t FreqRefresh = RT_NULL;
 
 uint32_t Self_Id = 0;
-uint32_t Self_Default_Id = 40000002;
+uint32_t Self_Default_Id = 40000011;
 uint32_t Self_Counter = 0;
 
 typedef struct

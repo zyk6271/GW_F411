@@ -43,6 +43,7 @@ typedef struct
 uint8_t Learn_Flag=1;
 
 extern uint32_t Self_Id;
+extern int ubRssi;
 uint32_t Main_ID = 0;
 
 uint8_t Check_Valid(uint32_t From_id)
@@ -59,7 +60,7 @@ void Device_Learn(Message buf)
     case 2:
         LOG_I("Learn Success\r\n");
         Device_Add(buf.From_ID,0);
-        beep_start(2);
+        learn_success();
     }
 }
 void NormalSolve(uint8_t *rx_buffer,uint8_t rx_len)
@@ -70,7 +71,7 @@ void NormalSolve(uint8_t *rx_buffer,uint8_t rx_len)
          sscanf((const char *)&rx_buffer[1],"{%ld,%ld,%d,%d,%d}",&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Counter,&Rx_message.Command,&Rx_message.Data);
          if(Rx_message.Target_ID==Self_Id)
          {
-             Flash_Set_Heart(Rx_message.From_ID,1);
+             rf_led(3);
              LOG_D("NormalSolve verify ok\r\n");
              switch(Rx_message.Command)
              {
@@ -78,6 +79,7 @@ void NormalSolve(uint8_t *rx_buffer,uint8_t rx_len)
                  Device_Learn(Rx_message);
                  break;
              }
+             Flash_Set_Heart(Rx_message.From_ID,1);
          }
      }
 }
@@ -90,6 +92,7 @@ void GatewaySyncSolve(uint8_t *rx_buffer,uint8_t rx_len)
         sscanf((const char *)&rx_buffer[2],"{%d,%d,%ld,%ld,%ld,%d,%d}",&Rx_message.ack,&Rx_message.type,&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Device_ID,&Rx_message.Command,&Rx_message.Data);
         if(Rx_message.Target_ID == Self_Id && Check_Valid(Rx_message.From_ID) == RT_EOK)
         {
+            rf_led(3);
             if(Rx_message.ack)
             {
                 GatewayDataEnqueue(Rx_message.From_ID,0,0,7,0);
@@ -100,8 +103,13 @@ void GatewaySyncSolve(uint8_t *rx_buffer,uint8_t rx_len)
             case 1:
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Command);//心跳
                 break;
+            case 2:
+                Local_Delete(Rx_message.Device_ID);
+                Del_Device(Rx_message.Device_ID);//删除终端
+                break;
             case 3:
                 Device_Add(Rx_message.Device_ID,Rx_message.From_ID);//增加终端
+                Flash_Set_Heart(Rx_message.Device_ID,Rx_message.Command);
                 break;
             case 4://删除全部
                 Del_MainBind(Rx_message.From_ID);
@@ -124,6 +132,7 @@ void GatewayWarningSolve(uint8_t *rx_buffer,uint8_t rx_len)
         sscanf((const char *)&rx_buffer[2],"{%d,%ld,%ld,%ld,%d,%d,%d}",&Rx_message.ack,&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Device_ID,&Rx_message.Rssi,&Rx_message.Command,&Rx_message.Data);
         if(Rx_message.Target_ID == Self_Id && Check_Valid(Rx_message.From_ID) == RT_EOK)
         {
+            rf_led(3);
             if(Rx_message.ack)
             {
                 GatewayDataEnqueue(Rx_message.From_ID,0,0,7,0);
@@ -142,7 +151,7 @@ void GatewayWarningSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 WariningUpload(Rx_message.From_ID,2,Rx_message.Data);//主控测水线掉落
                 break;
             case 4:
-                Flash_Set_Heart(Rx_message.Device_ID,0);
+                Flash_Set_Heart(Rx_message.Device_ID,0);//子设备离线
                 break;
             case 5:
                 Flash_Set_Heart(Rx_message.Device_ID,1);
@@ -181,6 +190,7 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
         sscanf((const char *)&rx_buffer[2],"{%d,%ld,%ld,%ld,%d,%d,%d}",&Rx_message.ack,&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Device_ID,&Rx_message.Rssi,&Rx_message.Command,&Rx_message.Data);
         if(Rx_message.Target_ID == Self_Id && Check_Valid(Rx_message.From_ID) == RT_EOK)
         {
+            rf_led(3);
             if(Rx_message.ack)
             {
                 GatewayDataEnqueue(Rx_message.From_ID,0,0,7,0);
@@ -209,10 +219,10 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 }
                 break;
             case 4:
-                Heart_Report(Rx_message.From_ID,Rx_message.Rssi);
+                Heart_Report(Rx_message.From_ID,ubRssi);
                 break;
             case 5:
-                MotoUpload(Rx_message.From_ID,Rx_message.Data);
+                MotoUpload(Rx_message.From_ID,Rx_message.Data);//主控开关阀
                 Ack_Report(Rx_message.From_ID);
                 break;
             }

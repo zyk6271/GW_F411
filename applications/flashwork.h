@@ -35,7 +35,7 @@ void DeleteAllDevice(void);
 uint32_t Flash_Get_Key_Value(uint8_t type,uint32_t key);
 uint8_t Flash_Get_Key_Valid(uint32_t Device_ID);
 uint8_t MainAdd_Flash(uint32_t Device_ID);
-void Flash_Heart_Change(uint32_t key,uint32_t value);
+void Flash_Heart_Change(uint32_t Device_ID,uint32_t value);
 uint8_t SlaveAdd_Flash(uint32_t Device_ID,uint32_t Bind_ID);
 uint8_t DoorAdd_Flash(uint32_t Device_ID,uint32_t Bind_ID);
 uint32_t GetBindID(uint32_t Device_ID);

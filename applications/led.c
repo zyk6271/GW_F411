@@ -42,6 +42,7 @@ void beep_start(uint8_t count)
     agile_led_set_light_mode(beep, "100,100", count);
     agile_led_start(beep);
 }
+
 void wifi_led(uint8_t type)
 {
     switch(type)
@@ -106,4 +107,9 @@ void rf_led(uint8_t type)
         agile_led_start(RF_G);
         break;
     }
+}
+void learn_success(void)
+{
+    agile_led_set_light_mode(beep, "200,200", 5);
+    agile_led_start(beep);
 }

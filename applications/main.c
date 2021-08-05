@@ -16,6 +16,7 @@
 #include "led.h"
 #include "wifi-uart.h"
 #include "heart.h"
+#include "dog.h"
 
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG

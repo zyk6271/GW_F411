@@ -105,10 +105,10 @@ void Flash_ID_Change(uint32_t key,uint32_t value)
     rt_free(Temp_ValueBuf);
     LOG_D("Writing %ld to key %s \r\n", value,Temp_KeyBuf);
 }
-void Flash_Type_Change(uint32_t key,uint32_t value)
+void Flash_Type_Change(uint32_t Device_ID,uint32_t value)
 {
     char *Temp_KeyBuf = rt_malloc(20);
-    sprintf(Temp_KeyBuf, "type:%ld", key);
+    sprintf(Temp_KeyBuf, "type:%ld", Device_ID);
     char *Temp_ValueBuf = rt_malloc(20);//申请临时buffer空间
     sprintf(Temp_ValueBuf, "%ld", value);
     ef_set_env(Temp_KeyBuf, Temp_ValueBuf);
@@ -116,10 +116,10 @@ void Flash_Type_Change(uint32_t key,uint32_t value)
     rt_free(Temp_ValueBuf);
     LOG_D("Writing %ld to key %s \r\n", value,Temp_KeyBuf);
 }
-void Flash_Bind_Change(uint32_t key,uint32_t value)
+void Flash_Bind_Change(uint32_t Device_ID,uint32_t value)
 {
     char *Temp_KeyBuf = rt_malloc(20);
-    sprintf(Temp_KeyBuf, "bind:%ld", key);
+    sprintf(Temp_KeyBuf, "bind:%ld", Device_ID);
     char *Temp_ValueBuf = rt_malloc(20);//申请临时buffer空间
     sprintf(Temp_ValueBuf, "%ld", value);
     ef_set_env(Temp_KeyBuf, Temp_ValueBuf);
@@ -127,10 +127,10 @@ void Flash_Bind_Change(uint32_t key,uint32_t value)
     rt_free(Temp_ValueBuf);
     LOG_D("Writing %ld to key %s \r\n", value,Temp_KeyBuf);
 }
-void Flash_Heart_Change(uint32_t key,uint32_t value)
+void Flash_Heart_Change(uint32_t Device_ID,uint32_t value)
 {
     char *Temp_KeyBuf = rt_malloc(20);
-    sprintf(Temp_KeyBuf, "heart:%ld", key);
+    sprintf(Temp_KeyBuf, "heart:%ld", Device_ID);
     char *Temp_ValueBuf = rt_malloc(20);//申请临时buffer空间
     sprintf(Temp_ValueBuf, "%ld", value);
     ef_set_env(Temp_KeyBuf, Temp_ValueBuf);
@@ -149,10 +149,8 @@ uint8_t MainAdd_Flash(uint32_t Device_ID)
     Flash_LearnNums_Change(num);
     Global_Device.ID[num] = Device_ID;
     Global_Device.Bind_ID[num] = 0;
-    Global_Device.Heart[num] = 1;
     Flash_ID_Change(num,Device_ID);
-    Flash_Bind_Change(num,0);
-    Flash_Heart_Change(num,1);
+    Flash_Bind_Change(Device_ID,0);
     return RT_EOK;
 }
 uint8_t SlaveAdd_Flash(uint32_t Device_ID,uint32_t Bind_ID)
@@ -166,10 +164,8 @@ uint8_t SlaveAdd_Flash(uint32_t Device_ID,uint32_t Bind_ID)
     Flash_LearnNums_Change(num);
     Global_Device.ID[num] = Device_ID;
     Global_Device.Bind_ID[num] = Bind_ID;
-    Global_Device.Heart[num] = 1;
     Flash_ID_Change(num,Device_ID);
-    Flash_Bind_Change(num,Bind_ID);
-    Flash_Heart_Change(num,1);
+    Flash_Bind_Change(Device_ID,Bind_ID);
     return RT_EOK;
 }
 uint8_t DoorAdd_Flash(uint32_t Device_ID,uint32_t Bind_ID)
@@ -183,10 +179,8 @@ uint8_t DoorAdd_Flash(uint32_t Device_ID,uint32_t Bind_ID)
     Flash_LearnNums_Change(num);
     Global_Device.ID[num] = Device_ID;
     Global_Device.Bind_ID[num] = Bind_ID;
-    Global_Device.Heart[num] = 1;
     Flash_ID_Change(num,Device_ID);
-    Flash_Bind_Change(num,Bind_ID);
-    Flash_Heart_Change(num,1);
+    Flash_Bind_Change(Device_ID,Bind_ID);
     return RT_EOK;
 }
 uint32_t GetBindID(uint32_t Device_ID)
@@ -220,7 +214,7 @@ uint8_t Del_Device(uint32_t Device_ID)
             LOG_I("ID %ld is delete\r\n",Global_Device.ID[num]);
             Flash_ID_Change(num,0);
             Global_Device.ID[num] = 0;
-            Flash_Bind_Change(num,0);
+            Flash_Bind_Change(Device_ID,0);
             Global_Device.Bind_ID[num] = 0;
             break;
         }
@@ -243,7 +237,7 @@ uint8_t Del_MainBind(uint32_t Device_ID)
             LOG_I("ID %ld is delete\r\n",Global_Device.ID[num]);
             Flash_ID_Change(num,0);
             Global_Device.ID[num] = 0;
-            Flash_Bind_Change(num,0);
+            Flash_Bind_Change(Device_ID,0);
             Global_Device.Bind_ID[num] = 0;
         }
         num--;
@@ -313,6 +307,16 @@ void LoadDevice2Memory(void)
 }
 void DeleteAllDevice(void)//数据载入到内存中
 {
+    uint16_t num = Global_Device.Num;
+    if(!num)
+    {
+        return;
+    }
+    while(num)
+    {
+        Local_Delete(Global_Device.ID[num]);
+        num--;
+    }
     ef_env_set_default();
 }
 uint8_t Flash_Get_Heart(uint32_t Device_ID)//数据载入到内存中

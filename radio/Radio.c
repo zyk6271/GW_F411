@@ -41,8 +41,8 @@ rt_timer_t Init_Timer = RT_NULL;
 #define axradio_phy_preamble_flags 0x38
 #define axradio_phy_preamble_byte 0x55
 
-uint8_t ubReceiveFlag;
 int ubRssi;
+uint8_t ubReceiveFlag;
 uint8_t axradio_freq_select = 1;
 uint8_t axradio_freq_now = 1;
 uint8_t axradio_power_now = 0;
@@ -555,7 +555,6 @@ void ReceiveData(void)
                 ubDataLen--;
                 SpiReadData(RXBuff,ubDataLen);         //ax5043_readfifo(axradio_rxbuffer, len);  //��FIFO������
                 RxLen = ubDataLen;
-                rf_led(3);
 //                LOG_RAW("\r\nReceive is");
 //                for( int i = 1; i < ubDataLen; i++ )
 //                {
@@ -734,7 +733,7 @@ static void TransmitData(void)
                     SpiWriteSingleAddressRegister(REG_AX5043_FIFODATA, byte);
                 }
                 // ubRFState = trxstate_tx_packet;
-                LOG_D("B Send\r\n");
+                //LOG_D("B Send\r\n");
                 break;
             case trxstate_tx_packet:  //C
                 SpiWriteSingleAddressRegister(REG_AX5043_FIFODATA, AX5043_FIFOCMD_DATA | (7 << 5));//AX5043_FIFODATA = AX5043_FIFOCMD_DATA | (7 << 5);
@@ -745,7 +744,7 @@ static void TransmitData(void)
                 ubRFState = trxstate_tx_waitdone;
                 SpiWriteSingleAddressRegister(REG_AX5043_RADIOEVENTMASK0,0x01);//AX5043_RADIOEVENTMASK0 = 0x01; // enable REVRDONE event
                 SpiWriteSingleAddressRegister(REG_AX5043_IRQMASK0,0x40);        //AX5043_IRQMASK0 = 0x40; // enable radio controller irq
-                LOG_D("C Send,Len is %d\r\n",TxLen);
+                //LOG_D("C Send,Len is %d\r\n",TxLen);
                 break;
             default:
                 return;
