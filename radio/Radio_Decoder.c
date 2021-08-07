@@ -27,24 +27,10 @@
 #define DBG_LVL DBG_LOG
 #include <rtdbg.h>
 
-typedef struct
-{
-    int ack;
-    int type;
-    long Target_ID;
-    long From_ID;
-    long Device_ID;
-    int Counter;
-    int Command ;
-    int Data;
-    int Rssi;
-}Message;
-
 uint8_t Learn_Flag=1;
-
+uint32_t Main_ID = 0;
 extern uint32_t Self_Id;
 extern int ubRssi;
-uint32_t Main_ID = 0;
 
 uint8_t Check_Valid(uint32_t From_id)
 {
@@ -219,7 +205,7 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 }
                 break;
             case 4:
-                Heart_Report(Rx_message.From_ID,ubRssi);
+                Heart_Report(Rx_message.From_ID,ubRssi-64);
                 break;
             case 5:
                 MotoUpload(Rx_message.From_ID,Rx_message.Data);//主控开关阀

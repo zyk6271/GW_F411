@@ -12,6 +12,20 @@
 
 #include "rtthread.h"
 
+typedef struct
+{
+    int ack;
+    int type;
+    long Target_ID;
+    long From_ID;
+    long Device_ID;
+    int Counter;
+    int Command ;
+    int Data;
+    int Rssi;
+}Message;
+
+
 void Rx_Done_Callback(uint8_t *rx_buffer,uint8_t rx_len,int8_t rssi);
 void Set_Learn_Flag(uint8_t value);
 uint8_t Get_Learn_Flag(void);
