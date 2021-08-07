@@ -45,7 +45,7 @@ void Device_Learn(Message buf)
         break;
     case 2:
         LOG_I("Learn Success\r\n");
-        Device_Add(buf.From_ID,0);
+        Device_Add2Flash_Wifi(buf.From_ID,0);
         learn_success();
     }
 }
@@ -94,7 +94,7 @@ void GatewaySyncSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 Del_Device(Rx_message.Device_ID);//删除终端
                 break;
             case 3:
-                Device_Add(Rx_message.Device_ID,Rx_message.From_ID);//增加终端
+                Device_Add2Flash(Rx_message.Device_ID,Rx_message.From_ID);//增加终端
                 Flash_Set_Heart(Rx_message.Device_ID,Rx_message.Command);
                 break;
             case 4://删除全部

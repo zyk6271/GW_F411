@@ -92,7 +92,43 @@ void RemoteUpload(uint32_t device_id,uint8_t state)
     mcu_dp_bool_update(DPID_CONTROL_STATE,state,Buf,my_strlen(Buf)); //VALUE型数据上报;
     rt_free(Buf);
 }
-void Device_Add(uint32_t device_id,uint32_t from_id)
+void Device_Add2Flash(uint32_t device_id,uint32_t from_id)
+{
+    if(Flash_Get_Key_Valid(device_id) == RT_ERROR)
+    {
+        if(device_id>=10000000 && device_id<20000000)
+        {
+            MainAdd_Flash(device_id);
+        }
+        if(device_id>=20000000 && device_id<30000000)
+        {
+            SlaveAdd_Flash(device_id,from_id);
+        }
+        else if(device_id>=30000000 && device_id<40000000)
+        {
+            DoorAdd_Flash(device_id,from_id);
+        }
+    }
+}
+void Device_Add2Wifi(uint32_t device_id,uint32_t from_id)
+{
+    if(Flash_Get_Key_Valid(device_id) == RT_EOK)
+    {
+        if(device_id>=10000000 && device_id<20000000)
+        {
+            Main_Add_WiFi(device_id);
+        }
+        if(device_id>=20000000 && device_id<30000000)
+        {
+            Slave_Add_WiFi(device_id,from_id);
+        }
+        else if(device_id>=30000000 && device_id<40000000)
+        {
+            Door_Add_WiFi(device_id,from_id);
+        }
+    }
+}
+void Device_Add2Flash_Wifi(uint32_t device_id,uint32_t from_id)
 {
     if(Flash_Get_Key_Valid(device_id) == RT_ERROR)
     {
@@ -248,7 +284,7 @@ void Sync_Request_Callback(void *parameter)
     else
     {
         rt_timer_stop(Sync_Request_t);
-        //Remote_Sync();
+        Remote_Sync();
     }
 }
 void Sync_Request(void)
@@ -264,28 +300,28 @@ void Remote_Device_Add(uint32_t device_id)
 {
     Remote_Device.ID[++Remote_Device.Num]=device_id;
 }
-//void Remote_Sync(void)
-//{
-//    LOG_I("Remote Num is %d",Remote_Device.Num);
-//    uint8_t Add_Flag = 1;
-//    if(Global_Device.Num==0)
-//    {
-//        return;
-//    }
-//    for(uint8_t i=1;i<=Global_Device.Num;i++)
-//    {
-//        Add_Flag = 1;
-//        for(uint8_t num=1;num<=Remote_Device.Num;num++)
-//        {
-//            if(Global_Device.ID[i]==Remote_Device.ID[num])
-//            {
-//                Add_Flag = 0;
-//                break;
-//            }
-//        }
-//        if(Add_Flag)
-//        {
-//            Device_Add(Global_Device.ID[i],Global_Device.Bind_ID[i]);
-//        }
-//    }
-//}
+void Remote_Sync(void)
+{
+    LOG_I("Remote Num is %d,Global Num is %d\r\n",Remote_Device.Num,Global_Device.Num);
+    uint8_t Add_Flag = 1;
+    if(Global_Device.Num==0)
+    {
+        return;
+    }
+    for(uint8_t i=1;i<=Global_Device.Num;i++)
+    {
+        Add_Flag = 1;
+        for(uint8_t num=1;num<=Remote_Device.Num;num++)
+        {
+            if(Global_Device.ID[i]==Remote_Device.ID[num])
+            {
+                Add_Flag = 0;
+                break;
+            }
+        }
+        if(Add_Flag)
+        {
+            Device_Add2Wifi(Global_Device.ID[i],Global_Device.Bind_ID[i]);
+        }
+    }
+}
