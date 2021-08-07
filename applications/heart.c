@@ -61,7 +61,7 @@ void heart_callback(void *parameter)
                     GatewayDataEnqueue(Global_Device.ID[num],0,0,3,0);
                 }
             }
-            rt_thread_mdelay(5000);
+            rt_thread_mdelay(10000);
         }
     }
 }
