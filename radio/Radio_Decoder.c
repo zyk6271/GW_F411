@@ -188,7 +188,7 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 MotoUpload(Rx_message.From_ID,Rx_message.Data);//主控开关阀
                 break;
             case 2:
-                RemoteUpload(Rx_message.From_ID,Rx_message.Data);//终端开关阀
+                RemoteUpload(Rx_message.Device_ID,Rx_message.Data);//终端开关阀
                 Flash_Set_Heart(Rx_message.Device_ID,1);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//设备RSSI更新
                 break;
