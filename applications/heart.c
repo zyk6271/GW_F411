@@ -26,14 +26,14 @@ void heart_callback(void *parameter)
     LOG_D("Heart Check Init Success\r\n");
     while(1)
     {
-        rt_thread_mdelay(60000*3);//检测周期
+        rt_thread_mdelay(3*60000);//检测周期
         for(num=1;num<=Global_Device.Num;num++)
         {
             if(Global_Device.ID[num]!=0 && Global_Device.Bind_ID[num]==0)
             {
                 Global_Device.HeartRecv[num] = 0;
                 GatewayDataEnqueue(Global_Device.ID[num],0,0,3,0);//Send
-                rt_thread_mdelay(1000*5);//心跳后等待周期
+                rt_thread_mdelay(1000*3);//心跳后等待周期
                 if(Global_Device.HeartRecv[num] == 0)//RecvFlag
                 {
                     switch(Global_Device.HeartRetry[num])
@@ -59,8 +59,13 @@ void heart_callback(void *parameter)
                     Flash_Set_Heart(Global_Device.ID[num],1);
                     Global_Device.HeartRetry[num] = 0;
                 }
+                rt_thread_mdelay(10000);//设备与设备之间的间隔
             }
-            rt_thread_mdelay(10000);//设备与设备之间的间隔
+            else
+            {
+                continue;
+            }
+
         }
     }
 }
