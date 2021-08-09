@@ -83,11 +83,15 @@ void Flash_LearnNums_Change(uint32_t value)
 uint8_t Get_LearnNums_Valid(void)
 {
     uint16_t num = 1;
-    while(num<50)
+    while(num<MaxSupport)
     {
         if(Global_Device.ID[num] == 0)
         {
-            Global_Device.Num = num;
+            if(num>Global_Device.Num)//新序列号
+            {
+                Global_Device.Num = num;
+                Flash_LearnNums_Change(num);
+            }
             return num;
         }
         num++;
@@ -146,7 +150,6 @@ uint8_t MainAdd_Flash(uint32_t Device_ID)
     {
         return RT_ERROR;
     }
-    Flash_LearnNums_Change(num);
     Global_Device.ID[num] = Device_ID;
     Global_Device.Bind_ID[num] = 0;
     Flash_ID_Change(num,Device_ID);
@@ -161,7 +164,6 @@ uint8_t SlaveAdd_Flash(uint32_t Device_ID,uint32_t Bind_ID)
     {
         return RT_ERROR;
     }
-    Flash_LearnNums_Change(num);
     Global_Device.ID[num] = Device_ID;
     Global_Device.Bind_ID[num] = Bind_ID;
     Flash_ID_Change(num,Device_ID);
@@ -176,7 +178,6 @@ uint8_t DoorAdd_Flash(uint32_t Device_ID,uint32_t Bind_ID)
     {
         return RT_ERROR;
     }
-    Flash_LearnNums_Change(num);
     Global_Device.ID[num] = Device_ID;
     Global_Device.Bind_ID[num] = Bind_ID;
     Flash_ID_Change(num,Device_ID);

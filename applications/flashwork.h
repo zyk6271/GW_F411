@@ -12,19 +12,20 @@
 
 #include "rtthread.h"
 
+#define MaxSupport 100
 typedef struct
 {
     uint8_t Num;
-    uint8_t Heart[50];
-    uint8_t HeartRetry[50];
-    uint8_t HeartRecv[50];
-    uint32_t ID[50];
-    uint32_t Bind_ID[50];
+    uint8_t Heart[MaxSupport];
+    uint8_t HeartRetry[MaxSupport];
+    uint8_t HeartRecv[MaxSupport];
+    uint32_t ID[MaxSupport];
+    uint32_t Bind_ID[MaxSupport];
 }Device_Info;
 typedef struct
 {
     uint8_t Num;
-    uint32_t ID[50];
+    uint32_t ID[MaxSupport];
 }Remote_Info;
 
 int flash_Init(void);
