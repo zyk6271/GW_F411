@@ -115,6 +115,7 @@ void learn_success(void)
 }
 void learn_fail(void)
 {
+    LOG_W("Main is full\r\n");
     agile_led_set_light_mode(beep, "50,50,200,200", 3);
     agile_led_start(beep);
 }

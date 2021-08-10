@@ -157,7 +157,7 @@ uint8_t Del_MainNums(void)
 }
 uint8_t Get_MainNums(void)
 {
-    if(Global_Device.MainNum<=MainSupport)
+    if(Global_Device.MainNum<MainSupport)
     {
         return RT_EOK;
     }
