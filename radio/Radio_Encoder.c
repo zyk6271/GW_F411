@@ -9,6 +9,7 @@
  */
 #include <rtthread.h>
 #include <rtdevice.h>
+#include <stdio.h>
 #include "drv_spi.h"
 #include <string.h>
 #include "AX5043.h"
@@ -16,7 +17,7 @@
 #include "Radio.h"
 #include "Radio_Encoder.h"
 #include "led.h"
-#include <stdio.h>
+#include "flashwork.h"
 
 #define DBG_TAG "RF_EN"
 #define DBG_LVL DBG_INFO
@@ -26,7 +27,7 @@ rt_thread_t Radio_QueueTask = RT_NULL;
 rt_timer_t FreqRefresh = RT_NULL;
 
 uint32_t Self_Id = 0;
-uint32_t Self_Default_Id = 40000080;
+uint32_t Self_Default_Id = 40000112;
 uint32_t Self_Counter = 0;
 
 typedef struct

@@ -28,22 +28,24 @@ extern Device_Info Global_Device;
 uint8_t Sync_Counter = 1;
 rt_timer_t Sync_Request_t = RT_NULL;
 
-void WariningUpload(uint32_t device_id,uint8_t type,uint8_t value)
+void WariningUpload(uint32_t from_id,uint32_t device_id,uint8_t type,uint8_t value)
 {
-    unsigned char *Buf = rt_malloc(20);
-    sprintf(Buf,"%ld",device_id);
+    unsigned char *device_id_buf = rt_malloc(20);
+    unsigned char *from_id_buf = rt_malloc(20);
+    sprintf(device_id_buf,"%ld",device_id);
+    sprintf(from_id_buf,"%ld",from_id);
     if(device_id>0)
     {
         switch(type)
         {
             case 0://掉线
-               mcu_dp_bool_update(103,value,Buf,my_strlen(Buf)); //BOOL型数据上报;
+               mcu_dp_bool_update(103,value,device_id_buf,my_strlen(device_id_buf)); //BOOL型数据上报;
                break;
             case 1://漏水
-               mcu_dp_enum_update(1,value,Buf,my_strlen(Buf)); //BOOL型数据上报;
+               mcu_dp_enum_update(1,value,device_id_buf,my_strlen(device_id_buf)); //BOOL型数据上报;
                break;
             case 2://电量
-                mcu_dp_enum_update(102,value,Buf,my_strlen(Buf)); //BOOL型数据上报;
+                mcu_dp_enum_update(102,value,device_id_buf,my_strlen(device_id_buf)); //BOOL型数据上报;
                break;
         }
     }
@@ -52,17 +54,21 @@ void WariningUpload(uint32_t device_id,uint8_t type,uint8_t value)
         switch(type)
         {
             case 0://自检
-                mcu_dp_bool_update(DPID_DEVICE_CHECK,value,Buf,my_strlen(Buf)); //BOOL型数据上报;
+                mcu_dp_bool_update(DPID_DEVICE_CHECK,value,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                break;
             case 1://漏水
-                mcu_dp_bool_update(DPID_DEVICE_ALARM,value,Buf,my_strlen(Buf)); //BOOL型数据上报;
+                mcu_dp_bool_update(DPID_DEVICE_ALARM,value,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                break;
             case 2://掉落
-                mcu_dp_bool_update(DPID_LINE_STATE,value,Buf,my_strlen(Buf)); //BOOL型数据上报;
+                mcu_dp_bool_update(DPID_LINE_STATE,value,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+               break;
+            case 3://NTC
+                mcu_dp_bool_update(DPID_TEMP,value,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                break;
         }
     }
-   rt_free(Buf);
+    rt_free(device_id_buf);
+    rt_free(from_id_buf);
 }
 void Remote_Delete(uint32_t device_id)
 {

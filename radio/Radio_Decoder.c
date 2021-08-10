@@ -127,17 +127,17 @@ void GatewayWarningSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 GatewayDataEnqueue(Rx_message.From_ID,0,0,7,0);
             }
             Flash_Set_Heart(Rx_message.From_ID,1);
-            LOG_D("WariningUpload Device ID is %ld,type is %d,value is %d\r\n",Rx_message.Device_ID,Rx_message.Command,Rx_message.Data);
+            LOG_D("WariningUpload From ID is %ld,Device ID is %ld,type is %d,value is %d\r\n",Rx_message.From_ID,Rx_message.Device_ID,Rx_message.Command,Rx_message.Data);
             switch(Rx_message.Command)
             {
             case 1:
-                WariningUpload(Rx_message.From_ID,1,Rx_message.Data);//主控水警
+                WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,1,Rx_message.Data);//主控水警
                 break;
             case 2:
-                WariningUpload(Rx_message.From_ID,0,Rx_message.Data);//主控阀门
+                WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,0,Rx_message.Data);//主控阀门
                 break;
             case 3:
-                WariningUpload(Rx_message.From_ID,2,Rx_message.Data);//主控测水线掉落
+                WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,2,Rx_message.Data);//主控测水线掉落
                 break;
             case 4:
                 Flash_Set_Heart(Rx_message.Device_ID,0);//子设备离线
@@ -145,17 +145,18 @@ void GatewayWarningSolve(uint8_t *rx_buffer,uint8_t rx_len)
             case 5:
                 Flash_Set_Heart(Rx_message.Device_ID,1);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);
-                WariningUpload(Rx_message.Device_ID,1,Rx_message.Data);//终端水警
+                WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,1,Rx_message.Data);//终端水警
                 break;
             case 6:
                 Flash_Set_Heart(Rx_message.Device_ID,1);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);
-                WariningUpload(Rx_message.Device_ID,2,Rx_message.Data);//终端低电量
+                WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,2,Rx_message.Data);//终端低电量
                 break;
             case 7:
                 Warning_WiFi(Rx_message.From_ID,Rx_message.Data);//报警状态
                 break;
             case 8://NTC报警
+                WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,3,Rx_message.Data);
                 break;
             case 9://网关离线
                 break;

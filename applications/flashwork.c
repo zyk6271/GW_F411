@@ -127,7 +127,7 @@ uint8_t Get_LearnNums_Valid(void)
 }
 uint8_t Add_MainNums(void)
 {
-    uint16_t num;
+    uint16_t num = Global_Device.MainNum;
     if(num<MainSupport)
     {
         num++;
@@ -142,7 +142,7 @@ uint8_t Add_MainNums(void)
 }
 uint8_t Del_MainNums(void)
 {
-    uint16_t num;
+    uint16_t num = Global_Device.MainNum;
     if(num>0)
     {
         num--;
