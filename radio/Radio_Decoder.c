@@ -38,15 +38,18 @@ uint8_t Check_Valid(uint32_t From_id)
 }
 void Device_Learn(Message buf)
 {
-    switch(buf.Data)
+    if(buf.From_ID>=10000000 && buf.From_ID<20000000)
     {
-    case 1:
-        RadioEnqueue(buf.From_ID,buf.Counter,3,2);
-        break;
-    case 2:
-        LOG_I("Learn Success\r\n");
-        Device_Add2Flash_Wifi(buf.From_ID,0);
-        learn_success();
+        switch(buf.Data)
+        {
+        case 1:
+            RadioEnqueue(buf.From_ID,buf.Counter,3,2);
+            break;
+        case 2:
+            LOG_I("Learn Success\r\n");
+            Device_Add2Flash_Wifi(buf.From_ID,0);
+            learn_success();
+        }
     }
 }
 void NormalSolve(uint8_t *rx_buffer,uint8_t rx_len)

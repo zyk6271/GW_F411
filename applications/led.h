@@ -14,6 +14,7 @@ void led_Init(void);
 void wifi_led(uint8_t type);
 void beep_start(uint8_t count);
 void learn_success(void);
+void learn_fail(void);
 void rf_led(uint8_t type);
 
 #endif /* APPLICATIONS_LED_H_ */

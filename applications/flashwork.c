@@ -71,9 +71,36 @@ uint32_t Flash_Get_Learn_Nums(void)
     LOG_D("Reading Key %s value %ld \r\n", keybuf, read_value);//输出
     return read_value;
 }
+uint32_t Flash_Get_Main_Nums(void)
+{
+    uint8_t read_len = 0;
+    uint32_t read_value = 0;
+    char *keybuf="Main_Nums";
+    memset(read_value_temp,0,64);
+    read_len = ef_get_env_blob(keybuf, read_value_temp, 64, NULL);
+    if(read_len>0)
+    {
+        read_value = atol(read_value_temp);
+    }
+    else
+    {
+        read_value = 0;
+    }
+    LOG_D("Reading Key %s value %ld \r\n", keybuf, read_value);//输出
+    return read_value;
+}
 void Flash_LearnNums_Change(uint32_t value)
 {
     const char *keybuf="Learn_Nums";
+    char *Temp_ValueBuf = rt_malloc(10);
+    sprintf(Temp_ValueBuf, "%ld", value);
+    ef_set_env(keybuf, Temp_ValueBuf);
+    rt_free(Temp_ValueBuf);
+    LOG_D("Writing %ld to key %s\r\n", value,keybuf);
+}
+void Flash_MainNums_Change(uint32_t value)
+{
+    const char *keybuf="Main_Nums";
     char *Temp_ValueBuf = rt_malloc(10);
     sprintf(Temp_ValueBuf, "%ld", value);
     ef_set_env(keybuf, Temp_ValueBuf);
@@ -97,6 +124,47 @@ uint8_t Get_LearnNums_Valid(void)
         num++;
     }
     return 0;
+}
+uint8_t Add_MainNums(void)
+{
+    uint16_t num;
+    if(num<MainSupport)
+    {
+        num++;
+        Global_Device.MainNum = num;
+        Flash_MainNums_Change(num);
+        return num;
+    }
+    else
+    {
+        return 0;
+    }
+}
+uint8_t Del_MainNums(void)
+{
+    uint16_t num;
+    if(num>0)
+    {
+        num--;
+        Global_Device.MainNum = num;
+        Flash_MainNums_Change(num);
+        return num;
+    }
+    else
+    {
+        return 0;
+    }
+}
+uint8_t Get_MainNums(void)
+{
+    if(Global_Device.MainNum<=MainSupport)
+    {
+        return RT_EOK;
+    }
+    else
+    {
+        return RT_ERROR;
+    }
 }
 void Flash_ID_Change(uint32_t key,uint32_t value)
 {
@@ -154,6 +222,7 @@ uint8_t MainAdd_Flash(uint32_t Device_ID)
     Global_Device.Bind_ID[num] = 0;
     Flash_ID_Change(num,Device_ID);
     Flash_Bind_Change(Device_ID,0);
+    Add_MainNums();
     return RT_EOK;
 }
 uint8_t SlaveAdd_Flash(uint32_t Device_ID,uint32_t Bind_ID)
@@ -212,6 +281,10 @@ uint8_t Del_Device(uint32_t Device_ID)
     {
         if(Global_Device.ID[num]==Device_ID)
         {
+            if(Device_ID>=10000000 && Device_ID<20000000)
+            {
+                Del_MainNums();
+            }
             LOG_I("ID %ld is delete\r\n",Global_Device.ID[num]);
             Flash_ID_Change(num,0);
             Global_Device.ID[num] = 0;
@@ -234,6 +307,10 @@ uint8_t Del_MainBind(uint32_t Device_ID)
     {
         if((Global_Device.Bind_ID[num]==Device_ID) || (Global_Device.ID[num]==Device_ID))
         {
+            if(Device_ID>=10000000 && Device_ID<20000000)
+            {
+                Del_MainNums();
+            }
             Local_Delete(Global_Device.ID[num]);
             LOG_I("ID %ld is delete\r\n",Global_Device.ID[num]);
             Flash_ID_Change(num,0);
@@ -294,6 +371,7 @@ void LoadDevice2Memory(void)
 {
     memset(&Global_Device,0,sizeof(Global_Device));
     Global_Device.Num = Flash_Get_Learn_Nums();
+    Global_Device.MainNum = Flash_Get_Main_Nums();
     for(uint8_t i=1;i<=Global_Device.Num;i++)
     {
         Global_Device.ID[i] = Flash_Get_Key_Value(0,i);

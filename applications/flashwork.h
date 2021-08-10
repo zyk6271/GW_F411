@@ -12,10 +12,12 @@
 
 #include "rtthread.h"
 
-#define MaxSupport 100
+#define MaxSupport 50
+#define MainSupport 3
 typedef struct
 {
     uint8_t Num;
+    uint8_t MainNum;
     uint8_t Heart[MaxSupport];
     uint8_t HeartRetry[MaxSupport];
     uint8_t HeartRecv[MaxSupport];
@@ -42,6 +44,6 @@ uint8_t DoorAdd_Flash(uint32_t Device_ID,uint32_t Bind_ID);
 uint32_t GetBindID(uint32_t Device_ID);
 uint8_t Flash_Get_Heart(uint32_t Device_ID);
 uint8_t Flash_Set_Heart(uint32_t Device_ID,uint8_t heart);
-//uint8_t Flash_Set_HeartRecv(uint32_t Device_ID,uint8_t recv);
+uint8_t Get_MainNums(void);
 
 #endif /* APPLICATIONS_FLASHWORK_H_ */

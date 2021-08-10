@@ -49,7 +49,14 @@ void Tx_Done_Callback(uint8_t *rx_buffer,uint8_t rx_len)
 }
 void Start_Learn(void)
 {
-    RadioSend(99999999,1,3,1);
+    if(Get_MainNums()==RT_EOK)
+    {
+        RadioSend(99999999,1,3,1);
+    }
+    else
+    {
+        learn_fail();
+    }
 }
 void RadioSend(uint32_t Taget_Id,uint8_t counter,uint8_t Command,uint8_t Data)
 {
