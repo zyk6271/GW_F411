@@ -394,6 +394,7 @@ void DeleteAllDevice(void)//数据载入到内存中
     while(num)
     {
         Local_Delete(Global_Device.ID[num]);
+        rt_thread_mdelay(200);
         num--;
     }
     ef_env_set_default();
