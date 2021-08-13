@@ -90,6 +90,7 @@ void GatewaySyncSolve(uint8_t *rx_buffer,uint8_t rx_len)
             switch(Rx_message.type)
             {
             case 1:
+                DeviceCheck(Rx_message.Device_ID,Rx_message.From_ID);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Command);//心跳
                 break;
             case 2:
@@ -143,12 +144,12 @@ void GatewayWarningSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 Flash_Set_Heart(Rx_message.Device_ID,0);//子设备离线
                 break;
             case 5:
-                Flash_Set_Heart(Rx_message.Device_ID,1);
+                DeviceCheck(Rx_message.Device_ID,Rx_message.From_ID);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);
                 WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,1,Rx_message.Data);//终端水警
                 break;
             case 6:
-                Flash_Set_Heart(Rx_message.Device_ID,1);
+                DeviceCheck(Rx_message.Device_ID,Rx_message.From_ID);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);
                 WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,2,Rx_message.Data);//终端低电量
                 break;
@@ -193,14 +194,14 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 break;
             case 2:
                 RemoteUpload(Rx_message.Device_ID,Rx_message.Data);//终端开关阀
-                Flash_Set_Heart(Rx_message.Device_ID,1);
+                DeviceCheck(Rx_message.Device_ID,Rx_message.From_ID);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//设备RSSI更新
                 break;
             case 3:
                 if(Rx_message.Device_ID)//远程关闭
                 {
                     Door_Delay_WiFi(Rx_message.Device_ID,Rx_message.Data);
-                    Flash_Set_Heart(Rx_message.Device_ID,1);
+                    DeviceCheck(Rx_message.Device_ID,Rx_message.From_ID);
                     Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//设备RSSI更新
                 }
                 else //本地关闭

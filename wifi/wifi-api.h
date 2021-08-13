@@ -18,6 +18,7 @@ void RemoteUpload(uint32_t device_id,uint8_t state);
 void Device_Add2Flash(uint32_t device_id,uint32_t from_id);
 void Device_Add2Wifi(uint32_t device_id,uint32_t from_id);
 void Device_Add2Flash_Wifi(uint32_t device_id,uint32_t from_id);
+void DeviceCheck(uint32_t device_id,uint32_t from_id);
 void Local_Delete(uint32_t device_id);
 void Main_Add_WiFi(uint32_t device_id);
 void Slave_Add_WiFi(uint32_t device_id,uint32_t from_id);

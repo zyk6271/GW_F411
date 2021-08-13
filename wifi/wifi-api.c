@@ -155,6 +155,11 @@ void Device_Add2Flash_Wifi(uint32_t device_id,uint32_t from_id)
         }
     }
 }
+void DeviceCheck(uint32_t device_id,uint32_t from_id)
+{
+    Device_Add2Flash_Wifi(device_id,from_id);//增加终端
+    Flash_Set_Heart(device_id,1);
+}
 void Local_Delete(uint32_t device_id)
 {
     char *Buf = rt_malloc(20);
