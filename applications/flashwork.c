@@ -430,12 +430,12 @@ uint8_t Flash_Set_Heart(uint32_t Device_ID,uint8_t heart)//数据载入到内存
             if(heart)
             {
                 Global_Device.HeartRecv[num] = 1;
+                Heart_Change(Device_ID,heart);
             }
             if(Global_Device.Heart[num] == 0 && heart == 1)
             {
                 Global_Device.Heart[num] = heart;
                 Flash_Heart_Change(Device_ID,heart);
-                Heart_Change(Device_ID,heart);
             }
             else if(Global_Device.Heart[num] == 1 && heart == 0)
             {
