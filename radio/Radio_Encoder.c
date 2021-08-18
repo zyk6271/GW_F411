@@ -27,7 +27,7 @@ rt_thread_t Radio_QueueTask = RT_NULL;
 rt_timer_t FreqRefresh = RT_NULL;
 
 uint32_t Self_Id = 0;
-uint32_t Self_Default_Id = 40000111;
+uint32_t Self_Default_Id = 40000112;
 uint32_t Self_Counter = 0;
 
 typedef struct
@@ -156,12 +156,12 @@ void RadioDequeue(void *paramaeter)
             case 0:
                 RadioSend(Main_Queue.Taget_Id[Main_Queue.NowNum],Main_Queue.Counter[Main_Queue.NowNum],Main_Queue.Command[Main_Queue.NowNum],Main_Queue.Data[Main_Queue.NowNum]);
                 LOG_D("Normal Send With Now Num %d,Target Num is %d,Target_Id %ld,counter %d,command %d,data %d\r\n",Main_Queue.NowNum,Main_Queue.TargetNum,Main_Queue.Taget_Id[Main_Queue.NowNum],Main_Queue.Counter[Main_Queue.NowNum],Main_Queue.Command[Main_Queue.NowNum],Main_Queue.Data[Main_Queue.NowNum]);
-                rt_thread_mdelay(500);
+                rt_thread_mdelay(200);
                 break;
             case 1:
                 GatewayDataSend(Main_Queue.Taget_Id[Main_Queue.NowNum],Main_Queue.Device_Id[Main_Queue.NowNum],Main_Queue.Counter[Main_Queue.NowNum],Main_Queue.Command[Main_Queue.NowNum],Main_Queue.Data[Main_Queue.NowNum]);
                 LOG_I("GatewaySend With Now Num %d,Target Num is %d,Type is %d,Target_Id %ld,Device_Id %ld,control %d,value %d\r\n",Main_Queue.NowNum,Main_Queue.TargetNum,Main_Queue.Type[Main_Queue.NowNum],Main_Queue.Taget_Id[Main_Queue.NowNum],Main_Queue.Device_Id[Main_Queue.NowNum],Main_Queue.Command[Main_Queue.NowNum],Main_Queue.Data[Main_Queue.NowNum]);
-                rt_thread_mdelay(500);
+                rt_thread_mdelay(200);
                 break;
             default:break;
             }

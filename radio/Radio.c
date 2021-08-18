@@ -387,7 +387,6 @@ uint8_t InitAX5043(void)
         while (ubRFState == trxstate_pll_ranging); //while(ubRFState != trxstate_pll_ranging_done); wait for trxstate_pll_ranging_done
 
         ubRFState = trxstate_off;
-        SpiWriteSingleAddressRegister(REG_AX5043_IRQMASK0, 0x00);
         SpiWriteSingleAddressRegister(REG_AX5043_IRQMASK1, 0x00);     //AX5043_IRQMASK1 = 0x00;
         ubTemp = SpiReadSingleAddressRegister(REG_AX5043_PLLRANGINGA);
         AxRadioPHYChanPllRng_RX[ubi] = ubTemp;                        //AX5043_PLLRANGINGA;
@@ -459,7 +458,6 @@ void SetTransmitMode(void)
 {
     uint8_t Rng;
     uint8_t ubData;
-
     Ax5043SetRegisters_TX();
     Rng = AxRadioPHYChanPllRng_TX[0];//configData[CHANNEL_LOCAT]
     ubData=SpiReadSingleAddressRegister(REG_AX5043_PLLLOOP);
@@ -500,11 +498,10 @@ void AX5043Receiver_Continuous(void)
     SpiWriteLongAddressRegister(REG_AX5043_PKTSTOREFLAGS, ubTemp);            // enable xtal ready interrupt
 
     SpiWriteSingleAddressRegister(REG_AX5043_IRQMASK0,0x01);//AX5043_IRQMASK0��0x07�� = 0x01;  enable FIFO not empty
-    SpiWriteSingleAddressRegister(REG_AX5043_IRQMASK1,0x00);
-
     SpiWriteSingleAddressRegister(REG_AX5043_FIFOSTAT,0x03);  // AX5043_FIFOSTAT(0x28) = 3;  bit[5:0]=0b00011 Clear FIFO Data and Flags  ���FIFO page 69
     SpiWriteSingleAddressRegister(REG_AX5043_PWRMODE,AX5043_PWRSTATE_FULL_RX); //AX5043_PWRSTATE_FULL_RX =0x09; bit[3:0]=1001 Receiver Running page55 ��������
     ubRFState = trxstate_rx;
+    SpiWriteSingleAddressRegister(REG_AX5043_IRQMASK1,0x00);
 
 }
 void SetReceiveMode(void)
@@ -621,7 +618,6 @@ void AX5043_OFF(void)
     ubRFState = trxstate_off;
     SpiWriteSingleAddressRegister(REG_AX5043_PWRMODE, AX5043_PWRSTATE_POWERDOWN);//AX5043_PWRMODE = AX5043_PWRSTATE_POWERDOWN=0x00;
 }
-
 void transmit_packet_task(uint8_t *Buf, uint8_t u8Len)
 {
     SpiWriteSingleAddressRegister(REG_AX5043_PWRMODE, AX5043_PWRSTATE_XTAL_ON); //AX5043_PWRMODE = AX5043_PWRSTATE_XTAL_ON;    Crystal Oscillator enabled
@@ -636,6 +632,7 @@ void transmit_packet_task(uint8_t *Buf, uint8_t u8Len)
     ubRFState = trxstate_tx_xtalwait;
     SpiWriteSingleAddressRegister(REG_AX5043_IRQMASK0, 0x00);     //AX5043_IRQMASK0 = 0x00;
     SpiWriteSingleAddressRegister(REG_AX5043_IRQMASK1, 0x01);     //AX5043_IRQMASK1 = 0x01; // enable xtal ready interrupt
+    SpiReadSingleAddressRegister(REG_AX5043_POWSTICKYSTAT);
     rf_led(2);
 }
 void Normal_send(uint8_t *Buf, uint8_t u8Len)
@@ -777,13 +774,11 @@ void Radio_Task_Callback(void *parameter)
             }
             break;
         case trxstate_wait_xtal:     //3
-            SpiWriteSingleAddressRegister(REG_AX5043_IRQMASK0, 0x00);
             SpiWriteSingleAddressRegister(REG_AX5043_IRQMASK1, 0x00);//AX5043_IRQMASK1 = 0x00 otherwise crystal ready will fire all over again
             ubRFState = trxstate_xtal_ready;
             break;
 
         case trxstate_pll_ranging:     //5
-            SpiWriteSingleAddressRegister(REG_AX5043_IRQMASK0, 0x00);
             SpiWriteSingleAddressRegister(REG_AX5043_IRQMASK1, 0x00);//AX5043_IRQMASK1 = 0x00 otherwise autoranging done will fire all over again
             ubRFState = trxstate_pll_ranging_done;
             break;
