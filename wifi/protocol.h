@@ -79,8 +79,8 @@ WIFI 模块发送完所有的升级包，重新发送 01 命令字（3.2 查询�
                     用户根据实际情况定义收发缓存的大小
 ******************************************************************************/
 #ifndef SUPPORT_MCU_FIRM_UPDATE
-#define WIFI_UART_RECV_BUF_LMT             128              //串口数据接收缓存区大小,如MCU的RAM不够,可缩小
-#define WIFI_DATA_PROCESS_LMT          128              //串口数据处理缓存区大小,根据用户DP数据大小量定,建议大于24
+#define WIFI_UART_RECV_BUF_LMT             512              //串口数据接收缓存区大小,如MCU的RAM不够,可缩小
+#define WIFI_DATA_PROCESS_LMT          512              //串口数据处理缓存区大小,根据用户DP数据大小量定,建议大于24
 #else
 #define WIFI_UART_RECV_BUF_LMT             128              //串口数据接收缓存区大小,如MCU的RAM不够,可缩小
 
@@ -91,7 +91,7 @@ WIFI 模块发送完所有的升级包，重新发送 01 命令字（3.2 查询�
 //#define WIFI_DATA_PROCESS_LMT          1200             //单包1024byte
 #endif
 
-#define WIFIR_UART_SEND_BUF_LMT         128              //根据用户DP数据大小量定，用户可根据实际情况修改
+#define WIFIR_UART_SEND_BUF_LMT         512              //根据用户DP数据大小量定，用户可根据实际情况修改
 
 /******************************************************************************
                         4:定义模块工作方式

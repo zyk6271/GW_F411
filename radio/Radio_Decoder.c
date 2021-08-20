@@ -24,7 +24,7 @@
 #include "wifi-api.h"
 
 #define DBG_TAG "RF_DE"
-#define DBG_LVL DBG_LOG
+#define DBG_LVL DBG_INFO
 #include <rtdbg.h>
 
 uint8_t Learn_Flag=1;

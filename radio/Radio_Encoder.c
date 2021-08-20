@@ -27,7 +27,7 @@ rt_thread_t Radio_QueueTask = RT_NULL;
 rt_timer_t FreqRefresh = RT_NULL;
 
 uint32_t Self_Id = 0;
-uint32_t Self_Default_Id = 40000112;
+uint32_t Self_Default_Id = 40000111;
 uint32_t Self_Counter = 0;
 
 typedef struct
@@ -48,6 +48,11 @@ void Tx_Done_Callback(uint8_t *rx_buffer,uint8_t rx_len)
 {
     //LOG_D("Send ok\r\n");
 }
+void sendtest(void)
+{
+    RadioSend(99999999,1,3,1);
+}
+MSH_CMD_EXPORT(sendtest,sendtest);
 void Start_Learn(void)
 {
     if(Get_MainNums()==RT_EOK)
@@ -167,7 +172,7 @@ void RadioDequeue(void *paramaeter)
             }
             //LOG_D("Dequeue Success\r\n");
         }
-        rt_thread_mdelay(100);
+        rt_thread_mdelay(50);
     }
 }
 void RadioDequeueTaskInit(void)
