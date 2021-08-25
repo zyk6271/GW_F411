@@ -81,6 +81,7 @@ void Slave_Heart(uint32_t device_id,uint8_t rssi)
     sprintf(Buf,"%ld",device_id);
     LOG_I("Slave_Heart Device ID is %ld,rssi is %d\r\n",device_id,rssi);
     mcu_dp_enum_update(101,rssi,Buf,my_strlen(Buf)); //VALUE型数据上报;
+    rt_free(Buf);
 }
 void MotoUpload(uint32_t device_id,uint8_t state)
 {
@@ -226,6 +227,7 @@ void Warning_WiFi(uint32_t device_id,uint8_t state)
     char *Buf = rt_malloc(20);
     sprintf(Buf,"%ld",device_id);
     mcu_dp_bool_update(DPID_NORMAL,state,Buf,my_strlen(Buf)); //VALUE型数据上报;
+    rt_free(Buf);
 }
 void Moto_CloseRemote(uint32_t device_id)
 {
@@ -257,6 +259,7 @@ void Heart_Report(uint32_t device_id,int rssi)
     sprintf(id,"%ld",device_id);
     mcu_dp_value_update(105,abs(rssi),id,my_strlen(id)); //VALUE型数据上报;
     LOG_I("Heart_Report %d is upload\r\n",device_id);
+    rt_free(id);
 }
 void Ack_Report(uint32_t device_id)
 {
@@ -271,6 +274,7 @@ void Heart_Change(uint32_t device_id,uint8_t heart)
     {
         heart_beat_report(id,0);
     }
+    rt_free(id);
 }
 void Heart_Request(char *device_id)
 {

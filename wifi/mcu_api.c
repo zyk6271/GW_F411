@@ -18,7 +18,7 @@
 #include "wifi.h"
 
 #define DBG_TAG "wifi_api"
-#define DBG_LVL DBG_LOG
+#define DBG_LVL DBG_INFO
 #include <rtdbg.h>
 
 /**
@@ -452,8 +452,10 @@ void uart_receive_input(unsigned char value)
     //#error "请在串口接收中断中调用uart_receive_input(value),串口数据由MCU_SDK处理,用户请勿再另行处理,完成后删除该行"
 
     if(1 == queue_out - queue_in) {
+        LOG_W("Wifi Queue is Full\r\n");
         //数据队列满
     }else if((queue_in > queue_out) && ((queue_in - queue_out) >= sizeof(wifi_data_process_buf))) {
+        LOG_W("Wifi Queue is Full\r\n");
         //数据队列满
     }else {
         //队列不满
@@ -484,7 +486,7 @@ void wifi_uart_service(void)
     
     if(rx_in < PROTOCOL_HEAD)
         return;
-    
+
     while((rx_in - offset) >= PROTOCOL_HEAD) {
         if(wifi_data_process_buf[offset + HEAD_FIRST] != FRAME_FIRST) {
             offset ++;
@@ -516,11 +518,11 @@ void wifi_uart_service(void)
         //数据接收完成
         if(get_check_sum((unsigned char *)wifi_data_process_buf + offset,rx_value_len - 1) != wifi_data_process_buf[offset + rx_value_len - 1]) {
             //校验出错
-            //printf("crc error (crc:0x%X  but data:0x%X)\r\n",get_check_sum((unsigned char *)wifi_data_process_buf + offset,rx_value_len - 1),wifi_data_process_buf[offset + rx_value_len - 1]);
+            LOG_W("crc error (crc:0x%X  but data:0x%X)\r\n",get_check_sum((unsigned char *)wifi_data_process_buf + offset,rx_value_len - 1),wifi_data_process_buf[offset + rx_value_len - 1]);
             offset += 3;
             continue;
         }
-        
+        LOG_D("Enter in data_handle,Comaand is %d\r\n",wifi_data_process_buf[offset + FRAME_TYPE]);
         data_handle(offset);
         offset += rx_value_len;
     }//end while

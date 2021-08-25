@@ -31,12 +31,7 @@
 #include <limits.h>
 #include <ctype.h>
 #include "cJSON.h"
-
-// RTL IAR patch start. 
-//extern int rtl_sprintf(char* str, const char* fmt, ...);
-
-//#define sprintf rtl_sprintf
-// RTL IAR patch end.
+#include "rtthread.h"
 
 static const char *ep;
 
@@ -49,8 +44,8 @@ static int cJSON_strcasecmp(const char *s1,const char *s2)
 	return tolower(*(const unsigned char *)s1) - tolower(*(const unsigned char *)s2);
 }
 
-static void *(*cJSON_malloc)(size_t sz) = malloc;
-static void (*cJSON_free)(void *ptr) = free;
+void *(*cJSON_malloc)(size_t sz) = rt_malloc;
+void (*cJSON_free)(void *ptr) = rt_free;
 
 static char* cJSON_strdup(const char* str)
 {
@@ -197,7 +192,7 @@ static unsigned parse_hex4(const char *str)
 static const unsigned char firstByteMark[7] = { 0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC };
 static const char *parse_string(cJSON *item,const char *str)
 {
-	const char *ptr=str+1;char *ptr2;char *out;int len=0;unsigned uc,uc2;
+	const char *ptr=str+1;char *ptr2;char *out;int len=0;unsigned uc,uc2;int str_nest=0;
 	if (*str!='\"') {ep=str;return 0;}	/* not a string! */
 	
 	while (*ptr!='\"' && *ptr && ++len) if (*ptr++ == '\\') ptr++;	/* Skip escaped quotes. */
@@ -206,8 +201,11 @@ static const char *parse_string(cJSON *item,const char *str)
 	if (!out) return 0;
 	
 	ptr=str+1;ptr2=out;
-	while (*ptr!='\"' && *ptr)
+	while ((*ptr!='\"' || str_nest!=0) && *ptr)
 	{
+    if(*ptr=='{') str_nest++;
+    else if(*ptr=='}') str_nest--;
+    
 		if (*ptr!='\\') *ptr2++=*ptr++;
 		else
 		{

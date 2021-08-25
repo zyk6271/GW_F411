@@ -33,7 +33,7 @@ void heart_callback(void *parameter)
             {
                 Global_Device.HeartRecv[num] = 0;
                 GatewayDataEnqueue(Global_Device.ID[num],0,0,3,0);//Send
-                rt_thread_mdelay(1000*3);//心跳后等待周期
+                rt_thread_mdelay(2000);//心跳后等待周期
                 if(Global_Device.HeartRecv[num] == 0)//RecvFlag
                 {
                     switch(Global_Device.HeartRetry[num])

@@ -19,7 +19,6 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
-
 #ifndef cJSON__h
 #define cJSON__h
 
@@ -27,7 +26,9 @@
 extern "C"
 {
 #endif
-#include "rtthread.h"
+
+#include <string.h>
+
 /* cJSON Types: */
 #define cJSON_False 0
 #define cJSON_True 1
@@ -39,7 +40,7 @@ extern "C"
 	
 #define cJSON_IsReference 256
 #define cJSON_StringIsConst 512
-	
+
 /* The cJSON structure: */
 typedef struct cJSON {
 	struct cJSON *next,*prev;	/* next/prev allow you to walk array/object chains. Alternatively, use GetArraySize/GetArrayItem/GetObjectItem */

@@ -32,7 +32,7 @@
 #include "led.h"
 
 #define DBG_TAG "wifi-decoder"
-#define DBG_LVL DBG_LOG
+#define DBG_LVL DBG_INFO
 #include <rtdbg.h>
 
 /******************************************************************************
@@ -456,6 +456,7 @@ void heart_beat_check(unsigned char* data_buf,unsigned short data_len)
     my_memset(pstr, 0x00, data_len+1);
     my_memcpy(pstr, data_buf, data_len);
 
+    LOG_D("go to heart_beat_check\r\n");
     root = cJSON_Parse(pstr);
     if(NULL == root){
         //可在此添加提示信息，如：printf("xxx");
@@ -471,6 +472,7 @@ void heart_beat_check(unsigned char* data_buf,unsigned short data_len)
     sub_id = item->valuestring;
     
     Heart_Request(sub_id);
+    LOG_D("Get Heart Check From WIFI,The id is %s",sub_id);
     //#error "请自行实现心跳检测代码,完成后请删除该行"
     /////////////////////////请在此处根据获取到的sub_id进行子设备心跳的回复////////////////////////
     //////////////////在线的设备需要回复心跳，连续2  个心跳周期不回复则认为该设备离线////////////////
@@ -481,6 +483,7 @@ void heart_beat_check(unsigned char* data_buf,unsigned short data_len)
     return;
     
 EXIT_ERR:
+    LOG_E("Parse Error\r\n");
     if(NULL != root) {
         cJSON_Delete(root);
     }
@@ -1052,17 +1055,17 @@ void wifi_test_result(unsigned char result,unsigned char rssi)
  */
 void wifi_status_result(unsigned char result)
 {
-    extern uint8_t wifi_status;
-    if(wifi_status != result)
-    {
-        wifi_status = result;
-        LOG_I("wifi_status is change to %d\r\n",result);
-        wifi_led(result);
-        if(result == 4)
-        {
-            qur_subdev_list();
-        }
-    }
+//    extern uint8_t wifi_status;
+//    if(wifi_status != result)
+//    {
+//        wifi_status = result;
+//        LOG_I("wifi_status is change to %d\r\n",result);
+//        wifi_led(result);
+//        if(result == 4)
+//        {
+//            qur_subdev_list();
+//        }
+//    }
 }
 #endif
 

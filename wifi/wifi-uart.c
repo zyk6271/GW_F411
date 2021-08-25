@@ -111,7 +111,19 @@ void wifi_uart_init(void)
 }
 void wifi_status_timer_callback(void *parameter)
 {
-    get_wifi_st();
+    uint8_t result = 0;
+    result = mcu_get_wifi_work_state();
+    extern uint8_t wifi_status;
+    if(wifi_status != result)
+    {
+        wifi_status = result;
+        LOG_I("wifi_status is change to %d\r\n",result);
+        wifi_led(result);
+        if(result == 4)
+        {
+            qur_subdev_list();
+        }
+    }
 }
 void wifi_detect_timer_callback(void *parameter)
 {
@@ -147,7 +159,7 @@ void WiFi_Init(void)
     wifi_uart_init();
     wifi_service_init();
 
-    wifi_status_timer = rt_timer_create("wifi_status",wifi_status_timer_callback,RT_NULL,3000,RT_TIMER_FLAG_SOFT_TIMER|RT_TIMER_FLAG_PERIODIC);
+    wifi_status_timer = rt_timer_create("wifi_status",wifi_status_timer_callback,RT_NULL,1000,RT_TIMER_FLAG_SOFT_TIMER|RT_TIMER_FLAG_PERIODIC);
     rt_timer_start(wifi_status_timer);
     wifi_detect_timer = rt_timer_create("wifi_detect",wifi_detect_timer_callback,RT_NULL,5000,RT_TIMER_FLAG_SOFT_TIMER|RT_TIMER_FLAG_ONE_SHOT);
     //rt_timer_start(wifi_detect_timer);

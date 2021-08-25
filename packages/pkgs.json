@@ -1,10 +1,5 @@
 [
  {
-  "path": "/packages/iot/cJSON", 
-  "ver": "v1.0.2", 
-  "name": "CJSON"
- }, 
- {
   "path": "/packages/tools/EasyFlash", 
   "ver": "v4.1.0", 
   "name": "EASYFLASH"
