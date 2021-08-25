@@ -52,7 +52,7 @@ void Device_Learn(Message buf)
         }
     }
 }
-void NormalSolve(uint8_t *rx_buffer,uint8_t rx_len)
+void NormalSolve(uint8_t *rx_buffer,uint8_t rx_len,int8_t rssi)
 {
     Message Rx_message;
     if(rx_buffer[rx_len-1]==0x0A&&rx_buffer[rx_len-2]==0x0D)
@@ -61,14 +61,13 @@ void NormalSolve(uint8_t *rx_buffer,uint8_t rx_len)
          if(Rx_message.Target_ID==Self_Id)
          {
              rf_led(3);
-             LOG_D("NormalSolve verify ok\r\n");
+             LOG_D("Factory Get %ld ok,Rssi is %d\r\n",Rx_message.From_ID,rssi);
              switch(Rx_message.Command)
              {
-             case 3://学习
-                 Device_Learn(Rx_message);
+             case 9://Factory
+                 RadioEnqueue(Rx_message.From_ID,1,9,0);
                  break;
              }
-             Flash_Set_Heart(Rx_message.From_ID,1);
          }
      }
 }
@@ -232,7 +231,7 @@ void Rx_Done_Callback(uint8_t *rx_buffer,uint8_t rx_len,int8_t rssi)
 {
     switch(rx_buffer[1])
     {
-    case '{':NormalSolve(rx_buffer,rx_len);
+    case '{':NormalSolve(rx_buffer,rx_len,rssi);
         break;
     case 'A':GatewaySyncSolve(rx_buffer,rx_len);
         break;

@@ -24,14 +24,14 @@
 
 int main(void)
 {
-    flash_Init();
-    LoadDevice2Memory();
+    //flash_Init();
+    //LoadDevice2Memory();
     led_Init();
-    Key_Reponse_Init();
-    button_Init();
-    WiFi_Init();
+    //Key_Reponse_Init();
+    //button_Init();
+    //WiFi_Init();
     Radio_Task_Init();
-    Heart_Init();
+    //Heart_Init();
     while (1)
     {
         rt_thread_mdelay(1000);
