@@ -27,7 +27,7 @@ rt_thread_t Radio_QueueTask = RT_NULL;
 rt_timer_t FreqRefresh = RT_NULL;
 
 uint32_t Self_Id = 0;
-uint32_t Self_Default_Id = 40000111;
+uint32_t Self_Default_Id = 40000000;
 uint32_t Self_Counter = 0;
 
 typedef struct

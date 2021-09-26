@@ -26,7 +26,7 @@ void heart_callback(void *parameter)
     LOG_D("Heart Check Init Success\r\n");
     while(1)
     {
-        rt_thread_mdelay(3*60000);//检测周期
+        rt_thread_mdelay(6*60000);//检测周期
         for(num=1;num<=Global_Device.Num;num++)
         {
             if(Global_Device.ID[num]!=0 && Global_Device.Bind_ID[num]==0)

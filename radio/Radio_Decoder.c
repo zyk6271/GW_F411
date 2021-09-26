@@ -159,7 +159,8 @@ void GatewayWarningSolve(uint8_t *rx_buffer,uint8_t rx_len)
             case 8://NTC报警
                 WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,3,Rx_message.Data);
                 break;
-            case 9://网关离线
+            case 9://终端掉落
+                Slave_Linelost(Rx_message.Device_ID,Rx_message.Data);
                 break;
             }
         }
@@ -191,14 +192,19 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
             {
             case 1:
                 MotoUpload(Rx_message.From_ID,Rx_message.Data);//主控开关阀
+                CloseWarn_Main(Rx_message.From_ID);
                 break;
             case 2:
                 RemoteUpload(Rx_message.Device_ID,Rx_message.Data);//终端开关阀
                 DeviceCheck(Rx_message.Device_ID,Rx_message.From_ID);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//设备RSSI更新
+                if(Rx_message.Data == 0)
+                {
+                    CloseWarn_Slave(Rx_message.Device_ID);
+                }
                 break;
             case 3:
-                if(Rx_message.Device_ID)//远程关闭
+                if(Rx_message.Device_ID)//Delay远程关闭
                 {
                     Door_Delay_WiFi(Rx_message.Device_ID,Rx_message.Data);
                     DeviceCheck(Rx_message.Device_ID,Rx_message.From_ID);
@@ -211,6 +217,7 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 break;
             case 4:
                 Heart_Report(Rx_message.From_ID,ubRssi-64);
+                MotoUpload(Rx_message.From_ID,Rx_message.Data);
                 break;
             case 5:
                 MotoUpload(Rx_message.From_ID,Rx_message.Data);//主控开关阀

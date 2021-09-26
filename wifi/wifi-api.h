@@ -11,7 +11,10 @@
 #define WIFI_WIFI_API_H_
 
 void WariningUpload(uint32_t from_id,uint32_t device_id,uint8_t type,uint8_t value);
+void CloseWarn_Main(uint32_t device_id);
+void CloseWarn_Slave(uint32_t device_id);
 void Slave_Heart(uint32_t device_id,uint8_t rssi);
+void Slave_Linelost(uint32_t device_id,uint8_t data);
 void Remote_Delete(uint32_t device_id);
 void MotoUpload(uint32_t device_id,uint8_t state);
 void RemoteUpload(uint32_t device_id,uint8_t state);

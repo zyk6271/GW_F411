@@ -70,6 +70,21 @@ void WariningUpload(uint32_t from_id,uint32_t device_id,uint8_t type,uint8_t val
     rt_free(device_id_buf);
     rt_free(from_id_buf);
 }
+void CloseWarn_Main(uint32_t device_id)
+{
+    unsigned char *from_id_buf = rt_malloc(20);
+    sprintf(from_id_buf,"%ld",device_id);
+    mcu_dp_bool_update(DPID_DEVICE_ALARM,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+    mcu_dp_bool_update(105,0,Buf,my_strlen(Buf)); //VALUE型数据上报;
+    rt_free(from_id_buf);
+}
+void CloseWarn_Slave(uint32_t device_id)
+{
+    unsigned char *from_id_buf = rt_malloc(20);
+    sprintf(from_id_buf,"%ld",device_id);
+    mcu_dp_enum_update(1,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+    rt_free(from_id_buf);
+}
 void Remote_Delete(uint32_t device_id)
 {
     GatewayDataEnqueue(GetBindID(device_id),device_id,0,6,0);
@@ -81,6 +96,14 @@ void Slave_Heart(uint32_t device_id,uint8_t rssi)
     sprintf(Buf,"%ld",device_id);
     LOG_I("Slave_Heart Device ID is %ld,rssi is %d\r\n",device_id,rssi);
     mcu_dp_enum_update(101,rssi,Buf,my_strlen(Buf)); //VALUE型数据上报;
+    rt_free(Buf);
+}
+void Slave_Linelost(uint32_t device_id,uint8_t data)
+{
+    char *Buf = rt_malloc(20);
+    sprintf(Buf,"%ld",device_id);
+    LOG_I("Slave_Linelost Device ID is %ld,data is %d\r\n",device_id,data);
+    mcu_dp_enum_update(104,data,Buf,my_strlen(Buf)); //VALUE型数据上报;
     rt_free(Buf);
 }
 void MotoUpload(uint32_t device_id,uint8_t state)
@@ -164,9 +187,16 @@ void DeviceCheck(uint32_t device_id,uint32_t from_id)
 void Local_Delete(uint32_t device_id)
 {
     char *Buf = rt_malloc(20);
+    char *Mainbuf = rt_malloc(20);
     sprintf(Buf,"%ld",device_id);
+    sprintf(Mainbuf,"%ld",GetBindID(device_id));
     local_subdev_del_cmd(Buf);
+    if(device_id>=30000000)
+    {
+        mcu_dp_value_update(108,0,Mainbuf,my_strlen(Mainbuf)); //BOOL型数据上报;
+    }
     rt_free(Buf);
+    rt_free(Mainbuf);
 }
 void Main_Add_WiFi(uint32_t device_id)
 {
@@ -174,6 +204,7 @@ void Main_Add_WiFi(uint32_t device_id)
     sprintf(Buf,"%ld",device_id);
     local_add_subdev_limit(1,0,0x3C);
     gateway_subdevice_add("1.0",main_pid,0,Buf,10,0);
+    mcu_dp_value_update(112,device_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
     LOG_I("Main_Add_WiFi ID is %d\r\n",device_id);
     rt_free(Buf);
 }
@@ -189,13 +220,17 @@ void Slave_Add_WiFi(uint32_t device_id,uint32_t from_id)
 }
 void Door_Add_WiFi(uint32_t device_id,uint32_t from_id)
 {
-    char *Buf = rt_malloc(20);
-    sprintf(Buf,"%ld",device_id);
+    char *Mainbuf = rt_malloc(20);
+    char *Doorbuf = rt_malloc(20);
+    sprintf(Mainbuf,"%ld",from_id);
+    sprintf(Doorbuf,"%ld",device_id);
     local_add_subdev_limit(1,0,0x3C);
-    gateway_subdevice_add("1.0",door_pid,0,Buf,10,0);
-    mcu_dp_value_update(107,from_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
+    gateway_subdevice_add("1.0",door_pid,0,Doorbuf,10,0);
+    mcu_dp_value_update(107,from_id,Doorbuf,my_strlen(Doorbuf)); //BOOL型数据上报;
+    mcu_dp_value_update(108,device_id,Mainbuf,my_strlen(Mainbuf)); //BOOL型数据上报;
     LOG_I("Door_Add_by WiFi ID is %d\r\n",device_id);
-    rt_free(Buf);
+    rt_free(Mainbuf);
+    rt_free(Doorbuf);
 }
 void Device_Delete_WiFi(uint32_t device_id)
 {
