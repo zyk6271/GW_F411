@@ -75,7 +75,7 @@ void CloseWarn_Main(uint32_t device_id)
     unsigned char *from_id_buf = rt_malloc(20);
     sprintf(from_id_buf,"%ld",device_id);
     mcu_dp_bool_update(DPID_DEVICE_ALARM,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
-    mcu_dp_bool_update(105,0,Buf,my_strlen(Buf)); //VALUE型数据上报;
+    mcu_dp_bool_update(105,0,from_id_buf,my_strlen(from_id_buf)); //VALUE型数据上报;
     rt_free(from_id_buf);
 }
 void CloseWarn_Slave(uint32_t device_id)
