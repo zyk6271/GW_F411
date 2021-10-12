@@ -47,6 +47,9 @@ void WariningUpload(uint32_t from_id,uint32_t device_id,uint8_t type,uint8_t val
             case 2://电量
                 mcu_dp_enum_update(102,value,device_id_buf,my_strlen(device_id_buf)); //BOOL型数据上报;
                break;
+            case 3://掉落
+                mcu_dp_bool_update(104,value,device_id_buf,my_strlen(device_id_buf)); //VALUE型数据上报;
+               break;
         }
     }
     else
@@ -54,16 +57,46 @@ void WariningUpload(uint32_t from_id,uint32_t device_id,uint8_t type,uint8_t val
         switch(type)
         {
             case 0://自检
-                mcu_dp_bool_update(DPID_DEVICE_CHECK,value,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+                if(value == 0)
+                {
+                    mcu_dp_bool_update(DPID_DEVICE_CHECK,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+                }
+                else if(value == 1)
+                {
+                    mcu_dp_bool_update(113,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+                }
+                else if(value == 2)
+                {
+                    mcu_dp_bool_update(DPID_DEVICE_CHECK,1,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+                    mcu_dp_bool_update(DPID_TEMP,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+                    mcu_dp_bool_update(DPID_LINE_STATE,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+                }
+                else if(value == 3)
+                {
+                    mcu_dp_bool_update(113,1,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+                    mcu_dp_bool_update(DPID_TEMP,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+                    mcu_dp_bool_update(DPID_LINE_STATE,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+                }
                break;
             case 1://漏水
                 mcu_dp_bool_update(DPID_DEVICE_ALARM,value,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+                if(value)
+                {
+                    mcu_dp_bool_update(DPID_DEVICE_CHECK,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+                    mcu_dp_bool_update(113,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+                    mcu_dp_bool_update(DPID_TEMP,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+                    mcu_dp_bool_update(DPID_LINE_STATE,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+                }
                break;
             case 2://掉落
                 mcu_dp_bool_update(DPID_LINE_STATE,value,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                break;
             case 3://NTC
                 mcu_dp_bool_update(DPID_TEMP,value,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+                if(value)
+                {
+                    mcu_dp_bool_update(DPID_LINE_STATE,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+                }
                break;
         }
     }
@@ -75,7 +108,20 @@ void CloseWarn_Main(uint32_t device_id)
     unsigned char *from_id_buf = rt_malloc(20);
     sprintf(from_id_buf,"%ld",device_id);
     mcu_dp_bool_update(DPID_DEVICE_ALARM,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
-    mcu_dp_bool_update(105,0,from_id_buf,my_strlen(from_id_buf)); //VALUE型数据上报;
+    mcu_dp_bool_update(106,0,from_id_buf,my_strlen(from_id_buf)); //VALUE型数据上报;
+    LOG_I("CloseWarn_Main ID is %ld\r\n",device_id);
+    rt_free(from_id_buf);
+}
+void InitWarn_Main(uint32_t device_id)
+{
+    unsigned char *from_id_buf = rt_malloc(20);
+    sprintf(from_id_buf,"%ld",device_id);
+    mcu_dp_bool_update(DPID_DEVICE_ALARM,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+    mcu_dp_bool_update(DPID_DEVICE_CHECK,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+    mcu_dp_bool_update(113,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+    mcu_dp_bool_update(DPID_TEMP,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+    mcu_dp_bool_update(DPID_LINE_STATE,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+    LOG_I("CloseWarn_Main ID is %ld\r\n",device_id);
     rt_free(from_id_buf);
 }
 void CloseWarn_Slave(uint32_t device_id)
@@ -87,8 +133,16 @@ void CloseWarn_Slave(uint32_t device_id)
 }
 void Remote_Delete(uint32_t device_id)
 {
+    unsigned char *id_buf = rt_malloc(20);
+    sprintf(id_buf,"%ld",GetBindID(device_id));
     GatewayDataEnqueue(GetBindID(device_id),device_id,0,6,0);
+    LOG_I("Remote_Delete Success %s\r\n",id_buf);
     Del_Device(device_id);
+    if(device_id>=30000000)
+    {
+        mcu_dp_value_update(108,0,id_buf,my_strlen(id_buf)); //BOOL型数据上报;
+    }
+    rt_free(id_buf);
 }
 void Slave_Heart(uint32_t device_id,uint8_t rssi)
 {
@@ -98,29 +152,36 @@ void Slave_Heart(uint32_t device_id,uint8_t rssi)
     mcu_dp_enum_update(101,rssi,Buf,my_strlen(Buf)); //VALUE型数据上报;
     rt_free(Buf);
 }
-void Slave_Linelost(uint32_t device_id,uint8_t data)
-{
-    char *Buf = rt_malloc(20);
-    sprintf(Buf,"%ld",device_id);
-    LOG_I("Slave_Linelost Device ID is %ld,data is %d\r\n",device_id,data);
-    mcu_dp_enum_update(104,data,Buf,my_strlen(Buf)); //VALUE型数据上报;
-    rt_free(Buf);
-}
 void MotoUpload(uint32_t device_id,uint8_t state)
 {
     char *Buf = rt_malloc(20);
     LOG_I("MotoUpload State is %d,device_id is %ld\r\n",state,device_id);
-    sprintf(Buf,"%d",0);
+    sprintf(Buf,"%ld",device_id);
     mcu_dp_bool_update(DPID_DEVICE_STATE,state,Buf,my_strlen(Buf)); //VALUE型数据上报;
     rt_free(Buf);
 }
-void RemoteUpload(uint32_t device_id,uint8_t state)
+void RemoteUpload(uint32_t from_id,uint32_t device_id,uint8_t state)
 {
-    char *Buf = rt_malloc(20);
-    LOG_I("RemoteUpload %ld is upload %d\r\n",device_id,state);
-    sprintf(Buf,"%d",device_id);
-    mcu_dp_bool_update(DPID_CONTROL_STATE,state,Buf,my_strlen(Buf)); //VALUE型数据上报;
-    rt_free(Buf);
+    char *FromBuf = rt_malloc(20);
+    char *DeviceBuf = rt_malloc(20);
+    LOG_I("RemoteUpload %ld from %ld is upload %d\r\n",device_id,from_id,state);
+    sprintf(FromBuf,"%ld",from_id);
+    sprintf(DeviceBuf,"%ld",device_id);
+    mcu_dp_bool_update(DPID_DEVICE_STATE,state,FromBuf,my_strlen(FromBuf)); //VALUE型数据上报;
+    rt_free(FromBuf);
+    rt_free(DeviceBuf);
+}
+void DoorUpload(uint32_t from_id,uint32_t device_id,uint8_t state)
+{
+    char *FromBuf = rt_malloc(20);
+    char *DeviceBuf = rt_malloc(20);
+    LOG_I("DoorUpload %ld from %ld is upload %d\r\n",device_id,from_id,state);
+    sprintf(FromBuf,"%ld",from_id);
+    sprintf(DeviceBuf,"%ld",device_id);
+    mcu_dp_bool_update(DPID_DEVICE_STATE,state,FromBuf,my_strlen(FromBuf)); //VALUE型数据上报;
+    mcu_dp_bool_update(104,state,DeviceBuf,my_strlen(DeviceBuf)); //VALUE型数据上报;
+    rt_free(FromBuf);
+    rt_free(DeviceBuf);
 }
 void Device_Add2Flash(uint32_t device_id,uint32_t from_id)
 {
@@ -166,22 +227,40 @@ void Device_Add2Flash_Wifi(uint32_t device_id,uint32_t from_id)
         {
             MainAdd_Flash(device_id);
             Main_Add_WiFi(device_id);
+            Reset_Main_Value(device_id);
         }
         if(device_id>=20000000 && device_id<30000000)
         {
             SlaveAdd_Flash(device_id,from_id);
             Slave_Add_WiFi(device_id,from_id);
+            Reset_Slave_Value(device_id,from_id);
         }
         else if(device_id>=30000000 && device_id<40000000)
         {
             DoorAdd_Flash(device_id,from_id);
+            Door_Add_WiFi(device_id,from_id);
+            Reset_Door_Value(device_id,from_id);
+        }
+    }
+    else
+    {
+        if(device_id>=10000000 && device_id<20000000)
+        {
+            Main_Add_WiFi(device_id);
+        }
+        if(device_id>=20000000 && device_id<30000000)
+        {
+            Slave_Add_WiFi(device_id,from_id);
+        }
+        else if(device_id>=30000000 && device_id<40000000)
+        {
             Door_Add_WiFi(device_id,from_id);
         }
     }
 }
 void DeviceCheck(uint32_t device_id,uint32_t from_id)
 {
-    Device_Add2Flash_Wifi(device_id,from_id);//增加终端
+    Device_Add2Flash_Wifi(device_id,from_id);
     Flash_Set_Heart(device_id,1);
 }
 void Local_Delete(uint32_t device_id)
@@ -202,20 +281,41 @@ void Main_Add_WiFi(uint32_t device_id)
 {
     char *Buf = rt_malloc(20);
     sprintf(Buf,"%ld",device_id);
-    local_add_subdev_limit(1,0,0x3C);
+    local_add_subdev_limit(1,0,0x01);
     gateway_subdevice_add("1.0",main_pid,0,Buf,10,0);
     mcu_dp_value_update(112,device_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
     LOG_I("Main_Add_WiFi ID is %d\r\n",device_id);
+    rt_free(Buf);
+}
+void Reset_Main_Value(uint32_t device_id)
+{
+    char *Buf = rt_malloc(20);
+    sprintf(Buf,"%ld",device_id);
+    mcu_dp_value_update(112,device_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
+    mcu_dp_bool_update(DPID_DEVICE_ALARM,0,Buf,my_strlen(Buf)); //BOOL型数据上报;
+    mcu_dp_bool_update(DPID_LINE_STATE,0,Buf,my_strlen(Buf)); //BOOL型数据上报;
+    mcu_dp_bool_update(DPID_TEMP,0,Buf,my_strlen(Buf)); //BOOL型数据上报;
+    LOG_I("Reset_Main_Value ID is %d\r\n",device_id);
     rt_free(Buf);
 }
 void Slave_Add_WiFi(uint32_t device_id,uint32_t from_id)
 {
     char *Buf = rt_malloc(20);
     sprintf(Buf,"%ld",device_id);
-    local_add_subdev_limit(1,0,0x3C);
+    local_add_subdev_limit(1,0,0x01);
     gateway_subdevice_add("1.0",slave_pid,0,Buf,10,0);
     mcu_dp_value_update(107,from_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
     LOG_I("Slave_Add_by WiFi ID is %d\r\n",device_id);
+    rt_free(Buf);
+}
+void Reset_Slave_Value(uint32_t device_id,uint32_t from_id)
+{
+    char *Buf = rt_malloc(20);
+    sprintf(Buf,"%ld",device_id);
+    mcu_dp_value_update(107,from_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
+    mcu_dp_enum_update(1,0,Buf,my_strlen(Buf)); //BOOL型数据上报;
+    mcu_dp_bool_update(104,0,Buf,my_strlen(Buf)); //VALUE型数据上报;
+    LOG_I("Reset_Slave_Value ID is %d\r\n",device_id);
     rt_free(Buf);
 }
 void Door_Add_WiFi(uint32_t device_id,uint32_t from_id)
@@ -224,21 +324,25 @@ void Door_Add_WiFi(uint32_t device_id,uint32_t from_id)
     char *Doorbuf = rt_malloc(20);
     sprintf(Mainbuf,"%ld",from_id);
     sprintf(Doorbuf,"%ld",device_id);
-    local_add_subdev_limit(1,0,0x3C);
+    local_add_subdev_limit(1,0,0x01);
     gateway_subdevice_add("1.0",door_pid,0,Doorbuf,10,0);
     mcu_dp_value_update(107,from_id,Doorbuf,my_strlen(Doorbuf)); //BOOL型数据上报;
     mcu_dp_value_update(108,device_id,Mainbuf,my_strlen(Mainbuf)); //BOOL型数据上报;
-    LOG_I("Door_Add_by WiFi ID is %d\r\n",device_id);
+    LOG_I("Door_Add_WiFi ID is %d\r\n",device_id);
     rt_free(Mainbuf);
     rt_free(Doorbuf);
 }
-void Device_Delete_WiFi(uint32_t device_id)
+void Reset_Door_Value(uint32_t device_id,uint32_t from_id)
 {
-    char *Buf = rt_malloc(20);
-    sprintf(Buf,"%ld",device_id);
-    LOG_I("Device_Del_by WiFi ID is %d\r\n",device_id);
-    local_subdev_del_cmd(Buf);
-    rt_free(Buf);
+    char *Mainbuf = rt_malloc(20);
+    char *Doorbuf = rt_malloc(20);
+    sprintf(Mainbuf,"%ld",from_id);
+    sprintf(Doorbuf,"%ld",device_id);
+    mcu_dp_value_update(107,from_id,Doorbuf,my_strlen(Doorbuf)); //BOOL型数据上报;
+    mcu_dp_value_update(108,device_id,Mainbuf,my_strlen(Mainbuf)); //BOOL型数据上报;
+    LOG_I("Reset_Door_Value ID is %d\r\n",device_id);
+    rt_free(Mainbuf);
+    rt_free(Doorbuf);
 }
 void Remote_Delay_WiFi(uint32_t device_id,uint8_t state)
 {
@@ -258,11 +362,12 @@ void Door_Delay_WiFi(uint32_t device_id,uint8_t state)
 }
 void Warning_WiFi(uint32_t device_id,uint8_t state)
 {
-    LOG_I("Warning_WiFi value %d is upload\r\n",state);
-    char *Buf = rt_malloc(20);
-    sprintf(Buf,"%ld",device_id);
-    mcu_dp_bool_update(DPID_NORMAL,state,Buf,my_strlen(Buf)); //VALUE型数据上报;
-    rt_free(Buf);
+//    LOG_I("Warning_WiFi value %d is upload\r\n",state);
+//    char *Buf = rt_malloc(20);
+//    sprintf(Buf,"%ld",device_id);
+//    mcu_dp_bool_update(DPID_NORMAL,state,Buf,my_strlen(Buf)); //VALUE型数据上报;
+//    rt_free(Buf);
+    InitWarn_Main(device_id);
 }
 void Moto_CloseRemote(uint32_t device_id)
 {
@@ -292,7 +397,17 @@ void Heart_Report(uint32_t device_id,int rssi)
 {
     char *id = rt_malloc(20);
     sprintf(id,"%ld",device_id);
-    mcu_dp_value_update(105,abs(rssi),id,my_strlen(id)); //VALUE型数据上报;
+    if(rssi>85)
+    {
+        mcu_dp_enum_update(105,0,id,my_strlen(id));
+    }
+    else if(rssi<=84 && rssi>54)
+    {
+        mcu_dp_enum_update(105,1,id,my_strlen(id));
+    }
+    else {
+        mcu_dp_enum_update(105,2,id,my_strlen(id));
+    }
     LOG_I("Heart_Report %d is upload\r\n",device_id);
     rt_free(id);
 }

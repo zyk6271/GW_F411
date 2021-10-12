@@ -31,6 +31,7 @@ void Reset_WiFi(void)
     rt_timer_start(Reset_WiFi_Timer);
     LOG_D("Wait For Reset Result\r\n");
 }
+MSH_CMD_EXPORT(Reset_WiFi,Reset_WiFi)
 void Reset_WiFi_Callback(void *parameter)
 {
     if(Reset_WiFi_Counter<3 && mcu_get_reset_wifi_flag()!=1)

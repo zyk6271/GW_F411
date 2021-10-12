@@ -114,15 +114,19 @@ static unsigned char dp_download_device_state_handle(const unsigned char value[]
 {
     //示例:当前DP类型为BOOL
     unsigned char ret;
+    uint32_t device=0;
     //0:关/1:开
     unsigned char device_state;
     
     device_state = mcu_get_dp_download_bool(value,length);
+    device = atol(sub_id_buf);
     if(device_state == 0)
     {
+        Moto_CloseRemote(device);
     }
     else
     {
+        Moto_OpenRemote(device);
     }
     return SUCCESS;
 }
@@ -144,15 +148,6 @@ static unsigned char dp_download_control_state_handle(const unsigned char value[
     unsigned char control_state;
     
     control_state = mcu_get_dp_download_bool(value,length);
-    uint32_t device=0;
-    device = atol(sub_id_buf);
-    LOG_D("%ld",device);
-    if(control_state == 0) {
-        Moto_CloseRemote(device);
-  
-    }else {
-        Moto_OpenRemote(device);
-    }
     return SUCCESS;
 }
 /*****************************************************************************
