@@ -109,6 +109,7 @@ void wifi_uart_init(void)
         rt_thread_startup(WiFi_Uart_Thread);
     }
 }
+uint8_t sync_flag=0;
 void wifi_status_timer_callback(void *parameter)
 {
     uint8_t result = 0;
@@ -119,8 +120,9 @@ void wifi_status_timer_callback(void *parameter)
         wifi_status = result;
         LOG_I("wifi_status is change to %d\r\n",result);
         wifi_led(result);
-        if(result == 4)
+        if(result == 4 && sync_flag == 0)
         {
+            sync_flag = 1;
             qur_subdev_list();
         }
     }

@@ -29,7 +29,7 @@ void Slave_Add_WiFi(uint32_t device_id,uint32_t from_id);
 void Door_Add_WiFi(uint32_t device_id,uint32_t from_id);
 void Device_Delete_WiFi(uint32_t device_id);
 void Remote_Delay_WiFi(uint32_t device_id,uint8_t state);
-void Door_Delay_WiFi(uint32_t device_id,uint8_t state);
+void Door_Delay_WiFi(uint32_t main_id,uint32_t device_id,uint8_t state);
 void Warning_WiFi(uint32_t device_id,uint8_t state);
 void Moto_CloseRemote(uint32_t device_id);
 void Moto_OpenRemote(uint32_t device_id);

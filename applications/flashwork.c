@@ -220,8 +220,10 @@ uint8_t MainAdd_Flash(uint32_t Device_ID)
     }
     Global_Device.ID[num] = Device_ID;
     Global_Device.Bind_ID[num] = 0;
+    Global_Device.Heart[num] = 1;
     Flash_ID_Change(num,Device_ID);
     Flash_Bind_Change(Device_ID,0);
+    Flash_Heart_Change(Device_ID,1);
     Add_MainNums();
     return RT_EOK;
 }
@@ -235,8 +237,10 @@ uint8_t SlaveAdd_Flash(uint32_t Device_ID,uint32_t Bind_ID)
     }
     Global_Device.ID[num] = Device_ID;
     Global_Device.Bind_ID[num] = Bind_ID;
+    Global_Device.Heart[num] = 1;
     Flash_ID_Change(num,Device_ID);
     Flash_Bind_Change(Device_ID,Bind_ID);
+    Flash_Heart_Change(Device_ID,1);
     return RT_EOK;
 }
 uint8_t DoorAdd_Flash(uint32_t Device_ID,uint32_t Bind_ID)
@@ -249,8 +253,10 @@ uint8_t DoorAdd_Flash(uint32_t Device_ID,uint32_t Bind_ID)
     }
     Global_Device.ID[num] = Device_ID;
     Global_Device.Bind_ID[num] = Bind_ID;
+    Global_Device.Heart[num] = 1;
     Flash_ID_Change(num,Device_ID);
     Flash_Bind_Change(Device_ID,Bind_ID);
+    Flash_Heart_Change(Device_ID,1);
     return RT_EOK;
 }
 uint32_t GetBindID(uint32_t Device_ID)

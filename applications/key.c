@@ -60,7 +60,7 @@ void Key_Reponse_Callback(void *parameter)
         }
         else if(K0_K1_Status==RT_EOK)
         {
-            beep_start(4);
+            beep_start(5);
             DeleteAllDevice();
             LOG_I("Reboot now\r\n");
             rt_thread_mdelay(3000);
