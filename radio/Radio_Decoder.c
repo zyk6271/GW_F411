@@ -100,6 +100,7 @@ void GatewaySyncSolve(uint8_t *rx_buffer,uint8_t rx_len)
             case 3:
                 Device_Add2Flash_Wifi(Rx_message.Device_ID,Rx_message.From_ID);//增加终端
                 Flash_Set_Heart(Rx_message.Device_ID,Rx_message.Command);
+                Slave_Heart(Rx_message.Device_ID,Rx_message.Command);//心跳
                 break;
             case 4://删除全部
                 Del_MainBind(Rx_message.From_ID);
@@ -228,6 +229,10 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 else //本地关闭
                 {
                     Remote_Delay_WiFi(Rx_message.From_ID,Rx_message.Data);
+                    if(Rx_message.Data==0)
+                    {
+                        MotoUpload(Rx_message.From_ID,0);//主控开关阀
+                    }
                 }
                 break;
             case 4:
