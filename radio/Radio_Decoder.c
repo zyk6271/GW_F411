@@ -100,6 +100,7 @@ void GatewaySyncSolve(uint8_t *rx_buffer,uint8_t rx_len)
             case 3:
                 Device_Add2Flash_Wifi(Rx_message.Device_ID,Rx_message.From_ID);//增加终端
                 Flash_Set_Heart(Rx_message.Device_ID,Rx_message.Command);
+                Slave_Heart(Rx_message.Device_ID,Rx_message.Command);//心跳
                 break;
             case 4://删除全部
                 Del_MainBind(Rx_message.From_ID);
@@ -147,6 +148,7 @@ void GatewayWarningSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 DeviceCheck(Rx_message.Device_ID,Rx_message.From_ID);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);
                 WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,1,Rx_message.Data);//终端水警
+                MotoUpload(Rx_message.From_ID,0);//主控开关阀
                 break;
             case 6:
                 DeviceCheck(Rx_message.Device_ID,Rx_message.From_ID);
@@ -154,7 +156,7 @@ void GatewayWarningSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,2,Rx_message.Data);//终端低电量
                 break;
             case 7:
-                Warning_WiFi(Rx_message.From_ID,Rx_message.Data);//报警状态
+                InitWarn_Main(Rx_message.From_ID);//报警状态
                 break;
             case 8://NTC报警
                 WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,3,Rx_message.Data);
@@ -193,27 +195,44 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
             {
             case 1:
                 MotoUpload(Rx_message.From_ID,Rx_message.Data);//主控开关阀
-                CloseWarn_Main(Rx_message.From_ID);
+                if(Rx_message.Data == 0)
+                {
+                    CloseWarn_Main(Rx_message.From_ID);
+                }
                 break;
             case 2:
                 RemoteUpload(Rx_message.From_ID,Rx_message.Device_ID,Rx_message.Data);//终端开关阀
                 DeviceCheck(Rx_message.Device_ID,Rx_message.From_ID);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//设备RSSI更新
+                MotoUpload(Rx_message.From_ID,Rx_message.Data);//主控开关阀
                 if(Rx_message.Data == 0)
                 {
+                    CloseWarn_Main(Rx_message.From_ID);
                     CloseWarn_Slave(Rx_message.Device_ID);
+                }
+                else
+                {
+                    Remote_Delay_WiFi(Rx_message.From_ID,0);
                 }
                 break;
             case 3:
                 if(Rx_message.Device_ID)//Delay远程关闭
                 {
-                    Door_Delay_WiFi(Rx_message.Device_ID,Rx_message.Data);
+                    Door_Delay_WiFi(Rx_message.From_ID,Rx_message.Device_ID,Rx_message.Data);
                     DeviceCheck(Rx_message.Device_ID,Rx_message.From_ID);
                     Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//设备RSSI更新
+                    if(Rx_message.Data==0)
+                    {
+                        MotoUpload(Rx_message.From_ID,0);//主控开关阀
+                    }
                 }
                 else //本地关闭
                 {
                     Remote_Delay_WiFi(Rx_message.From_ID,Rx_message.Data);
+                    if(Rx_message.Data==0)
+                    {
+                        MotoUpload(Rx_message.From_ID,0);//主控开关阀
+                    }
                 }
                 break;
             case 4:
@@ -227,6 +246,16 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 DoorUpload(Rx_message.From_ID,Rx_message.Device_ID,Rx_message.Data);//终端开关阀
                 DeviceCheck(Rx_message.Device_ID,Rx_message.From_ID);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//设备RSSI更新
+                MotoUpload(Rx_message.From_ID,Rx_message.Data);//主控开关阀
+                if(Rx_message.Data == 0)
+                {
+                    CloseWarn_Main(Rx_message.From_ID);
+                    CloseWarn_Slave(Rx_message.Device_ID);
+                }
+                else
+                {
+                    Remote_Delay_WiFi(Rx_message.From_ID,0);
+                }
                 break;
             }
         }

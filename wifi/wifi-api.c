@@ -121,7 +121,7 @@ void InitWarn_Main(uint32_t device_id)
     mcu_dp_bool_update(113,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
     mcu_dp_bool_update(DPID_TEMP,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
     mcu_dp_bool_update(DPID_LINE_STATE,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
-    LOG_I("CloseWarn_Main ID is %ld\r\n",device_id);
+    LOG_I("InitWarn_Main ID is %ld\r\n",device_id);
     rt_free(from_id_buf);
 }
 void CloseWarn_Slave(uint32_t device_id)
@@ -208,14 +208,17 @@ void Device_Add2Wifi(uint32_t device_id,uint32_t from_id)
         if(device_id>=10000000 && device_id<20000000)
         {
             Main_Add_WiFi(device_id);
+            Reset_Main_Value(device_id);
         }
         if(device_id>=20000000 && device_id<30000000)
         {
             Slave_Add_WiFi(device_id,from_id);
+            Reset_Slave_Value(device_id,from_id);
         }
         else if(device_id>=30000000 && device_id<40000000)
         {
             Door_Add_WiFi(device_id,from_id);
+            Reset_Door_Value(device_id,from_id);
         }
     }
 }
@@ -242,25 +245,27 @@ void Device_Add2Flash_Wifi(uint32_t device_id,uint32_t from_id)
             Reset_Door_Value(device_id,from_id);
         }
     }
-    else
-    {
-        if(device_id>=10000000 && device_id<20000000)
-        {
-            Main_Add_WiFi(device_id);
-        }
-        if(device_id>=20000000 && device_id<30000000)
-        {
-            Slave_Add_WiFi(device_id,from_id);
-        }
-        else if(device_id>=30000000 && device_id<40000000)
-        {
-            Door_Add_WiFi(device_id,from_id);
-        }
-    }
+//    else
+//    {
+//        if(device_id>=10000000 && device_id<20000000)
+//        {
+//            Main_Add_WiFi(device_id);
+//            Reset_Main_Value(device_id);
+//        }
+//        if(device_id>=20000000 && device_id<30000000)
+//        {
+//            Slave_Add_WiFi(device_id,from_id);
+//            Reset_Slave_Value(device_id,from_id);
+//        }
+//        else if(device_id>=30000000 && device_id<40000000)
+//        {
+//            Door_Add_WiFi(device_id,from_id);
+//            Reset_Slave_Value(device_id,from_id);
+//        }
+//    }
 }
 void DeviceCheck(uint32_t device_id,uint32_t from_id)
 {
-    Device_Add2Flash_Wifi(device_id,from_id);
     Flash_Set_Heart(device_id,1);
 }
 void Local_Delete(uint32_t device_id)
@@ -283,6 +288,7 @@ void Main_Add_WiFi(uint32_t device_id)
     sprintf(Buf,"%ld",device_id);
     local_add_subdev_limit(1,0,0x01);
     gateway_subdevice_add("1.0",main_pid,0,Buf,10,0);
+    rt_thread_mdelay(400);
     mcu_dp_value_update(112,device_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
     LOG_I("Main_Add_WiFi ID is %d\r\n",device_id);
     rt_free(Buf);
@@ -291,6 +297,7 @@ void Reset_Main_Value(uint32_t device_id)
 {
     char *Buf = rt_malloc(20);
     sprintf(Buf,"%ld",device_id);
+    rt_thread_mdelay(400);
     mcu_dp_value_update(112,device_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
     mcu_dp_bool_update(DPID_DEVICE_ALARM,0,Buf,my_strlen(Buf)); //BOOL型数据上报;
     mcu_dp_bool_update(DPID_LINE_STATE,0,Buf,my_strlen(Buf)); //BOOL型数据上报;
@@ -304,6 +311,7 @@ void Slave_Add_WiFi(uint32_t device_id,uint32_t from_id)
     sprintf(Buf,"%ld",device_id);
     local_add_subdev_limit(1,0,0x01);
     gateway_subdevice_add("1.0",slave_pid,0,Buf,10,0);
+    rt_thread_mdelay(400);
     mcu_dp_value_update(107,from_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
     LOG_I("Slave_Add_by WiFi ID is %d\r\n",device_id);
     rt_free(Buf);
@@ -312,6 +320,7 @@ void Reset_Slave_Value(uint32_t device_id,uint32_t from_id)
 {
     char *Buf = rt_malloc(20);
     sprintf(Buf,"%ld",device_id);
+    rt_thread_mdelay(400);
     mcu_dp_value_update(107,from_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
     mcu_dp_enum_update(1,0,Buf,my_strlen(Buf)); //BOOL型数据上报;
     mcu_dp_bool_update(104,0,Buf,my_strlen(Buf)); //VALUE型数据上报;
@@ -326,6 +335,7 @@ void Door_Add_WiFi(uint32_t device_id,uint32_t from_id)
     sprintf(Doorbuf,"%ld",device_id);
     local_add_subdev_limit(1,0,0x01);
     gateway_subdevice_add("1.0",door_pid,0,Doorbuf,10,0);
+    rt_thread_mdelay(400);
     mcu_dp_value_update(107,from_id,Doorbuf,my_strlen(Doorbuf)); //BOOL型数据上报;
     mcu_dp_value_update(108,device_id,Mainbuf,my_strlen(Mainbuf)); //BOOL型数据上报;
     LOG_I("Door_Add_WiFi ID is %d\r\n",device_id);
@@ -338,6 +348,7 @@ void Reset_Door_Value(uint32_t device_id,uint32_t from_id)
     char *Doorbuf = rt_malloc(20);
     sprintf(Mainbuf,"%ld",from_id);
     sprintf(Doorbuf,"%ld",device_id);
+    rt_thread_mdelay(400);
     mcu_dp_value_update(107,from_id,Doorbuf,my_strlen(Doorbuf)); //BOOL型数据上报;
     mcu_dp_value_update(108,device_id,Mainbuf,my_strlen(Mainbuf)); //BOOL型数据上报;
     LOG_I("Reset_Door_Value ID is %d\r\n",device_id);
@@ -352,13 +363,17 @@ void Remote_Delay_WiFi(uint32_t device_id,uint8_t state)
     mcu_dp_bool_update(106,state,Buf,my_strlen(Buf)); //VALUE型数据上报;
     rt_free(Buf);
 }
-void Door_Delay_WiFi(uint32_t device_id,uint8_t state)
+void Door_Delay_WiFi(uint32_t main_id,uint32_t device_id,uint8_t state)
 {
-    char *Buf = rt_malloc(20);
+    char *Main_Buf = rt_malloc(20);
+    char *Device_Buf = rt_malloc(20);
     LOG_I("Door_Delay_WiFi %d from %ld is upload\r\n",state,device_id);
-    sprintf(Buf,"%ld",device_id);
-    mcu_dp_bool_update(105,state,Buf,my_strlen(Buf)); //VALUE型数据上报;
-    rt_free(Buf);
+    sprintf(Main_Buf,"%ld",main_id);
+    sprintf(Device_Buf,"%ld",device_id);
+    mcu_dp_bool_update(105,state,Device_Buf,my_strlen(Device_Buf)); //VALUE型数据上报;
+    mcu_dp_bool_update(106,state,Main_Buf,my_strlen(Main_Buf)); //VALUE型数据上报;
+    rt_free(Device_Buf);
+    rt_free(Main_Buf);
 }
 void Warning_WiFi(uint32_t device_id,uint8_t state)
 {
@@ -461,9 +476,21 @@ void Sync_Request(void)
     }
     rt_timer_start(Sync_Request_t);
 }
+uint8_t Remote_Get_Key_Valid(uint32_t Device_ID)//查询内存中的ID
+{
+    uint16_t num = Remote_Device.Num;
+    if(!num)return RT_ERROR;
+    while(num)
+    {
+        if(Remote_Device.ID[num]==Device_ID)return RT_EOK;
+        num--;
+    }
+    return RT_ERROR;
+}
 void Remote_Device_Add(uint32_t device_id)
 {
     Remote_Device.ID[++Remote_Device.Num]=device_id;
+    LOG_I("Remote_Device_Add ID is %ld,Num is %d",device_id,Remote_Device.Num);
 }
 void Remote_Sync(void)
 {

@@ -25,6 +25,7 @@ struct serial_configure config = RT_SERIAL_CONFIG_DEFAULT;  /* 初始化配置�
 
 rt_timer_t wifi_status_timer = RT_NULL;
 rt_timer_t wifi_detect_timer = RT_NULL;
+rt_timer_t wifi_sync_timer = RT_NULL;
 
 uint8_t wifi_status = 0xff;
 uint8_t wifi_retry = 0;

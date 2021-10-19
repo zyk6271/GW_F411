@@ -10,6 +10,8 @@
 #ifndef WIFI_WIFI_API_H_
 #define WIFI_WIFI_API_H_
 
+#include "rtthread.h"
+
 void WariningUpload(uint32_t from_id,uint32_t device_id,uint8_t type,uint8_t value);
 void CloseWarn_Main(uint32_t device_id);
 void CloseWarn_Slave(uint32_t device_id);
@@ -29,7 +31,7 @@ void Slave_Add_WiFi(uint32_t device_id,uint32_t from_id);
 void Door_Add_WiFi(uint32_t device_id,uint32_t from_id);
 void Device_Delete_WiFi(uint32_t device_id);
 void Remote_Delay_WiFi(uint32_t device_id,uint8_t state);
-void Door_Delay_WiFi(uint32_t device_id,uint8_t state);
+void Door_Delay_WiFi(uint32_t main_id,uint32_t device_id,uint8_t state);
 void Warning_WiFi(uint32_t device_id,uint8_t state);
 void Moto_CloseRemote(uint32_t device_id);
 void Moto_OpenRemote(uint32_t device_id);
@@ -42,5 +44,6 @@ void Heart_Change(uint32_t device_id,uint8_t heart);
 void Sync_Request(void);
 void Remote_Sync(void);
 void Remote_Device_Add(uint32_t device_id);
+uint8_t Remote_Get_Key_Valid(uint32_t Device_ID);
 
 #endif /* WIFI_WIFI_API_H_ */
