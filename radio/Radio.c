@@ -802,7 +802,7 @@ void Radio_Task_Callback(void *parameter)
             ubRFState = trxstate_tx_longpreamble;
             TransmitData();
             SpiWriteSingleAddressRegister(REG_AX5043_PWRMODE, AX5043_PWRSTATE_FULL_TX); //AX5043_PWRMODE = AX5043_PWRSTATE_FULL_TX;
-            rt_timer_start(Send_Timer);
+            //rt_timer_start(Send_Timer);
             break;
         case trxstate_tx_waitdone:                 //D
             SpiReadSingleAddressRegister(REG_AX5043_RADIOEVENTREQ0);        //clear Interrupt flag
@@ -814,6 +814,12 @@ void Radio_Task_Callback(void *parameter)
             SpiWriteSingleAddressRegister(REG_AX5043_RADIOEVENTMASK0, 0x00);
             SetReceiveMode();           //接收模式
             AX5043Receiver_Continuous();
+            break;
+        case trxstate_txcw_xtalwait:
+            SpiWriteSingleAddressRegister(REG_AX5043_IRQMASK1, 0x00);
+            SpiWriteSingleAddressRegister(REG_AX5043_IRQMASK0, 0x00);
+            SpiWriteSingleAddressRegister(REG_AX5043_PWRMODE, AX5043_PWRSTATE_FULL_TX);
+            ubRFState = trxstate_off;
             break;
         default:
             SpiWriteSingleAddressRegister(REG_AX5043_IRQMASK1, 0x00);
@@ -842,6 +848,22 @@ void Send_Timer_Callback(void *parameter)
         SetReceiveMode();           //接收模式
         AX5043Receiver_Continuous();
     }
+}
+void Radio_CW(void)
+{
+    Ax5043SetRegisters_TX();
+    SpiWriteSingleAddressRegister(REG_AX5043_MODULATION, 8);   // Set an FSK mode
+    SpiWriteLongAddressRegister(REG_AX5043_FSKDEV2, 0x00);
+    SpiWriteLongAddressRegister(REG_AX5043_FSKDEV1, 0x00);
+    SpiWriteLongAddressRegister(REG_AX5043_FSKDEV0, 0x00);
+    SpiWriteLongAddressRegister(REG_AX5043_TXRATE2, 0x00);
+    SpiWriteLongAddressRegister(REG_AX5043_TXRATE1, 0x00);
+    SpiWriteLongAddressRegister(REG_AX5043_TXRATE0, 0x01);
+    SpiWriteSingleAddressRegister(REG_AX5043_PINFUNCDATA, 0x01);
+    SpiWriteSingleAddressRegister(REG_AX5043_PWRMODE, AX5043_PWRSTATE_FIFO_ON);
+    ubRFState = trxstate_txcw_xtalwait;
+    SpiWriteSingleAddressRegister(REG_AX5043_IRQMASK0, 0x00);
+    SpiWriteSingleAddressRegister(REG_AX5043_IRQMASK1, 0x01); // enable xtal ready interrupt
 }
 void Radio_Task_Init(void)
 {

@@ -148,32 +148,33 @@ void RadioDequeue(void *paramaeter)
     LOG_D("Queue Init Success\r\n");
     while(1)
     {
-        if(Main_Queue.NowNum == Main_Queue.TargetNum)
-        {
-            Main_Queue.NowNum = 0;
-            Main_Queue.TargetNum = 0;
-        }
-        else if(Main_Queue.TargetNum>0 && Main_Queue.TargetNum>Main_Queue.NowNum)
-        {
-            Main_Queue.NowNum++;
-            switch(Main_Queue.Type[Main_Queue.NowNum])
-            {
-            case 0:
-                rt_thread_mdelay(50);
-                RadioSend(Main_Queue.Taget_Id[Main_Queue.NowNum],Main_Queue.Counter[Main_Queue.NowNum],Main_Queue.Command[Main_Queue.NowNum],Main_Queue.Data[Main_Queue.NowNum]);
-                LOG_D("Normal Send With Now Num %d,Target Num is %d,Target_Id %ld,counter %d,command %d,data %d\r\n",Main_Queue.NowNum,Main_Queue.TargetNum,Main_Queue.Taget_Id[Main_Queue.NowNum],Main_Queue.Counter[Main_Queue.NowNum],Main_Queue.Command[Main_Queue.NowNum],Main_Queue.Data[Main_Queue.NowNum]);
-                rt_thread_mdelay(100);
-                break;
-            case 1:
-                rt_thread_mdelay(50);
-                GatewayDataSend(Main_Queue.Taget_Id[Main_Queue.NowNum],Main_Queue.Device_Id[Main_Queue.NowNum],Main_Queue.Counter[Main_Queue.NowNum],Main_Queue.Command[Main_Queue.NowNum],Main_Queue.Data[Main_Queue.NowNum]);
-                LOG_I("GatewaySend With Now Num %d,Target Num is %d,Type is %d,Target_Id %ld,Device_Id %ld,control %d,value %d\r\n",Main_Queue.NowNum,Main_Queue.TargetNum,Main_Queue.Type[Main_Queue.NowNum],Main_Queue.Taget_Id[Main_Queue.NowNum],Main_Queue.Device_Id[Main_Queue.NowNum],Main_Queue.Command[Main_Queue.NowNum],Main_Queue.Data[Main_Queue.NowNum]);
-                rt_thread_mdelay(100);
-                break;
-            default:break;
-            }
-        }
-        rt_thread_mdelay(50);
+//        if(Main_Queue.NowNum == Main_Queue.TargetNum)
+//        {
+//            Main_Queue.NowNum = 0;
+//            Main_Queue.TargetNum = 0;
+//        }
+//        else if(Main_Queue.TargetNum>0 && Main_Queue.TargetNum>Main_Queue.NowNum)
+//        {
+//            Main_Queue.NowNum++;
+//            switch(Main_Queue.Type[Main_Queue.NowNum])
+//            {
+//            case 0:
+//                rt_thread_mdelay(50);
+//                RadioSend(Main_Queue.Taget_Id[Main_Queue.NowNum],Main_Queue.Counter[Main_Queue.NowNum],Main_Queue.Command[Main_Queue.NowNum],Main_Queue.Data[Main_Queue.NowNum]);
+//                LOG_D("Normal Send With Now Num %d,Target Num is %d,Target_Id %ld,counter %d,command %d,data %d\r\n",Main_Queue.NowNum,Main_Queue.TargetNum,Main_Queue.Taget_Id[Main_Queue.NowNum],Main_Queue.Counter[Main_Queue.NowNum],Main_Queue.Command[Main_Queue.NowNum],Main_Queue.Data[Main_Queue.NowNum]);
+//                rt_thread_mdelay(100);
+//                break;
+//            case 1:
+//                rt_thread_mdelay(50);
+//                GatewayDataSend(Main_Queue.Taget_Id[Main_Queue.NowNum],Main_Queue.Device_Id[Main_Queue.NowNum],Main_Queue.Counter[Main_Queue.NowNum],Main_Queue.Command[Main_Queue.NowNum],Main_Queue.Data[Main_Queue.NowNum]);
+//                LOG_I("GatewaySend With Now Num %d,Target Num is %d,Type is %d,Target_Id %ld,Device_Id %ld,control %d,value %d\r\n",Main_Queue.NowNum,Main_Queue.TargetNum,Main_Queue.Type[Main_Queue.NowNum],Main_Queue.Taget_Id[Main_Queue.NowNum],Main_Queue.Device_Id[Main_Queue.NowNum],Main_Queue.Command[Main_Queue.NowNum],Main_Queue.Data[Main_Queue.NowNum]);
+//                rt_thread_mdelay(100);
+//                break;
+//            default:break;
+//            }
+//        }
+        Radio_CW();
+        rt_thread_mdelay(2000);
     }
 }
 void RadioDequeueTaskInit(void)
