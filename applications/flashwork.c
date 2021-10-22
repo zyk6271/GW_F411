@@ -307,6 +307,8 @@ uint8_t Del_Device(uint32_t Device_ID)
             Global_Device.ID[num] = 0;
             Flash_Bind_Change(Device_ID,0);
             Global_Device.Bind_ID[num] = 0;
+            Flash_UploadFlag_Change(Device_ID,0);
+            Global_Device.UploadFlag[num] = 0;
             break;
         }
         num--;
@@ -334,6 +336,8 @@ uint8_t Del_MainBind(uint32_t Device_ID)
             Global_Device.ID[num] = 0;
             Flash_Bind_Change(Device_ID,0);
             Global_Device.Bind_ID[num] = 0;
+            Flash_UploadFlag_Change(Device_ID,0);
+            Global_Device.UploadFlag[num] = 0;
         }
         num--;
     }
