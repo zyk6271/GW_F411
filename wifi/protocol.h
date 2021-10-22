@@ -355,27 +355,33 @@ mcu在wifi模块正确联网后可调用 get_green_time_with_zone() 函数发起
                         1:网关的dp数据点序列号重新定义
           **此为自动生成代码,如在开发平台有相关修改请重新下载MCU_SDK**
 ******************************************************************************/
-//设备开关阀(可下发可上报)
-//备注:开阀方式1：设备自身开关阀
+//主控阀门(可下发可上报)
+//备注:开阀方式1：设备自身开关阀(0关1开)
 #define DPID_DEVICE_STATE 101
-//阀门自检(只上报)
-//备注:
-#define DPID_DEVICE_CHECK 102
-//主控漏水报警(只上报)
-//备注:
+//阀门1自检失败(只上报)
+//备注:主控1号阀门自检失败结果上报到报警记录同时关联图标逻辑（True代表报警关联报警记录，False为恢复正常不关联）
+#define DPID_VALVE1_CHECK_FAIL 102
+//主控水警状态(只上报)
+//备注:主控水警上报（0普1警）
 #define DPID_DEVICE_ALARM 103
-//门控开关阀(可下发可上报)
-//备注:开阀方式2：门控中的开关执行开关阀
+//子设备控制(可下发可上报)
+//备注:开阀方式2：子设备对主控执行开关阀(0关1开)
 #define DPID_CONTROL_STATE 104
+//信号强度(只上报)
+//备注:>85 一格信号：0
+//84 ~ 54 两格信号：1
+//<54 三格信号：2
+#define DPID_SIGN_STATE 105
 //延时开关开关阀(可下发可上报)
 //备注:开阀方式3：延时开关执行开关阀
-#define DPID_DELAY_STATE 105
-//童锁开关(可下发可上报)
-#define DPID_MAIN_DELAY_STATE 106
-//NTC报警(只上报)
-#define DPID_TEMP 107
+#define DPID_DELAY_STATE 106
+//温度报警(只上报)
+//备注:0:温度正常
+//1.温度过低
+#define DPID_TEMP_STATE 107
+//门控ID(只上报)
 //备注:
-#define DPID_LOCK 108
+#define DPID_DOOR_ID 108
 //测水线脱落报警(只上报)
 //备注:
 #define DPID_LINE_STATE 109
@@ -385,12 +391,21 @@ mcu在wifi模块正确联网后可调用 get_green_time_with_zone() 函数发起
 //2：倒计时3h
 //3：倒计时4h
 #define DPID_DELAY_TIME 110
-
-#define DPID_NORMAL 111
-
-
-
-
+//设备正常(可下发可上报)
+//备注:normal == true
+#define DPID_NORMAL_STATA 111
+//自身ID(只上报)
+//备注:
+#define DPID_SELF_ID 112
+//阀门2自检失败(只上报)
+//备注:主控2号阀门自检失败结果上报到报警记录同时关联图标逻辑（True代表报警关联报警记录，False为恢复正常不关联）
+#define DPID_VALVE2_CHECK_FAIL 113
+//阀门1自检成功(只上报)
+//备注:主控1号阀门自检成功结果上报到操作记录（True代表成功关联操作记录，False情况不存在不关联）
+#define DPID_VALVE1_CHECK_SUCCESS 114
+//阀门2自检成功(只上报)
+//备注:主控2号阀门自检成功结果上报到操作记录（True代表成功关联操作记录，False情况不存在不关联）
+#define DPID_VALVE2_CHECK_SUCCESS 115
 /**
  * @brief  串口发送数据
  * @param[in] {value} 串口要发送的1字节数据

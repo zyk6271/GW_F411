@@ -21,6 +21,7 @@ typedef struct
     uint8_t Heart[MaxSupport];
     uint8_t HeartRetry[MaxSupport];
     uint8_t HeartRecv[MaxSupport];
+    uint8_t UploadFlag[MaxSupport];
     uint32_t ID[MaxSupport];
     uint32_t Bind_ID[MaxSupport];
 }Device_Info;
@@ -45,5 +46,7 @@ uint32_t GetBindID(uint32_t Device_ID);
 uint8_t Flash_Get_Heart(uint32_t Device_ID);
 uint8_t Flash_Set_Heart(uint32_t Device_ID,uint8_t heart);
 uint8_t Get_MainNums(void);
+uint8_t Flash_Get_UploadFlag(uint32_t Device_ID);
+uint8_t Flash_Set_UploadFlag(uint32_t Device_ID,uint8_t Flag);
 
 #endif /* APPLICATIONS_FLASHWORK_H_ */

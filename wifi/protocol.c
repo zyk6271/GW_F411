@@ -41,15 +41,21 @@
 ******************************************************************************/
 const DOWNLOAD_CMD_S download_cmd[] =
 {
-  {DPID_DEVICE_STATE, DP_TYPE_BOOL},
-  {DPID_DEVICE_CHECK, DP_TYPE_BOOL},
-  {DPID_DEVICE_ALARM, DP_TYPE_BOOL},
-  {DPID_CONTROL_STATE, DP_TYPE_BOOL},
-  {DPID_MAIN_DELAY_STATE, DP_TYPE_BOOL},
-  {DPID_LOCK, DP_TYPE_BOOL},
-  {DPID_LINE_STATE, DP_TYPE_BOOL},
-  {DPID_DELAY_TIME, DP_TYPE_ENUM},
-  
+    {DPID_DEVICE_STATE, DP_TYPE_BOOL},
+    {DPID_VALVE1_CHECK_FAIL, DP_TYPE_BOOL},
+    {DPID_DEVICE_ALARM, DP_TYPE_BOOL},
+    {DPID_CONTROL_STATE, DP_TYPE_BOOL},
+    {DPID_SIGN_STATE, DP_TYPE_ENUM},
+    {DPID_DELAY_STATE, DP_TYPE_BOOL},
+    {DPID_TEMP_STATE, DP_TYPE_BOOL},
+    {DPID_DOOR_ID, DP_TYPE_VALUE},
+    {DPID_LINE_STATE, DP_TYPE_BOOL},
+    {DPID_DELAY_TIME, DP_TYPE_ENUM},
+    {DPID_NORMAL_STATA, DP_TYPE_BOOL},
+    {DPID_SELF_ID, DP_TYPE_VALUE},
+    {DPID_VALVE2_CHECK_FAIL, DP_TYPE_BOOL},
+    {DPID_VALVE1_CHECK_SUCCESS, DP_TYPE_BOOL},
+    {DPID_VALVE2_CHECK_SUCCESS, DP_TYPE_BOOL},
 };
 
 
@@ -177,57 +183,6 @@ static unsigned char dp_download_delay_state_handle(const unsigned char value[],
         //开关开
     }
     return SUCCESS;
-//    //处理完DP数据后应有反馈
-//    ret = mcu_dp_bool_update(DPID_MAIN_DELAY_STATE,delay_state, sub_id_buf, sub_id_len);
-//    if(ret == SUCCESS)
-//        return SUCCESS;
-//    else
-//        return ERROR;
-}
-/*****************************************************************************
-函数名称 : dp_download_lock_handle
-功能描述 : 针对DPID_LOCK的处理函数
-输入参数 : value:数据源数据
-        : length:数据长度
-        : sub_id_buf:子设备id
-        : sub_id_len:子设备id数据长度
-返回参数 : 成功返回:SUCCESS/失败返回:ERROR
-使用说明 : 可下发可上报类型,需要在处理完数据后上报处理结果至app
-*****************************************************************************/
-static unsigned char dp_download_lock_handle(const unsigned char value[], unsigned short length, unsigned char *sub_id_buf, unsigned char sub_id_len)
-{
-    //示例:当前DP类型为BOOL
-    unsigned char ret;
-    //0:关/1:开
-    unsigned char lock;
-
-    lock = mcu_get_dp_download_bool(value,length);
-    if(lock == 0) {
-        //开关关
-        //KidLock_Disable();
-        /*****************************************************************************
-        //dp数据处理前需要判断是哪一个子设备id的dp
-        //例如用户的网关下面有两个子设备id，一个是"1234"另一个是"5678"
-        if(my_strcmp(sub_id_buf,"1234") == 0) {
-
-        }else if(my_strcmp(sub_id_buf,"5678") == 0) {
-
-        }
-
-        //若子设备id是“0000”，则表示网关本身的dp
-        *****************************************************************************/
-
-    }else {
-        //KidLock_Enable();
-        //开关开
-    }
-
-    //处理完DP数据后应有反馈
-    ret = mcu_dp_bool_update(DPID_LOCK,lock, sub_id_buf, sub_id_len);
-    if(ret == SUCCESS)
-        return SUCCESS;
-    else
-        return ERROR;
 }
 /*****************************************************************************
 函数名称 : dp_download_delay_time_handle
@@ -316,14 +271,6 @@ unsigned char dp_download_handle(unsigned char dpid,const unsigned char value[],
         case DPID_CONTROL_STATE:
             //门控开关阀处理函数
             ret = dp_download_control_state_handle(value,length,sub_id_buf,sub_id_len);
-        break;
-        case DPID_MAIN_DELAY_STATE:
-            //延时开关开关阀处理函数
-            ret = dp_download_delay_state_handle(value,length,sub_id_buf,sub_id_len);
-        break;
-        case DPID_LOCK:
-            //童锁开关处理函数
-            ret = dp_download_lock_handle(value,length,sub_id_buf,sub_id_len);
         break;
         case DPID_DELAY_TIME:
             //延时开关倒计时处理函数

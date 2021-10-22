@@ -210,6 +210,17 @@ void Flash_Heart_Change(uint32_t Device_ID,uint32_t value)
     rt_free(Temp_ValueBuf);
     LOG_D("Writing %ld to key %s \r\n", value,Temp_KeyBuf);
 }
+void Flash_UploadFlag_Change(uint32_t Device_ID,uint32_t value)
+{
+    char *Temp_KeyBuf = rt_malloc(64);
+    sprintf(Temp_KeyBuf, "upload:%ld", Device_ID);
+    char *Temp_ValueBuf = rt_malloc(64);//申请临时buffer空间
+    sprintf(Temp_ValueBuf, "%ld", value);
+    ef_set_env(Temp_KeyBuf, Temp_ValueBuf);
+    rt_free(Temp_KeyBuf);
+    rt_free(Temp_ValueBuf);
+    LOG_D("Writing %ld to key %s \r\n", value,Temp_KeyBuf);
+}
 uint8_t MainAdd_Flash(uint32_t Device_ID)
 {
     uint8_t num;
@@ -358,6 +369,9 @@ uint32_t Flash_Get_Key_Value(uint8_t type,uint32_t key)
     case 3:
         sprintf(keybuf, "heart:%ld", key);//将传入的数字转换成数组
         break;
+    case 4:
+        sprintf(keybuf, "upload:%ld", key);//将传入的数字转换成数组
+        break;
     }
     memset(read_value_temp,0,64);
     read_len = ef_get_env_blob(keybuf, read_value_temp, 64, NULL);
@@ -385,6 +399,7 @@ void LoadDevice2Memory(void)
         {
             Global_Device.Bind_ID[i] = Flash_Get_Key_Value(2,Global_Device.ID[i]);
             Global_Device.Heart[i] = Flash_Get_Key_Value(3,Global_Device.ID[i]);
+            Global_Device.UploadFlag[i] = Flash_Get_Key_Value(4,Global_Device.ID[i]);
         }
         //LOG_I("GOT ID is %ld,Device_Type is %d,Bind_ID is %ld\r\n",Global_Device.ID[i],Global_Device.Device_Type[i],Global_Device.Bind_ID[i]);
     }
@@ -448,6 +463,42 @@ uint8_t Flash_Set_Heart(uint32_t Device_ID,uint8_t heart)//数据载入到内存
                 Global_Device.Heart[num] = heart;
                 Flash_Heart_Change(Device_ID,heart);
             }
+            return RT_EOK;
+        }
+        num--;
+    }
+    return RT_ERROR;
+}
+uint8_t Flash_Get_UploadFlag(uint32_t Device_ID)//数据载入到内存中
+{
+    uint16_t num = Global_Device.Num;
+    if(!num)
+    {
+        return 0;
+    }
+    while(num)
+    {
+        if(Global_Device.ID[num]==Device_ID)
+        {
+            return Global_Device.UploadFlag[num];
+        }
+        num--;
+    }
+    return 0;
+}
+uint8_t Flash_Set_UploadFlag(uint32_t Device_ID,uint8_t Flag)//数据载入到内存中
+{
+    uint16_t num = Global_Device.Num;
+    if(!num)
+    {
+        return RT_ERROR;
+    }
+    while(num)
+    {
+        if(Global_Device.ID[num]==Device_ID)
+        {
+            Global_Device.UploadFlag[num] = Flag;
+            Flash_UploadFlag_Change(Device_ID,Flag);
             return RT_EOK;
         }
         num--;
