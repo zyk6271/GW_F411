@@ -42,11 +42,11 @@ void WariningUpload(uint32_t from_id,uint32_t device_id,uint8_t type,uint8_t val
                mcu_dp_bool_update(103,value,device_id_buf,my_strlen(device_id_buf)); //BOOL型数据上报;
                break;
             case 1://漏水
-                mcu_dp_enum_update(1,value,device_id_buf,my_strlen(device_id_buf)); //BOOL型数据上报;
                 if(value)
                 {
                     mcu_dp_bool_update(104,0,device_id_buf,my_strlen(device_id_buf)); //VALUE型数据上报;
                 }
+                mcu_dp_enum_update(1,value,device_id_buf,my_strlen(device_id_buf)); //BOOL型数据上报;
                break;
             case 2://电量
                 mcu_dp_enum_update(102,value,device_id_buf,my_strlen(device_id_buf)); //BOOL型数据上报;
@@ -63,29 +63,28 @@ void WariningUpload(uint32_t from_id,uint32_t device_id,uint8_t type,uint8_t val
             case 0://自检
                 if(value == 0)
                 {
-                    mcu_dp_bool_update(DPID_VALVE1_CHECK_SUCCESS,1,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                     mcu_dp_bool_update(DPID_VALVE1_CHECK_FAIL,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+                    mcu_dp_bool_update(DPID_VALVE1_CHECK_SUCCESS,1,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                 }
                 else if(value == 1)
                 {
-                    mcu_dp_bool_update(DPID_VALVE2_CHECK_SUCCESS,1,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                     mcu_dp_bool_update(DPID_VALVE2_CHECK_FAIL,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+                    mcu_dp_bool_update(DPID_VALVE2_CHECK_SUCCESS,1,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                 }
                 else if(value == 2)
                 {
-                    mcu_dp_bool_update(DPID_VALVE1_CHECK_FAIL,1,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                     mcu_dp_bool_update(DPID_TEMP_STATE,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                     mcu_dp_bool_update(DPID_LINE_STATE,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+                    mcu_dp_bool_update(DPID_VALVE1_CHECK_FAIL,1,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                 }
                 else if(value == 3)
                 {
-                    mcu_dp_bool_update(DPID_VALVE2_CHECK_FAIL,1,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                     mcu_dp_bool_update(DPID_TEMP_STATE,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                     mcu_dp_bool_update(DPID_LINE_STATE,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
+                    mcu_dp_bool_update(DPID_VALVE2_CHECK_FAIL,1,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                 }
                break;
             case 1://漏水
-                mcu_dp_bool_update(DPID_DEVICE_ALARM,value,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                 if(value)
                 {
                     mcu_dp_bool_update(DPID_VALVE1_CHECK_FAIL,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
@@ -93,16 +92,17 @@ void WariningUpload(uint32_t from_id,uint32_t device_id,uint8_t type,uint8_t val
                     mcu_dp_bool_update(DPID_TEMP_STATE,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                     mcu_dp_bool_update(DPID_LINE_STATE,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                 }
+                mcu_dp_bool_update(DPID_DEVICE_ALARM,value,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                break;
             case 2://掉落
                 mcu_dp_bool_update(DPID_LINE_STATE,value,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                break;
             case 3://NTC
-                mcu_dp_bool_update(DPID_TEMP_STATE,value,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                 if(value)
                 {
                     mcu_dp_bool_update(DPID_LINE_STATE,0,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                 }
+                mcu_dp_bool_update(DPID_TEMP_STATE,value,from_id_buf,my_strlen(from_id_buf)); //BOOL型数据上报;
                break;
         }
     }
@@ -394,21 +394,21 @@ void Delay_OpenRemote(uint32_t device_id)
 MSH_CMD_EXPORT(Delay_OpenRemote,Delay_OpenRemote);
 void Heart_Report(uint32_t device_id,int rssi)
 {
-    char *id = rt_malloc(20);
-    sprintf(id,"%ld",device_id);
+    char *id_buf = rt_malloc(20);
+    sprintf(id_buf,"%ld",device_id);
     if(rssi>85)
     {
-        mcu_dp_enum_update(DPID_SIGN_STATE,0,id,my_strlen(id));
+        mcu_dp_enum_update(DPID_SIGN_STATE,0,id_buf,my_strlen(id_buf));
     }
     else if(rssi<=84 && rssi>54)
     {
-        mcu_dp_enum_update(DPID_SIGN_STATE,1,id,my_strlen(id));
+        mcu_dp_enum_update(DPID_SIGN_STATE,1,id_buf,my_strlen(id_buf));
     }
     else {
-        mcu_dp_enum_update(DPID_SIGN_STATE,2,id,my_strlen(id));
+        mcu_dp_enum_update(DPID_SIGN_STATE,2,id_buf,my_strlen(id_buf));
     }
     LOG_I("Heart_Report %d is upload\r\n",device_id);
-    rt_free(id);
+    rt_free(id_buf);
 }
 void Ack_Report(uint32_t device_id)
 {
@@ -473,30 +473,25 @@ void Sync_Request_Callback(void *parameter)
         Remote_Sync();
     }
 }
+void Remote_Device_Add(uint32_t device_id)
+{
+    Remote_Device.ID[++Remote_Device.Num]=device_id;
+    LOG_I("Remote_Device_Add ID is %ld,Num is %d",device_id,Remote_Device.Num);
+}
+void Remote_Device_Clear(void)
+{
+    LOG_D("Remote_Device_Clear\r\n");
+    memset(&Remote_Device,0,sizeof(Remote_Device));
+}
 void Sync_Request(void)
 {
     Sync_Counter = 1;
+    Remote_Device_Clear();
     if(Sync_Request_t==RT_NULL)
     {
         Sync_Request_t = rt_timer_create("Sync_Request", Sync_Request_Callback, RT_NULL, 8000, RT_TIMER_FLAG_PERIODIC|RT_TIMER_FLAG_SOFT_TIMER);
     }
     rt_timer_start(Sync_Request_t);
-}
-uint8_t Remote_Get_Key_Valid(uint32_t Device_ID)//查询内存中的ID
-{
-    uint16_t num = Remote_Device.Num;
-    if(!num)return RT_ERROR;
-    while(num)
-    {
-        if(Remote_Device.ID[num]==Device_ID)return RT_EOK;
-        num--;
-    }
-    return RT_ERROR;
-}
-void Remote_Device_Add(uint32_t device_id)
-{
-    Remote_Device.ID[++Remote_Device.Num]=device_id;
-    LOG_I("Remote_Device_Add ID is %ld,Num is %d",device_id,Remote_Device.Num);
 }
 void Remote_Sync(void)
 {

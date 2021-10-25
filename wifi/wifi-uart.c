@@ -165,3 +165,8 @@ void WiFi_Init(void)
     wifi_detect_timer = rt_timer_create("wifi_detect",wifi_detect_timer_callback,RT_NULL,5000,RT_TIMER_FLAG_SOFT_TIMER|RT_TIMER_FLAG_ONE_SHOT);
     //rt_timer_start(wifi_detect_timer);
 }
+void resetwork(void)
+{
+    wifi_uart_write_frame(WIFI_RESET_CMD, MCU_TX_VER, 0);
+}
+MSH_CMD_EXPORT(resetwork,resetwork);

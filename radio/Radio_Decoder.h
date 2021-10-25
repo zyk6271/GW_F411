@@ -26,7 +26,7 @@ typedef struct
 }Message;
 
 
-void Rx_Done_Callback(uint8_t *rx_buffer,uint8_t rx_len,int8_t rssi);
+void Rx_Done_Callback(uint8_t *rx_buffer,uint8_t rx_len);
 void Set_Learn_Flag(uint8_t value);
 uint8_t Get_Learn_Flag(void);
 

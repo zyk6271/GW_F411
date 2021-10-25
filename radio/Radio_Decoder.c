@@ -86,6 +86,7 @@ void GatewaySyncSolve(uint8_t *rx_buffer,uint8_t rx_len)
             {
                 GatewayDataEnqueue(Rx_message.From_ID,0,0,7,0);
             }
+            Heart_Report(Rx_message.From_ID,abs(ubRssi-64));
             Flash_Set_Heart(Rx_message.From_ID,1);
             switch(Rx_message.type)
             {
@@ -129,6 +130,7 @@ void GatewayWarningSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 GatewayDataEnqueue(Rx_message.From_ID,0,0,7,0);
             }
             Flash_Set_Heart(Rx_message.From_ID,1);
+            Heart_Report(Rx_message.From_ID,abs(ubRssi-64));
             LOG_D("WariningUpload From ID is %ld,Device ID is %ld,type is %d,value is %d\r\n",Rx_message.From_ID,Rx_message.Device_ID,Rx_message.Command,Rx_message.Data);
             switch(Rx_message.Command)
             {
@@ -189,7 +191,7 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
             {
                 GatewayDataEnqueue(Rx_message.From_ID,0,0,7,0);
             }
-            Heart_Report(Rx_message.From_ID,ubRssi-64);
+            Heart_Report(Rx_message.From_ID,abs(ubRssi-64));
             Flash_Set_Heart(Rx_message.From_ID,1);
             switch(Rx_message.Command)
             {
@@ -269,7 +271,7 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
         LOG_W("GatewayControlSolve verify Fail\r\n");
     }
 }
-void Rx_Done_Callback(uint8_t *rx_buffer,uint8_t rx_len,int8_t rssi)
+void Rx_Done_Callback(uint8_t *rx_buffer,uint8_t rx_len)
 {
     switch(rx_buffer[1])
     {
