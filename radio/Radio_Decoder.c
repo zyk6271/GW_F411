@@ -203,18 +203,26 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 }
                 break;
             case 2:
-                RemoteUpload(Rx_message.From_ID,Rx_message.Device_ID,Rx_message.Data);//终端开关阀
                 DeviceCheck(Rx_message.Device_ID,Rx_message.From_ID);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//设备RSSI更新
-                MotoUpload(Rx_message.From_ID,Rx_message.Data);//主控开关阀
-                if(Rx_message.Data == 0)
+                if(Rx_message.Data == 0 || Rx_message.Data == 1)
                 {
-                    CloseWarn_Main(Rx_message.From_ID);
-                    CloseWarn_Slave(Rx_message.Device_ID);
+                    RemoteUpload(Rx_message.From_ID,Rx_message.Device_ID,Rx_message.Data);//终端开关阀
+                    MotoUpload(Rx_message.From_ID,Rx_message.Data);//主控开关阀
+                    if(Rx_message.Data == 0)
+                    {
+                        CloseWarn_Main(Rx_message.From_ID);
+                        CloseWarn_Slave(Rx_message.Device_ID);
+                    }
+                    else
+                    {
+                        Remote_Delay_WiFi(Rx_message.From_ID,0);
+                    }
                 }
                 else
                 {
-                    Remote_Delay_WiFi(Rx_message.From_ID,0);
+                    RemoteUpload(Rx_message.From_ID,Rx_message.Device_ID,0);//终端开关阀
+                    MotoUpload(Rx_message.From_ID,0);//主控开关阀
                 }
                 break;
             case 3:

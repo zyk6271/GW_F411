@@ -279,6 +279,8 @@ void Upload_Main_ID(uint32_t device_id)
     char *Buf = rt_malloc(20);
     sprintf(Buf,"%ld",device_id);
     mcu_dp_value_update(DPID_SELF_ID,device_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
+    mcu_dp_value_update(DPID_SELF_ID,device_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
+    mcu_dp_value_update(DPID_SELF_ID,device_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
     LOG_I("Upload_Main_ID is %d\r\n",device_id);
     rt_free(Buf);
 }
@@ -305,6 +307,8 @@ void Upload_Slave_ID(uint32_t device_id,uint32_t from_id)
 {
     char *Buf = rt_malloc(20);
     sprintf(Buf,"%ld",device_id);
+    mcu_dp_value_update(107,from_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
+    mcu_dp_value_update(107,from_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
     mcu_dp_value_update(107,from_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
     LOG_I("Upload_Slave_ID is %d\r\n",device_id);
     rt_free(Buf);
@@ -333,6 +337,10 @@ void Upload_Door_ID(uint32_t device_id,uint32_t from_id)
     char *Doorbuf = rt_malloc(20);
     sprintf(Mainbuf,"%ld",from_id);
     sprintf(Doorbuf,"%ld",device_id);
+    mcu_dp_value_update(107,from_id,Doorbuf,my_strlen(Doorbuf)); //BOOL型数据上报;
+    mcu_dp_value_update(108,device_id,Mainbuf,my_strlen(Mainbuf)); //BOOL型数据上报;
+    mcu_dp_value_update(107,from_id,Doorbuf,my_strlen(Doorbuf)); //BOOL型数据上报;
+    mcu_dp_value_update(108,device_id,Mainbuf,my_strlen(Mainbuf)); //BOOL型数据上报;
     mcu_dp_value_update(107,from_id,Doorbuf,my_strlen(Doorbuf)); //BOOL型数据上报;
     mcu_dp_value_update(108,device_id,Mainbuf,my_strlen(Mainbuf)); //BOOL型数据上报;
     LOG_I("Upload_Door_ID is %d\r\n",device_id);
