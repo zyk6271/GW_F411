@@ -122,6 +122,7 @@ void wifi_status_timer_callback(void *parameter)
         wifi_led(result);
         if(result == 4)
         {
+            Remote_Device_Clear();
             qur_subdev_list();
         }
     }

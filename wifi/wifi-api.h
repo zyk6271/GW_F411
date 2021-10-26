@@ -46,6 +46,7 @@ void Heart_Report(uint32_t device_id,int rssi);
 void Ack_Report(uint32_t device_id);
 void Heart_Request(char *device_id);
 void Heart_Change(uint32_t device_id,uint8_t heart);
+void Remote_Device_Clear(void);
 void Sync_Request(void);
 void Remote_Sync(void);
 void Remote_Device_Add(uint32_t device_id);

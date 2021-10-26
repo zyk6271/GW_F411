@@ -494,7 +494,6 @@ void Remote_Device_Clear(void)
 void Sync_Request(void)
 {
     Sync_Counter = 1;
-    Remote_Device_Clear();
     if(Sync_Request_t==RT_NULL)
     {
         Sync_Request_t = rt_timer_create("Sync_Request", Sync_Request_Callback, RT_NULL, 8000, RT_TIMER_FLAG_PERIODIC|RT_TIMER_FLAG_SOFT_TIMER);

@@ -137,8 +137,8 @@ static unsigned char dp_download_device_state_handle(const unsigned char value[]
     return SUCCESS;
 }
 /*****************************************************************************
-函数名称 : dp_download_clear_error_handle
-功能描述 : 针对DPID_CLEAR_ERROR的处理函数
+函数名称 : dp_download_control_state_handle
+功能描述 : 针对DPID_CONTROL_STATE的处理函数
 输入参数 : value:数据源数据
         : length:数据长度
         : sub_id_buf:子设备id
@@ -154,92 +154,31 @@ static unsigned char dp_download_control_state_handle(const unsigned char value[
     unsigned char control_state;
     
     control_state = mcu_get_dp_download_bool(value,length);
-    return SUCCESS;
-}
-/*****************************************************************************
-函数名称 : dp_download_delay_state_handle
-功能描述 : 针对DPID_DELAY_STATE的处理函数
-输入参数 : value:数据源数据
-        : length:数据长度
-        : sub_id_buf:子设备id
-        : sub_id_len:子设备id数据长度
-返回参数 : 成功返回:SUCCESS/失败返回:ERROR
-使用说明 : 可下发可上报类型,需要在处理完数据后上报处理结果至app
-*****************************************************************************/
-static unsigned char dp_download_delay_state_handle(const unsigned char value[], unsigned short length, unsigned char *sub_id_buf, unsigned char sub_id_len)
-{
-    //示例:当前DP类型为BOOL
-    unsigned char ret;
-    //0:关/1:开
-    unsigned char delay_state;
-    
-    delay_state = mcu_get_dp_download_bool(value,length);
-    uint32_t device=0;
-    device = atol(sub_id_buf);
-    if(delay_state == 1) {
-        Delay_OpenRemote(device);
+    if(control_state == 0) {
+        //开关关
+        /*****************************************************************************
+        //dp数据处理前需要判断是哪一个子设备id的dp
+        //例如用户的网关下面有两个子设备id，一个是"1234"另一个是"5678"
+        if(my_strcmp(sub_id_buf,"1234") == 0) {
+
+        }else if(my_strcmp(sub_id_buf,"5678") == 0) {
+
+        }
+
+        //若子设备id是“0000”，则表示网关本身的dp
+        *****************************************************************************/
+
     }else {
-        Delay_CloseRemote(device);
         //开关开
     }
-    return SUCCESS;
-}
-/*****************************************************************************
-函数名称 : dp_download_delay_time_handle
-功能描述 : 针对DPID_DELAY_TIME的处理函数
-输入参数 : value:数据源数据
-        : length:数据长度
-        : sub_id_buf:子设备id
-        : sub_id_len:子设备id数据长度
-返回参数 : 成功返回:SUCCESS/失败返回:ERROR
-使用说明 : 可下发可上报类型,需要在处理完数据后上报处理结果至app
-*****************************************************************************/
-static unsigned char dp_download_delay_time_handle(const unsigned char value[], unsigned short length, unsigned char *sub_id_buf, unsigned char sub_id_len)
-{
-    //示例:当前DP类型为ENUM
-    unsigned char ret;
-    unsigned char delay_time;
-    
-    delay_time = mcu_get_dp_download_enum(value,length);
-    switch(delay_time) {
-        case 0:
-            /*****************************************************************************
-            //dp数据处理前需要判断是哪一个子设备id的dp
-            //例如用户的网关下面有两个子设备id，一个是"1234"另一个是"5678"
-            if(my_strcmp(sub_id_buf,"1234") == 0){
-            
-            }else if(my_strcmp(sub_id_buf,"5678") == 0){
-            
-            }
-            //若子设备id是“0000”，则表示网关本身的dp
-            *****************************************************************************/
-        break;
-        
-        case 1:
-        break;
-        
-        case 2:
-        break;
-        
-        case 3:
-        break;
-        
-        default:
-    
-        break;
-    }
-    
+
     //处理完DP数据后应有反馈
-    ret = mcu_dp_enum_update(DPID_DELAY_TIME, delay_time, sub_id_buf, sub_id_len);
+    ret = mcu_dp_bool_update(DPID_CONTROL_STATE,control_state, sub_id_buf, sub_id_len);
     if(ret == SUCCESS)
         return SUCCESS;
     else
         return ERROR;
 }
-
-
-
-
 /******************************************************************************
                                 WARNING!!!                     
 此部分函数用户请勿修改!!
@@ -272,11 +211,6 @@ unsigned char dp_download_handle(unsigned char dpid,const unsigned char value[],
             //门控开关阀处理函数
             ret = dp_download_control_state_handle(value,length,sub_id_buf,sub_id_len);
         break;
-        case DPID_DELAY_TIME:
-            //延时开关倒计时处理函数
-            ret = dp_download_delay_time_handle(value,length,sub_id_buf,sub_id_len);
-        break;
-
         default:
         break;
     }
