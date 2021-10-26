@@ -98,13 +98,27 @@ void GatewaySyncSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 Local_Delete(Rx_message.Device_ID);
                 Del_Device(Rx_message.Device_ID);//删除终端
                 break;
-            case 3:
+            case 3://同步在线设备
                 Device_Add2Flash_Wifi(Rx_message.Device_ID,Rx_message.From_ID);//增加终端
-                Flash_Set_Heart(Rx_message.Device_ID,Rx_message.Command);
+                Flash_Set_Heart(Rx_message.Device_ID,1);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Command);//心跳
+                WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,2,Rx_message.Data);//终端电量
                 break;
             case 4://删除全部
                 Del_MainBind(Rx_message.From_ID);
+                break;
+            case 5://同步离线设备
+                Device_Add2Flash_Wifi(Rx_message.Device_ID,Rx_message.From_ID);//增加终端
+                Flash_Set_Heart(Rx_message.Device_ID,0);
+                Slave_Heart(Rx_message.Device_ID,Rx_message.Command);//心跳
+                WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,2,Rx_message.Data);//终端低电量
+                break;
+            case 6://添加设备
+                Device_Add2Flash_Wifi_Direct(Rx_message.Device_ID,Rx_message.From_ID);//增加终端
+                Flash_Set_Heart(Rx_message.Device_ID,1);
+                Slave_Heart(Rx_message.Device_ID,Rx_message.Command);//心跳
+                WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,2,Rx_message.Data);//终端低电量
+                //Sync_Stop();
                 break;
             }
         }

@@ -247,6 +247,41 @@ void Device_Add2Flash_Wifi(uint32_t device_id,uint32_t from_id)
         }
     }
 }
+void Device_Add2Flash_Wifi_Direct(uint32_t device_id,uint32_t from_id)
+{
+    if(Flash_Get_Key_Valid(device_id) == RT_ERROR)
+    {
+        if(device_id>=10000000 && device_id<20000000)
+        {
+            MainAdd_Flash(device_id);
+            Main_Add_WiFi(device_id);
+        }
+        if(device_id>=20000000 && device_id<30000000)
+        {
+            SlaveAdd_Flash(device_id,from_id);
+            Slave_Add_WiFi(device_id);
+        }
+        else if(device_id>=30000000 && device_id<40000000)
+        {
+            DoorAdd_Flash(device_id,from_id);
+            Door_Add_WiFi(device_id);
+        }
+    }
+    else {
+        if(device_id>=10000000 && device_id<20000000)
+        {
+            Main_Add_WiFi(device_id);
+        }
+        if(device_id>=20000000 && device_id<30000000)
+        {
+            Slave_Add_WiFi(device_id);
+        }
+        else if(device_id>=30000000 && device_id<40000000)
+        {
+            Door_Add_WiFi(device_id);
+        }
+    }
+}
 void DeviceCheck(uint32_t device_id,uint32_t from_id)
 {
     Flash_Set_Heart(device_id,1);
@@ -478,7 +513,7 @@ void Sync_Request_Callback(void *parameter)
     else
     {
         rt_timer_stop(Sync_Request_t);
-        Remote_Sync();
+        //Remote_Sync();
     }
 }
 void Remote_Device_Add(uint32_t device_id)
@@ -491,6 +526,17 @@ void Remote_Device_Clear(void)
     LOG_D("Remote_Device_Clear\r\n");
     memset(&Remote_Device,0,sizeof(Remote_Device));
 }
+uint8_t Remote_Get_Key_Valid(uint32_t Device_ID)//查询内存中的ID
+{
+    uint16_t num = Remote_Device.Num;
+    if(!num)return RT_ERROR;
+    while(num)
+    {
+        if(Remote_Device.ID[num]==Device_ID)return RT_EOK;
+        num--;
+    }
+    return RT_ERROR;
+}
 void Sync_Request(void)
 {
     Sync_Counter = 1;
@@ -499,6 +545,11 @@ void Sync_Request(void)
         Sync_Request_t = rt_timer_create("Sync_Request", Sync_Request_Callback, RT_NULL, 8000, RT_TIMER_FLAG_PERIODIC|RT_TIMER_FLAG_SOFT_TIMER);
     }
     rt_timer_start(Sync_Request_t);
+}
+void Sync_Stop(void)
+{
+    LOG_I("Sync_Stop\r\n");
+    rt_timer_stop(Sync_Request_t);
 }
 void Remote_Sync(void)
 {
