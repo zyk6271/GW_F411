@@ -225,11 +225,11 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
                     MotoUpload(Rx_message.From_ID,Rx_message.Data);//主控开关阀
                     if(Rx_message.Data == 0)
                     {
-                        CloseWarn_Main(Rx_message.From_ID);
                         CloseWarn_Slave(Rx_message.Device_ID);
                     }
                     else
                     {
+                        CloseWarn_Main(Rx_message.From_ID);
                         Remote_Delay_WiFi(Rx_message.From_ID,0);
                     }
                 }
@@ -273,7 +273,6 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 MotoUpload(Rx_message.From_ID,Rx_message.Data);//主控开关阀
                 if(Rx_message.Data == 0)
                 {
-                    CloseWarn_Main(Rx_message.From_ID);
                     CloseWarn_Slave(Rx_message.Device_ID);
                 }
                 else

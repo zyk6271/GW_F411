@@ -107,36 +107,6 @@ void all_data_update(void)
 自动化代码模板函数,具体请用户自行实现数据处理
 ******************************************************************************/
 /*****************************************************************************
-函数名称 : dp_download_valve_state_handle
-功能描述 : 针对DPID_VALVE_STATE的处理函数
-输入参数 : value:数据源数据
-        : length:数据长度
-        : sub_id_buf:子设备id
-        : sub_id_len:子设备id数据长度
-返回参数 : 成功返回:SUCCESS/失败返回:ERROR
-使用说明 : 可下发可上报类型,需要在处理完数据后上报处理结果至app
-*****************************************************************************/
-static unsigned char dp_download_device_state_handle(const unsigned char value[], unsigned short length, unsigned char *sub_id_buf, unsigned char sub_id_len)
-{
-    //示例:当前DP类型为BOOL
-    unsigned char ret;
-    uint32_t device=0;
-    //0:关/1:开
-    unsigned char device_state;
-    
-    device_state = mcu_get_dp_download_bool(value,length);
-    device = atol(sub_id_buf);
-    if(device_state == 0)
-    {
-        Moto_CloseRemote(device);
-    }
-    else
-    {
-        Moto_OpenRemote(device);
-    }
-    return SUCCESS;
-}
-/*****************************************************************************
 函数名称 : dp_download_control_state_handle
 功能描述 : 针对DPID_CONTROL_STATE的处理函数
 输入参数 : value:数据源数据
@@ -152,23 +122,15 @@ static unsigned char dp_download_control_state_handle(const unsigned char value[
     unsigned char ret;
     //0:关/1:开
     unsigned char control_state;
-    
+    uint32_t device_id=0;
+    device_id = atol(sub_id_buf);
     control_state = mcu_get_dp_download_bool(value,length);
     if(control_state == 0) {
+        Moto_CloseRemote(device_id);
         //开关关
-        /*****************************************************************************
-        //dp数据处理前需要判断是哪一个子设备id的dp
-        //例如用户的网关下面有两个子设备id，一个是"1234"另一个是"5678"
-        if(my_strcmp(sub_id_buf,"1234") == 0) {
-
-        }else if(my_strcmp(sub_id_buf,"5678") == 0) {
-
-        }
-
-        //若子设备id是“0000”，则表示网关本身的dp
-        *****************************************************************************/
 
     }else {
+        Moto_OpenRemote(device_id);
         //开关开
     }
 
@@ -203,10 +165,6 @@ unsigned char dp_download_handle(unsigned char dpid,const unsigned char value[],
     ****************************************************************/
     unsigned char ret;
     switch(dpid) {
-        case DPID_DEVICE_STATE:
-            //设备开关阀处理函数
-            ret = dp_download_device_state_handle(value,length,sub_id_buf,sub_id_len);
-        break;
         case DPID_CONTROL_STATE:
             //门控开关阀处理函数
             ret = dp_download_control_state_handle(value,length,sub_id_buf,sub_id_len);
