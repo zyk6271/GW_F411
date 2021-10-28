@@ -509,3 +509,73 @@ uint8_t Flash_Set_UploadFlag(uint32_t Device_ID,uint8_t Flag)//数据载入到�
     }
     return RT_ERROR;
 }
+uint8_t Flash_Get_Moto(uint32_t Device_ID)//数据载入到内存中
+{
+    uint16_t num = Global_Device.Num;
+    if(!num)
+    {
+        return 0;
+    }
+    while(num)
+    {
+        if(Global_Device.ID[num]==Device_ID)
+        {
+            return Global_Device.Moto[num];
+        }
+        num--;
+    }
+    return 0;
+}
+uint8_t Flash_Set_Moto(uint32_t Device_ID,uint8_t Flag)//数据载入到内存中
+{
+    uint16_t num = Global_Device.Num;
+    if(!num)
+    {
+        return RT_ERROR;
+    }
+    while(num)
+    {
+        if(Global_Device.ID[num]==Device_ID)
+        {
+            Global_Device.Moto[num] = Flag;
+            return RT_EOK;
+        }
+        num--;
+    }
+    return RT_ERROR;
+}
+uint8_t Flash_Get_Rssi(uint32_t Device_ID)//数据载入到内存中
+{
+    uint16_t num = Global_Device.Num;
+    if(!num)
+    {
+        return 0;
+    }
+    while(num)
+    {
+        if(Global_Device.ID[num]==Device_ID)
+        {
+            return Global_Device.Rssi[num];
+        }
+        num--;
+    }
+    return 0;
+}
+uint8_t Flash_Set_Rssi(uint32_t Device_ID,uint8_t Flag)//数据载入到内存中
+{
+    uint16_t num = Global_Device.Num;
+    if(!num)
+    {
+        return RT_ERROR;
+    }
+    while(num)
+    {
+        if(Global_Device.ID[num]==Device_ID)
+        {
+            Global_Device.Rssi[num] = Flag;
+            return RT_EOK;
+        }
+        num--;
+    }
+    return RT_ERROR;
+}

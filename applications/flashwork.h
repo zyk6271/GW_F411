@@ -18,6 +18,8 @@ typedef struct
 {
     uint8_t Num;
     uint8_t MainNum;
+    uint8_t Rssi[MaxSupport];
+    uint8_t Moto[MaxSupport];
     uint8_t Heart[MaxSupport];
     uint8_t HeartRetry[MaxSupport];
     uint8_t HeartRecv[MaxSupport];
@@ -48,5 +50,9 @@ uint8_t Flash_Set_Heart(uint32_t Device_ID,uint8_t heart);
 uint8_t Get_MainNums(void);
 uint8_t Flash_Get_UploadFlag(uint32_t Device_ID);
 uint8_t Flash_Set_UploadFlag(uint32_t Device_ID,uint8_t Flag);
+uint8_t Flash_Get_Moto(uint32_t Device_ID);
+uint8_t Flash_Set_Moto(uint32_t Device_ID,uint8_t Flag);
+uint8_t Flash_Get_Rssi(uint32_t Device_ID);
+uint8_t Flash_Set_Rssi(uint32_t Device_ID,uint8_t Flag);
 
 #endif /* APPLICATIONS_FLASHWORK_H_ */
