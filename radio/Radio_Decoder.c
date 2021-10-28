@@ -230,7 +230,6 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
                     else
                     {
                         CloseWarn_Main(Rx_message.From_ID);
-                        Remote_Delay_WiFi(Rx_message.From_ID,0);
                     }
                 }
                 else
@@ -245,18 +244,10 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
                     Door_Delay_WiFi(Rx_message.From_ID,Rx_message.Device_ID,Rx_message.Data);
                     DeviceCheck(Rx_message.Device_ID,Rx_message.From_ID);
                     Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//设备RSSI更新
-                    if(Rx_message.Data==0)
-                    {
-                        MotoUpload(Rx_message.From_ID,0);//主控开关阀
-                    }
                 }
                 else //本地关闭
                 {
                     Remote_Delay_WiFi(Rx_message.From_ID,Rx_message.Data);
-                    if(Rx_message.Data==0)
-                    {
-                        MotoUpload(Rx_message.From_ID,0);//主控开关阀
-                    }
                 }
                 break;
             case 4:
@@ -267,7 +258,7 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 Ack_Report(Rx_message.From_ID);
                 break;
             case 6:
-                DoorUpload(Rx_message.From_ID,Rx_message.Device_ID,Rx_message.Data);//终端开关阀
+                DoorUpload(Rx_message.From_ID,Rx_message.Device_ID,Rx_message.Data);//主控开关阀
                 DeviceCheck(Rx_message.Device_ID,Rx_message.From_ID);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//设备RSSI更新
                 MotoUpload(Rx_message.From_ID,Rx_message.Data);//主控开关阀
