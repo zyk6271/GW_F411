@@ -485,10 +485,24 @@ void Heart_Request(char *device_id)
 {
     uint32_t id = 0;
     id = atol(device_id);
-    if(Flash_Get_Heart(id))
+    if(GetBindID(device_id)!=0)//如果是子设备
     {
-        heart_beat_report(device_id,0);
         Self_Bind_Upload(id);
+        if(Flash_Get_Heart(GetBindID(device_id)))//检测子设备所属主控是否在线
+        {
+            if(Flash_Get_Heart(device_id))
+            {
+                heart_beat_report(device_id,0);
+            }
+        }
+    }
+    else
+    {
+        Self_Bind_Upload(id);
+        if(Flash_Get_Heart(id))
+        {
+            heart_beat_report(device_id,0);
+        }
     }
 }
 void Sync_Request_Callback(void *parameter)
