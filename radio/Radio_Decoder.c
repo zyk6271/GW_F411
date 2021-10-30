@@ -227,10 +227,6 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
                     {
                         CloseWarn_Slave(Rx_message.Device_ID);
                     }
-                    else
-                    {
-                        CloseWarn_Main(Rx_message.From_ID);
-                    }
                 }
                 else
                 {
