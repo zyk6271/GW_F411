@@ -481,10 +481,10 @@ void Heart_Change(uint32_t device_id,uint8_t heart)
     }
     rt_free(id);
 }
-void Heart_Request(char *device_id)
+void Heart_Request(char *id_buf)
 {
     uint32_t id = 0;
-    id = atol(device_id);
+    id = atol(id_buf);
     if(GetBindID(id)!=0)//如果是子设备
     {
         Self_Bind_Upload(id);
@@ -492,7 +492,7 @@ void Heart_Request(char *device_id)
         {
             if(Flash_Get_Heart(id))
             {
-                heart_beat_report(id,0);
+                heart_beat_report(id_buf,0);
             }
         }
     }
@@ -501,7 +501,7 @@ void Heart_Request(char *device_id)
         Self_Bind_Upload(id);
         if(Flash_Get_Heart(id))
         {
-            heart_beat_report(id,0);
+            heart_beat_report(id_buf,0);
         }
     }
 }
