@@ -115,6 +115,7 @@ void GatewaySyncSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 break;
             case 6://添加设备
                 Device_Add2Flash_Wifi_Direct(Rx_message.Device_ID,Rx_message.From_ID);//增加终端
+                Flash_Set_UploadFlag(Rx_message.Device_ID,0);//清空设备信息上报的标志位
                 Flash_Set_Heart(Rx_message.Device_ID,1);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Command);//心跳
                 WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,2,Rx_message.Data);//终端低电量

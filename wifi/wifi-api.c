@@ -431,11 +431,11 @@ void Heart_Report(uint32_t device_id,int rssi)
 {
     char *id_buf = rt_malloc(20);
     sprintf(id_buf,"%ld",device_id);
-    if(rssi>85)
+    if(rssi>94)
     {
         mcu_dp_enum_update(DPID_SIGN_STATE,0,id_buf,my_strlen(id_buf));
     }
-    else if(rssi<=84 && rssi>54)
+    else if(rssi<=94 && rssi>78)
     {
         mcu_dp_enum_update(DPID_SIGN_STATE,1,id_buf,my_strlen(id_buf));
     }
