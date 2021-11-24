@@ -24,7 +24,7 @@
 #include <rtdbg.h>
 
 rt_spi_flash_device_t fm25q16;
-char read_value_temp[32]={0};
+char read_value_temp[64]={0};
 Device_Info Global_Device={0};
 
 int flash_Init(void)
