@@ -313,13 +313,13 @@ void ChangeMaxPower(void)
     if(axradio_power_now==0)
     {
         axradio_power_now = 1;
-        SpiWriteLongAddressRegister(REG_AX5043_TXPWRCOEFFB1, 0x0F);
-        SpiWriteLongAddressRegister(REG_AX5043_TXPWRCOEFFB0, 0xFF);
+        SpiWriteLongAddressRegister(REG_AX5043_TXPWRCOEFFB1, 0x0C);
+        SpiWriteLongAddressRegister(REG_AX5043_TXPWRCOEFFB0, 0x00);
         LOG_D("ChangeMaxPower Now\r\n");
     }
     else
     {
-        LOG_D("Power Already Max\r\n");
+        //LOG_D("Power Already Max\r\n");
     }
 }
 void BackNormalPower(void)
@@ -333,7 +333,7 @@ void BackNormalPower(void)
     }
     else
     {
-        LOG_D("Power Already Normal\r\n");
+        //LOG_D("Power Already Normal\r\n");
     }
 }
 uint8_t InitAX5043(void)

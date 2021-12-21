@@ -153,6 +153,7 @@ void Remote_Delete(uint32_t device_id)
 }
 void Slave_Heart(uint32_t device_id,uint8_t rssi)
 {
+    Flash_Set_Rssi(device_id,rssi);
     char *Buf = rt_malloc(20);
     sprintf(Buf,"%ld",device_id);
     LOG_I("Slave_Heart Device ID is %ld,rssi is %d\r\n",device_id,rssi);
@@ -161,6 +162,7 @@ void Slave_Heart(uint32_t device_id,uint8_t rssi)
 }
 void MotoUpload(uint32_t device_id,uint8_t state)
 {
+    Flash_Set_Moto(device_id,state);
     char *Buf = rt_malloc(20);
     LOG_I("MotoUpload State is %d,device_id is %ld\r\n",state,device_id);
     sprintf(Buf,"%ld",device_id);
@@ -314,8 +316,7 @@ void Upload_Main_ID(uint32_t device_id)
     char *Buf = rt_malloc(20);
     sprintf(Buf,"%ld",device_id);
     mcu_dp_value_update(DPID_SELF_ID,device_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
-    mcu_dp_value_update(DPID_SELF_ID,device_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
-    mcu_dp_value_update(DPID_SELF_ID,device_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
+    mcu_dp_bool_update(DPID_DEVICE_STATE,Flash_Get_Moto(device_id),Buf,my_strlen(Buf)); //VALUE型数据上报;
     LOG_I("Upload_Main_ID is %d\r\n",device_id);
     rt_free(Buf);
 }
@@ -343,8 +344,7 @@ void Upload_Slave_ID(uint32_t device_id,uint32_t from_id)
     char *Buf = rt_malloc(20);
     sprintf(Buf,"%ld",device_id);
     mcu_dp_value_update(107,from_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
-    mcu_dp_value_update(107,from_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
-    mcu_dp_value_update(107,from_id,Buf,my_strlen(Buf)); //BOOL型数据上报;
+    mcu_dp_enum_update(101,Flash_Get_Rssi(device_id),Buf,my_strlen(Buf)); //VALUE型数据上报;
     LOG_I("Upload_Slave_ID is %d\r\n",device_id);
     rt_free(Buf);
 }
@@ -374,10 +374,7 @@ void Upload_Door_ID(uint32_t device_id,uint32_t from_id)
     sprintf(Doorbuf,"%ld",device_id);
     mcu_dp_value_update(107,from_id,Doorbuf,my_strlen(Doorbuf)); //BOOL型数据上报;
     mcu_dp_value_update(108,device_id,Mainbuf,my_strlen(Mainbuf)); //BOOL型数据上报;
-    mcu_dp_value_update(107,from_id,Doorbuf,my_strlen(Doorbuf)); //BOOL型数据上报;
-    mcu_dp_value_update(108,device_id,Mainbuf,my_strlen(Mainbuf)); //BOOL型数据上报;
-    mcu_dp_value_update(107,from_id,Doorbuf,my_strlen(Doorbuf)); //BOOL型数据上报;
-    mcu_dp_value_update(108,device_id,Mainbuf,my_strlen(Mainbuf)); //BOOL型数据上报;
+    mcu_dp_enum_update(101,Flash_Get_Rssi(device_id),Doorbuf,my_strlen(Doorbuf)); //VALUE型数据上报;
     LOG_I("Upload_Door_ID is %d\r\n",device_id);
     rt_free(Mainbuf);
     rt_free(Doorbuf);
@@ -404,11 +401,6 @@ void Door_Delay_WiFi(uint32_t main_id,uint32_t device_id,uint8_t state)
 }
 void Warning_WiFi(uint32_t device_id,uint8_t state)
 {
-//    LOG_I("Warning_WiFi value %d is upload\r\n",state);
-//    char *Buf = rt_malloc(20);
-//    sprintf(Buf,"%ld",device_id);
-//    mcu_dp_bool_update(DPID_NORMAL,state,Buf,my_strlen(Buf)); //VALUE型数据上报;
-//    rt_free(Buf);
     InitWarn_Main(device_id);
 }
 void Moto_CloseRemote(uint32_t device_id)
@@ -439,11 +431,11 @@ void Heart_Report(uint32_t device_id,int rssi)
 {
     char *id_buf = rt_malloc(20);
     sprintf(id_buf,"%ld",device_id);
-    if(rssi>85)
+    if(rssi>94)
     {
         mcu_dp_enum_update(DPID_SIGN_STATE,0,id_buf,my_strlen(id_buf));
     }
-    else if(rssi<=84 && rssi>54)
+    else if(rssi<=94 && rssi>78)
     {
         mcu_dp_enum_update(DPID_SIGN_STATE,1,id_buf,my_strlen(id_buf));
     }
@@ -489,14 +481,28 @@ void Heart_Change(uint32_t device_id,uint8_t heart)
     }
     rt_free(id);
 }
-void Heart_Request(char *device_id)
+void Heart_Request(char *id_buf)
 {
     uint32_t id = 0;
-    id = atol(device_id);
-    if(Flash_Get_Heart(id))
+    id = atol(id_buf);
+    if(GetBindID(id)!=0)//如果是子设备
     {
-        heart_beat_report(device_id,0);
         Self_Bind_Upload(id);
+        if(Flash_Get_Heart(GetBindID(id)))//检测子设备所属主控是否在线
+        {
+            if(Flash_Get_Heart(id))
+            {
+                heart_beat_report(id_buf,0);
+            }
+        }
+    }
+    else
+    {
+        Self_Bind_Upload(id);
+        if(Flash_Get_Heart(id))
+        {
+            heart_beat_report(id_buf,0);
+        }
     }
 }
 void Sync_Request_Callback(void *parameter)

@@ -45,6 +45,7 @@ void heart_callback(void *parameter)
                     case 1:
                         Global_Device.HeartRetry[num] = 2;
                         LOG_D("Rerty 2 fail\r\n");
+                        ChangeMaxPower();
                         break;
                     case 2:
                         Global_Device.HeartRetry[num] = 0;
@@ -58,6 +59,7 @@ void heart_callback(void *parameter)
                     LOG_D("Get Heart\r\n");
                     Flash_Set_Heart(Global_Device.ID[num],1);
                     Global_Device.HeartRetry[num] = 0;
+                    BackNormalPower();
                 }
                 rt_thread_mdelay(10000);//设备与设备之间的间隔
             }
