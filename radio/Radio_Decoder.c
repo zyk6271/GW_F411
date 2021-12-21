@@ -253,6 +253,7 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
             case 5:
                 MotoUpload(Rx_message.From_ID,Rx_message.Data);//主控开关阀
                 Ack_Report(Rx_message.From_ID);
+                InitWarn_Main(Rx_message.From_ID);//报警状态
                 break;
             case 6:
                 DoorUpload(Rx_message.From_ID,Rx_message.Device_ID,Rx_message.Data);//主控开关阀
