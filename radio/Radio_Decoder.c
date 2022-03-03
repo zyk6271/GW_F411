@@ -13,8 +13,6 @@
 #include "drv_spi.h"
 #include <string.h>
 #include "AX5043.h"
-#include "Radio_Config.h"
-#include "Radio.h"
 #include "Radio_Decoder.h"
 #include "Radio_Encoder.h"
 #include "Flashwork.h"
@@ -24,13 +22,13 @@
 #include "wifi-api.h"
 
 #define DBG_TAG "RF_DE"
-#define DBG_LVL DBG_INFO
+#define DBG_LVL DBG_LOG
 #include <rtdbg.h>
 
 uint8_t Learn_Flag=1;
 uint32_t Main_ID = 0;
+
 extern uint32_t Self_Id;
-extern int ubRssi;
 
 uint8_t Check_Valid(uint32_t From_id)
 {
@@ -52,10 +50,10 @@ void Device_Learn(Message buf)
         }
     }
 }
-void NormalSolve(uint8_t *rx_buffer,uint8_t rx_len)
+void NormalSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
 {
     Message Rx_message;
-    if(rx_buffer[rx_len-1]==0x0A&&rx_buffer[rx_len-2]==0x0D)
+    if(rx_buffer[rx_len]==0x0A&&rx_buffer[rx_len-1]==0x0D)
      {
          sscanf((const char *)&rx_buffer[1],"{%ld,%ld,%d,%d,%d}",&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Counter,&Rx_message.Command,&Rx_message.Data);
          if(Rx_message.Target_ID==Self_Id)
@@ -72,10 +70,10 @@ void NormalSolve(uint8_t *rx_buffer,uint8_t rx_len)
          }
      }
 }
-void GatewaySyncSolve(uint8_t *rx_buffer,uint8_t rx_len)
+void GatewaySyncSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
 {
     Message Rx_message;
-    if(rx_buffer[rx_len-1]=='A')
+    if(rx_buffer[rx_len]=='A')
     {
         LOG_D("GatewaySyncSolve verify ok\r\n");
         sscanf((const char *)&rx_buffer[2],"{%d,%d,%ld,%ld,%ld,%d,%d}",&Rx_message.ack,&Rx_message.type,&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Device_ID,&Rx_message.Command,&Rx_message.Data);
@@ -86,7 +84,7 @@ void GatewaySyncSolve(uint8_t *rx_buffer,uint8_t rx_len)
             {
                 GatewayDataEnqueue(Rx_message.From_ID,0,0,7,0);
             }
-            Heart_Report(Rx_message.From_ID,abs(ubRssi-64));
+            Heart_Report(Rx_message.From_ID,abs(rssi-64));
             Flash_Set_Heart(Rx_message.From_ID,1);
             switch(Rx_message.type)
             {
@@ -131,10 +129,10 @@ void GatewaySyncSolve(uint8_t *rx_buffer,uint8_t rx_len)
         LOG_W("GatewaySyncSolve verify fail\r\n");
     }
 }
-void GatewayWarningSolve(uint8_t *rx_buffer,uint8_t rx_len)
+void GatewayWarningSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
 {
     Message Rx_message;
-    if(rx_buffer[rx_len-1]=='B')
+    if(rx_buffer[rx_len]=='B')
     {
         sscanf((const char *)&rx_buffer[2],"{%d,%ld,%ld,%ld,%d,%d,%d}",&Rx_message.ack,&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Device_ID,&Rx_message.Rssi,&Rx_message.Command,&Rx_message.Data);
         if(Rx_message.Target_ID == Self_Id && Check_Valid(Rx_message.From_ID) == RT_EOK)
@@ -145,7 +143,7 @@ void GatewayWarningSolve(uint8_t *rx_buffer,uint8_t rx_len)
                 GatewayDataEnqueue(Rx_message.From_ID,0,0,7,0);
             }
             Flash_Set_Heart(Rx_message.From_ID,1);
-            Heart_Report(Rx_message.From_ID,abs(ubRssi-64));
+            Heart_Report(Rx_message.From_ID,abs(rssi-64));
             LOG_D("WariningUpload From ID is %ld,Device ID is %ld,type is %d,value is %d\r\n",Rx_message.From_ID,Rx_message.Device_ID,Rx_message.Command,Rx_message.Data);
             switch(Rx_message.Command)
             {
@@ -192,10 +190,10 @@ void GatewayWarningSolve(uint8_t *rx_buffer,uint8_t rx_len)
         LOG_W("GatewayControlSolve verify Fail\r\n");
     }
 }
-void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
+void GatewayControlSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
 {
     Message Rx_message;
-    if(rx_buffer[rx_len-1]=='C')
+    if(rx_buffer[rx_len]=='C')
     {
         LOG_D("GatewayControlSolve verify ok\r\n");
         sscanf((const char *)&rx_buffer[2],"{%d,%ld,%ld,%ld,%d,%d,%d}",&Rx_message.ack,&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Device_ID,&Rx_message.Rssi,&Rx_message.Command,&Rx_message.Data);
@@ -206,7 +204,7 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
             {
                 GatewayDataEnqueue(Rx_message.From_ID,0,0,7,0);
             }
-            Heart_Report(Rx_message.From_ID,abs(ubRssi-64));
+            Heart_Report(Rx_message.From_ID,abs(rssi-64));
             Flash_Set_Heart(Rx_message.From_ID,1);
             switch(Rx_message.Command)
             {
@@ -281,17 +279,18 @@ void GatewayControlSolve(uint8_t *rx_buffer,uint8_t rx_len)
         LOG_W("GatewayControlSolve verify Fail\r\n");
     }
 }
-void Rx_Done_Callback(uint8_t *rx_buffer,uint8_t rx_len)
+void rf433_rx_callback(int rssi,uint8_t *buffer,uint8_t len)
 {
-    switch(rx_buffer[1])
+    LOG_D("RX 433 is %s,RSSI is %d\r\n",buffer,rssi);
+    switch(buffer[1])
     {
-    case '{':NormalSolve(rx_buffer,rx_len);
+    case '{':NormalSolve(rssi,buffer,len);
         break;
-    case 'A':GatewaySyncSolve(rx_buffer,rx_len);
+    case 'A':GatewaySyncSolve(rssi,buffer,len);
         break;
-    case 'B':GatewayWarningSolve(rx_buffer,rx_len);
+    case 'B':GatewayWarningSolve(rssi,buffer,len);
         break;
-    case 'C':GatewayControlSolve(rx_buffer,rx_len);
+    case 'C':GatewayControlSolve(rssi,buffer,len);
         break;
     }
 }

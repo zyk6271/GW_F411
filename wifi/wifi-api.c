@@ -143,7 +143,7 @@ void Remote_Delete(uint32_t device_id)
     unsigned char *id_buf = rt_malloc(20);
     sprintf(id_buf,"%ld",GetBindID(device_id));
     GatewayDataEnqueue(GetBindID(device_id),device_id,0,6,0);
-    LOG_I("Remote_Delete Success %s\r\n",id_buf);
+    LOG_I("Remote_Delete Success %ld\r\n",device_id);
     Del_Device(device_id);
     if(device_id>=30000000)
     {
@@ -471,7 +471,7 @@ void Self_Bind_Upload(uint32_t device_id)
         }
     }
 }
-void Heart_Change(uint32_t device_id,uint8_t heart)
+void Heart_Upload(uint32_t device_id,uint8_t heart)
 {
     char *id = rt_malloc(20);
     sprintf(id,"%ld",device_id);

@@ -10,7 +10,6 @@
 
 #include <rtthread.h>
 #include "flashwork.h"
-#include "radio.h"
 #include "device.h"
 #include "key.h"
 #include "led.h"
@@ -25,12 +24,13 @@
 int main(void)
 {
     flash_Init();
-    LoadDevice2Memory();
     led_Init();
+    LoadDevice2Memory();
     Key_Reponse_Init();
     button_Init();
     WiFi_Init();
-    Radio_Task_Init();
+    rf_433_start();
+    RadioDequeueTaskInit();
     Heart_Init();
     while (1)
     {

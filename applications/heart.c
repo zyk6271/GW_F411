@@ -19,6 +19,7 @@
 
 rt_thread_t heart_t = RT_NULL;
 extern Device_Info Global_Device;
+extern struct ax5043 rf_433;
 
 void heart_callback(void *parameter)
 {
@@ -31,35 +32,39 @@ void heart_callback(void *parameter)
         {
             if(Global_Device.ID[num]!=0 && Global_Device.Bind_ID[num]==0)
             {
-                Global_Device.HeartRecv[num] = 0;
-                GatewayDataEnqueue(Global_Device.ID[num],0,0,3,0);//Send
-                rt_thread_mdelay(2000);//心跳后等待周期
-                if(Global_Device.HeartRecv[num] == 0)//RecvFlag
+                for(uint8_t i=0;i<3;i++)
                 {
-                    switch(Global_Device.HeartRetry[num])
+                    Global_Device.HeartRecv[num] = 0;
+                    GatewayDataEnqueue(Global_Device.ID[num],0,0,3,0);//Send
+                    rt_thread_mdelay(2000);//心跳后等待周期
+                    if(Global_Device.HeartRecv[num])//RecvFlag
                     {
-                    case 0:
-                        Global_Device.HeartRetry[num] = 1;
-                        LOG_D("Rerty 1 fail\r\n");
-                        break;
-                    case 1:
-                        Global_Device.HeartRetry[num] = 2;
-                        LOG_D("Rerty 2 fail\r\n");
-                        ChangeMaxPower();
-                        break;
-                    case 2:
                         Global_Device.HeartRetry[num] = 0;
-                        Flash_Set_Heart(Global_Device.ID[num],0);
-                        LOG_D("Rerty 3 fail\r\n");
+                        LOG_D("Get Heart\r\n");
+                        Flash_Set_Heart(Global_Device.ID[num],1);
+                        BackNormalPower(&rf_433);
                         break;
                     }
-                }
-                else
-                {
-                    LOG_D("Get Heart\r\n");
-                    Flash_Set_Heart(Global_Device.ID[num],1);
-                    Global_Device.HeartRetry[num] = 0;
-                    BackNormalPower();
+                    else
+                    {
+                        switch(Global_Device.HeartRetry[num])
+                         {
+                         case 0:
+                             Global_Device.HeartRetry[num] = 1;
+                             LOG_D("Rerty 1 fail\r\n");
+                             break;
+                         case 1:
+                             Global_Device.HeartRetry[num] = 2;
+                             LOG_D("Rerty 2 fail\r\n");
+                             ChangeMaxPower(&rf_433);
+                             break;
+                         case 2:
+                             Global_Device.HeartRetry[num] = 0;
+                             Flash_Set_Heart(Global_Device.ID[num],0);
+                             LOG_D("Rerty 3 fail\r\n");
+                             break;
+                         }
+                    }
                 }
                 rt_thread_mdelay(10000);//设备与设备之间的间隔
             }
@@ -67,7 +72,6 @@ void heart_callback(void *parameter)
             {
                 continue;
             }
-
         }
     }
 }

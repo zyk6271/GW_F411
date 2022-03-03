@@ -40,7 +40,6 @@ extern uint8_t Learn_Flag;
 
 void Key_Reponse_Callback(void *parameter)
 {
-    extern void reset_factory_setting(void);
     Key_SemInit();
     LOG_D("Key_Reponse Init Success\r\n");
     while(1)
@@ -62,6 +61,7 @@ void Key_Reponse_Callback(void *parameter)
         {
             beep_start(5);
             DeleteAllDevice();
+            reset_factory_setting();
             LOG_I("Reboot now\r\n");
             rt_thread_mdelay(3000);
             rt_hw_cpu_reset();

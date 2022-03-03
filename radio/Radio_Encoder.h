@@ -18,5 +18,6 @@ void RadioEnqueue(uint32_t Taget_Id,uint8_t counter,uint8_t Command,uint8_t Data
 void GatewayDataEnqueue(uint32_t target_id,uint32_t device_id,uint8_t rssi,uint8_t control,uint8_t value);
 void RadioDequeueTaskInit(void);
 void Start_Learn(void);
+void rf433_rx_callback(int rssi,uint8_t *buffer,uint8_t len);
 
 #endif /* RADIO_RADIO_ENCODER_H_ */

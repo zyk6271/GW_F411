@@ -454,18 +454,21 @@ uint8_t Flash_Set_Heart(uint32_t Device_ID,uint8_t heart)//数据载入到内存
         {
             if(heart)
             {
+                if(!Global_Device.Heart[num])
+                {
+                    Global_Device.Heart[num] = 1;
+                    Flash_Heart_Change(Device_ID,1);
+                }
                 Global_Device.HeartRecv[num] = 1;
-                Heart_Change(Device_ID,heart);
+                Heart_Upload(Device_ID,heart);
             }
-            if(Global_Device.Heart[num] == 0 && heart == 1)
+            else
             {
-                Global_Device.Heart[num] = heart;
-                Flash_Heart_Change(Device_ID,heart);
-            }
-            else if(Global_Device.Heart[num] == 1 && heart == 0)
-            {
-                Global_Device.Heart[num] = heart;
-                Flash_Heart_Change(Device_ID,heart);
+                if(Global_Device.Heart[num])
+                {
+                    Global_Device.Heart[num] = 0;
+                    Flash_Heart_Change(Device_ID,0);
+                }
             }
             return RT_EOK;
         }
