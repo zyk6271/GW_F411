@@ -76,7 +76,7 @@ void GatewaySyncSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
     if(rx_buffer[rx_len]=='A')
     {
         LOG_D("GatewaySyncSolve verify ok\r\n");
-        sscanf((const char *)&rx_buffer[2],"{%d,%d,%ld,%ld,%ld,%d,%d}",&Rx_message.ack,&Rx_message.type,&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Device_ID,&Rx_message.Command,&Rx_message.Data);
+        sscanf((const char *)&rx_buffer[2],"{%d,%d,%ld,%ld,%ld,%d,%d}",&Rx_message.ack,&Rx_message.type,&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Device_ID,&Rx_message.Rssi,&Rx_message.Data);
         if(Rx_message.Target_ID == Self_Id && Check_Valid(Rx_message.From_ID) == RT_EOK)
         {
             rf_led(3);
@@ -84,13 +84,13 @@ void GatewaySyncSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
             {
                 GatewayDataEnqueue(Rx_message.From_ID,0,0,7,0);
             }
-            Heart_Report(Rx_message.From_ID,abs(rssi-64));
+            Heart_Report(Rx_message.From_ID,rssi);
             Flash_Set_Heart(Rx_message.From_ID,1);
             switch(Rx_message.type)
             {
             case 1:
                 DeviceCheck(Rx_message.Device_ID,Rx_message.From_ID);
-                Slave_Heart(Rx_message.Device_ID,Rx_message.Command);//心跳
+                Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//心跳
                 break;
             case 2:
                 Local_Delete(Rx_message.Device_ID);
@@ -99,7 +99,7 @@ void GatewaySyncSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
             case 3://同步在线设备
                 Device_Add2Flash_Wifi(Rx_message.Device_ID,Rx_message.From_ID);//增加终端
                 Flash_Set_Heart(Rx_message.Device_ID,1);
-                Slave_Heart(Rx_message.Device_ID,Rx_message.Command);//心跳
+                Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//心跳
                 WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,2,Rx_message.Data);//终端电量
                 break;
             case 4://删除全部
@@ -108,14 +108,14 @@ void GatewaySyncSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
             case 5://同步离线设备
                 Device_Add2Flash_Wifi(Rx_message.Device_ID,Rx_message.From_ID);//增加终端
                 Flash_Set_Heart(Rx_message.Device_ID,0);
-                Slave_Heart(Rx_message.Device_ID,Rx_message.Command);//心跳
+                Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//心跳
                 WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,2,Rx_message.Data);//终端低电量
                 break;
             case 6://添加设备
                 Device_Add2Flash_Wifi_Direct(Rx_message.Device_ID,Rx_message.From_ID);//增加终端
                 Flash_Set_UploadFlag(Rx_message.Device_ID,0);//清空设备信息上报的标志位
                 Flash_Set_Heart(Rx_message.Device_ID,1);
-                Slave_Heart(Rx_message.Device_ID,Rx_message.Command);//心跳
+                Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//心跳
                 WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,2,Rx_message.Data);//终端低电量
                 //Sync_Stop();
                 break;
@@ -143,7 +143,7 @@ void GatewayWarningSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
                 GatewayDataEnqueue(Rx_message.From_ID,0,0,7,0);
             }
             Flash_Set_Heart(Rx_message.From_ID,1);
-            Heart_Report(Rx_message.From_ID,abs(rssi-64));
+            Heart_Report(Rx_message.From_ID,rssi);
             LOG_D("WariningUpload From ID is %ld,Device ID is %ld,type is %d,value is %d\r\n",Rx_message.From_ID,Rx_message.Device_ID,Rx_message.Command,Rx_message.Data);
             switch(Rx_message.Command)
             {
@@ -161,13 +161,13 @@ void GatewayWarningSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
                 break;
             case 5:
                 DeviceCheck(Rx_message.Device_ID,Rx_message.From_ID);
-                Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);
+                Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//设备RSSI更新
                 WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,1,Rx_message.Data);//终端水警
                 MotoUpload(Rx_message.From_ID,0);//主控开关阀
                 break;
             case 6:
                 DeviceCheck(Rx_message.Device_ID,Rx_message.From_ID);
-                Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);
+                Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//设备RSSI更新
                 WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,2,Rx_message.Data);//终端低电量
                 break;
             case 7:
@@ -204,7 +204,7 @@ void GatewayControlSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
             {
                 GatewayDataEnqueue(Rx_message.From_ID,0,0,7,0);
             }
-            Heart_Report(Rx_message.From_ID,abs(rssi-64));
+            Heart_Report(Rx_message.From_ID,rssi);
             Flash_Set_Heart(Rx_message.From_ID,1);
             switch(Rx_message.Command)
             {

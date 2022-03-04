@@ -156,8 +156,8 @@ void Slave_Heart(uint32_t device_id,uint8_t rssi)
     Flash_Set_Rssi(device_id,rssi);
     char *Buf = rt_malloc(20);
     sprintf(Buf,"%ld",device_id);
-    LOG_I("Slave_Heart Device ID is %ld,rssi is %d\r\n",device_id,rssi);
-    mcu_dp_enum_update(101,rssi,Buf,my_strlen(Buf)); //VALUE型数据上报;
+    mcu_dp_enum_update(101,1,Buf,my_strlen(Buf)); //VALUE型数据上报;
+    LOG_I("Slave_Heart Device ID is %ld,rssi level is %d\r\n",device_id,rssi);
     rt_free(Buf);
 }
 void MotoUpload(uint32_t device_id,uint8_t state)
@@ -431,18 +431,20 @@ void Heart_Report(uint32_t device_id,int rssi)
 {
     char *id_buf = rt_malloc(20);
     sprintf(id_buf,"%ld",device_id);
-    if(rssi>94)
+    if(rssi<-94)
     {
         mcu_dp_enum_update(DPID_SIGN_STATE,0,id_buf,my_strlen(id_buf));
+        LOG_I("Heart_Report %d is upload,rssi is %d,level is low\r\n",device_id,rssi);
     }
-    else if(rssi<=94 && rssi>78)
+    else if(rssi>=-94 && rssi<-78)
     {
         mcu_dp_enum_update(DPID_SIGN_STATE,1,id_buf,my_strlen(id_buf));
+        LOG_I("Heart_Report %d is upload,rssi is %d,level is mid\r\n",device_id,rssi);
     }
     else {
         mcu_dp_enum_update(DPID_SIGN_STATE,2,id_buf,my_strlen(id_buf));
+        LOG_I("Heart_Report %d is upload,rssi is %d,level is high\r\n",device_id,rssi);
     }
-    LOG_I("Heart_Report %d is upload\r\n",device_id);
     rt_free(id_buf);
 }
 void Ack_Report(uint32_t device_id)

@@ -151,13 +151,13 @@ void RadioDequeue(void *paramaeter)
                 //rt_thread_mdelay(50);
                 RadioSend(Queue_433.Taget_Id[Queue_433.NowNum],Queue_433.Counter[Queue_433.NowNum],Queue_433.Command[Queue_433.NowNum],Queue_433.Data[Queue_433.NowNum]);
                 LOG_D("Normal Send With Now Num %d,Target Num is %d,Target_Id %ld,counter %d,command %d,data %d\r\n",Queue_433.NowNum,Queue_433.TargetNum,Queue_433.Taget_Id[Queue_433.NowNum],Queue_433.Counter[Queue_433.NowNum],Queue_433.Command[Queue_433.NowNum],Queue_433.Data[Queue_433.NowNum]);
-                rt_thread_mdelay(100);
+                rt_thread_mdelay(50);
                 break;
             case 1:
                 //rt_thread_mdelay(50);
                 GatewayDataSend(Queue_433.Taget_Id[Queue_433.NowNum],Queue_433.Device_Id[Queue_433.NowNum],Queue_433.Counter[Queue_433.NowNum],Queue_433.Command[Queue_433.NowNum],Queue_433.Data[Queue_433.NowNum]);
                 LOG_I("GatewaySend With Now Num %d,Target Num is %d,Type is %d,Target_Id %ld,Device_Id %ld,control %d,value %d\r\n",Queue_433.NowNum,Queue_433.TargetNum,Queue_433.Type[Queue_433.NowNum],Queue_433.Taget_Id[Queue_433.NowNum],Queue_433.Device_Id[Queue_433.NowNum],Queue_433.Command[Queue_433.NowNum],Queue_433.Data[Queue_433.NowNum]);
-                rt_thread_mdelay(100);
+                rt_thread_mdelay(50);
                 break;
             default:break;
             }

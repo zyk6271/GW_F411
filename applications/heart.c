@@ -64,6 +64,7 @@ void heart_callback(void *parameter)
                              LOG_D("Rerty 3 fail\r\n");
                              break;
                          }
+                        rt_thread_mdelay(1000);//心跳后等待周期
                     }
                 }
                 rt_thread_mdelay(10000);//设备与设备之间的间隔
