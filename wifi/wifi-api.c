@@ -483,27 +483,50 @@ void Heart_Upload(uint32_t device_id,uint8_t heart)
     }
     rt_free(id);
 }
+void Device_Up(uint32_t device_id)
+{
+    char *id = rt_malloc(32);
+    sprintf(id,"%ld",device_id);
+    user_updata_subden_online_state(0,id,1,1);
+    rt_free(id);
+}
+void Device_Down(uint32_t device_id)
+{
+    char *id = rt_malloc(32);
+    sprintf(id,"%ld",device_id);
+    user_updata_subden_online_state(0,id,1,0);
+    rt_free(id);
+}
 void Heart_Request(char *id_buf)
 {
     uint32_t id = 0;
     id = atol(id_buf);
-    if(GetBindID(id)!=0)//如果是子设备
+    Self_Bind_Upload(id);
+    if(id>=20000000 && id<40000000)//如果是子设备
     {
-        Self_Bind_Upload(id);
         if(Flash_Get_Heart(GetBindID(id)))//检测子设备所属主控是否在线
         {
             if(Flash_Get_Heart(id))
             {
+                Device_Up(id);
                 heart_beat_report(id_buf,0);
+            }
+            else
+            {
+                Device_Down(id);
             }
         }
     }
     else
     {
-        Self_Bind_Upload(id);
         if(Flash_Get_Heart(id))
         {
+            Device_Up(id);
             heart_beat_report(id_buf,0);
+        }
+        else
+        {
+            Device_Down(id);
         }
     }
 }

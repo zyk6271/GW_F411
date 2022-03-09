@@ -249,7 +249,7 @@ get_dp_state内部有#err提示,完成函数后请删除该#err
 并在protocol.c文件updata_subden_online_state_result函数内查看结果,
 updata_subden_online_state_result内部有#err提示,完成函数后请删除该#err
 ******************************************************************************/
-//#define         UPDATA_SUBDEV_ONLINE_STATE_ENABLE     //开启更新子设备在线/离线状态
+#define         UPDATA_SUBDEV_ONLINE_STATE_ENABLE     //开启更新子设备在线/离线状态
 
 /******************************************************************************
                       MCU是否需要支持获取模块的MAC地址

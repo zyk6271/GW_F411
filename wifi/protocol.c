@@ -1426,7 +1426,7 @@ EXIT:
  */
 void updata_subden_online_state_result(unsigned char result)
 {
-    #error "请自行实现更新子设备在线/离线状态结果处理代码,完成后请删除该行"
+    //#error "请自行实现更新子设备在线/离线状态结果处理代码,完成后请删除该行"
     if(0 == result) {
         //成功
     }else {

@@ -1008,6 +1008,45 @@ void mcu_connect_state(unsigned char connect_srate)
  * @return Null
  * @note   MCU需要自行调用该功能
  */
+void user_updata_subden_online_state(unsigned char all, unsigned char *dev_id, unsigned char send_cids_arr_sz, unsigned char state)
+{
+    unsigned short length = 0;
+    cJSON *send_root = NULL;
+    char *out = NULL;
+
+    send_root = cJSON_CreateObject();
+    if(NULL == send_root){
+        //可在此添加错误提示信息，如：printf("xxx");
+        goto EXIT;
+    }
+
+    cJSON_AddNumberToObject(send_root, "all", all);
+    if(0 == all) {
+        cJSON *send_arr_cids_item = NULL;
+        unsigned char i = 0;
+        send_arr_cids_item = cJSON_CreateArray();
+        if(NULL == send_arr_cids_item){
+            //可在此添加错误提示信息，如：printf("xxx");
+            goto EXIT;
+        }
+        cJSON_AddItemToArray(send_arr_cids_item, cJSON_CreateString(dev_id));
+        cJSON_AddItemToObject(send_root, "cids", send_arr_cids_item);
+    }
+    cJSON_AddNumberToObject(send_root, "state", state);
+
+    out = cJSON_PrintUnformatted(send_root);
+    cJSON_Delete(send_root);
+    if(NULL == out){
+        //可在此添加错误提示信息，如：printf("xxx");
+        goto EXIT;
+    }
+
+    length = set_wifi_uart_buffer(length, out, my_strlen(out));
+    wifi_uart_write_frame(UPDATA_SUBDEV_ONLINE_STATE_CMD, MCU_TX_VER, length);
+
+EXIT:
+    free(out);
+}
 void updata_subden_online_state(unsigned char all, const unsigned char **cids, unsigned char send_cids_arr_sz, unsigned char state)
 {
     unsigned short length = 0;
