@@ -156,7 +156,7 @@ void Slave_Heart(uint32_t device_id,uint8_t rssi)
     Flash_Set_Rssi(device_id,rssi);
     char *Buf = rt_malloc(20);
     sprintf(Buf,"%ld",device_id);
-    mcu_dp_enum_update(101,1,Buf,my_strlen(Buf)); //VALUE型数据上报;
+    mcu_dp_enum_update(101,rssi,Buf,my_strlen(Buf)); //VALUE型数据上报;
     LOG_I("Slave_Heart Device ID is %ld,rssi level is %d\r\n",device_id,rssi);
     rt_free(Buf);
 }
