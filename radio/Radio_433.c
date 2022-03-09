@@ -80,6 +80,7 @@ void rf_433_init(void)
     vcoi_rng_get(&rf_433);
     Ax5043SetRegisters_RX(&rf_433);
     AX5043ReceiverON(&rf_433);
+    rf_led(1);
 }
 void rf_433_send_timer_callback(void *parameter)
 {
