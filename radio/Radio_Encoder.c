@@ -56,16 +56,11 @@ void Start_Learn(void)
 }
 void RadioSend(uint32_t Taget_Id,uint8_t counter,uint8_t Command,uint8_t Data)
 {
-    uint8_t *buf = rt_malloc(50);
+    char *buf = rt_malloc(64);
     uint8_t check = 0;
     if(counter<255)counter++;
         else counter=0;
-    sprintf((char *)(buf),"{%08ld,%08ld,%03d,%02d,%d}",\
-                                            Taget_Id,\
-                                            Self_Id,\
-                                            counter,\
-                                            Command,\
-                                            Data);
+    sprintf(buf,"{%08ld,%08ld,%03d,%02d,%d}",Taget_Id,Self_Id,counter,Command,Data);
     for(uint8_t i = 0 ; i < 28 ; i ++)
     {
         check += buf[i];
@@ -101,15 +96,10 @@ void GatewayDataEnqueue(uint32_t target_id,uint32_t device_id,uint8_t rssi,uint8
 }
 void GatewayDataSend(uint32_t target_id,uint32_t device_id,uint8_t rssi,uint8_t control,uint8_t value)
 {
-    uint8_t buf[50]={0};
-    sprintf((char *)(&buf),"G{%08ld,%08ld,%08ld,%03d,%03d,%02d}G",\
-                                            target_id,\
-                                            Self_Id,\
-                                            device_id,\
-                                            rssi,\
-                                            control,\
-                                            value);
+    char *buf = rt_malloc(64);
+    sprintf(buf,"G{%08ld,%08ld,%08ld,%03d,%03d,%02d}G",target_id,Self_Id,device_id,rssi,control,value);
     Normal_send(&rf_433,buf,41);
+    rt_free(buf);
 }
 void RadioEnqueue(uint32_t Taget_Id,uint8_t counter,uint8_t Command,uint8_t Data)
 {
