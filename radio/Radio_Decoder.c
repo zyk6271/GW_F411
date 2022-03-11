@@ -36,6 +36,14 @@ uint8_t Check_Valid(uint32_t From_id)
 }
 void Device_Learn(Message buf)
 {
+    if(Flash_Get_Key_Valid(buf.From_ID) != RT_EOK)
+    {
+        if(Get_MainNums()!=RT_EOK)
+        {
+            learn_fail();
+            return;
+        }
+    }
     if(buf.From_ID>=10000000 && buf.From_ID<20000000)
     {
         switch(buf.Data)

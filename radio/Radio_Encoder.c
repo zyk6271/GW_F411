@@ -45,14 +45,7 @@ Radio_Queue Queue_433;
 
 void Start_Learn(void)
 {
-    if(Get_MainNums()==RT_EOK)
-    {
-        RadioSend(99999999,1,3,1);
-    }
-    else
-    {
-        learn_fail();
-    }
+    RadioSend(99999999,1,3,1);
 }
 void RadioSend(uint32_t Taget_Id,uint8_t counter,uint8_t Command,uint8_t Data)
 {
