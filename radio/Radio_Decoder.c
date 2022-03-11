@@ -45,6 +45,7 @@ void Device_Learn(Message buf)
             break;
         case 2:
             LOG_I("Learn Success\r\n");
+            Del_Device(buf.From_ID);
             Device_Add2Flash_Wifi(buf.From_ID,0);
             learn_success();
         }

@@ -460,6 +460,7 @@ void Self_Bind_Upload(uint32_t device_id)
         if(device_id>=10000000 && device_id<20000000)
         {
             Upload_Main_ID(device_id);
+            Upload_Door_ID(GetDoorID(device_id),device_id);
             Reset_Main_Warn(device_id);
         }
         else if(device_id>=20000000 && device_id<30000000)

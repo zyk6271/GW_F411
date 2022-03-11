@@ -287,6 +287,23 @@ uint32_t GetBindID(uint32_t Device_ID)
     }
     return 0;
 }
+uint32_t GetDoorID(uint32_t Main_ID)
+{
+    uint16_t num = Global_Device.Num;
+    if(!num)
+    {
+        return 0;
+    }
+    while(num)
+    {
+        if(Global_Device.Bind_ID[num] == Main_ID && Global_Device.ID[num]>=30000000)
+        {
+            return Global_Device.ID[num];
+        }
+        num--;
+    }
+    return 0;
+}
 uint8_t Del_Device(uint32_t Device_ID)
 {
     uint16_t num = Global_Device.Num;
