@@ -106,6 +106,7 @@ void GatewaySyncSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
                 Del_Device(Rx_message.Device_ID);//删除终端
                 break;
             case 3://同步在线设备
+                Sync_Refresh();
                 Device_Add2Flash_Wifi(Rx_message.Device_ID,Rx_message.From_ID);//增加终端
                 Flash_Set_Heart(Rx_message.Device_ID,1);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//心跳
@@ -115,18 +116,17 @@ void GatewaySyncSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
                 Del_MainBind(Rx_message.From_ID);
                 break;
             case 5://同步离线设备
+                Sync_Refresh();
                 Device_Add2Flash_Wifi(Rx_message.Device_ID,Rx_message.From_ID);//增加终端
                 Flash_Set_Heart(Rx_message.Device_ID,0);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//心跳
                 WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,2,Rx_message.Data);//终端低电量
                 break;
             case 6://添加设备
-                Device_Add2Flash_Wifi_Direct(Rx_message.Device_ID,Rx_message.From_ID);//增加终端
-                Flash_Set_UploadFlag(Rx_message.Device_ID,0);//清空设备信息上报的标志位
+                Device_Add2Flash_Wifi(Rx_message.Device_ID,Rx_message.From_ID);//增加终端
                 Flash_Set_Heart(Rx_message.Device_ID,1);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//心跳
                 WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,2,Rx_message.Data);//终端低电量
-                //Sync_Stop();
                 break;
             }
         }
@@ -290,16 +290,22 @@ void GatewayControlSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
 }
 void rf433_rx_callback(int rssi,uint8_t *buffer,uint8_t len)
 {
-    LOG_D("RX 433 is %s,RSSI is %d\r\n",buffer,rssi);
     switch(buffer[1])
     {
-    case '{':NormalSolve(rssi,buffer,len);
+    case '{':
+        NormalSolve(rssi,buffer,len);
         break;
-    case 'A':GatewaySyncSolve(rssi,buffer,len);
+    case 'A':
+        LOG_D("RX 433 is %s,RSSI is %d\r\n",buffer,rssi);
+        GatewaySyncSolve(rssi,buffer,len);
         break;
-    case 'B':GatewayWarningSolve(rssi,buffer,len);
+    case 'B':
+        LOG_D("RX 433 is %s,RSSI is %d\r\n",buffer,rssi);
+        GatewayWarningSolve(rssi,buffer,len);
         break;
-    case 'C':GatewayControlSolve(rssi,buffer,len);
+    case 'C':
+        LOG_D("RX 433 is %s,RSSI is %d\r\n",buffer,rssi);
+        GatewayControlSolve(rssi,buffer,len);
         break;
     }
 }

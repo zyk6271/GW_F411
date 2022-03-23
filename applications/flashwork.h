@@ -24,6 +24,7 @@ typedef struct
     uint8_t HeartRetry[MaxSupport];
     uint8_t HeartRecv[MaxSupport];
     uint8_t UploadFlag[MaxSupport];
+    uint8_t SyncRetry[MaxSupport];
     uint32_t ID[MaxSupport];
     uint32_t Bind_ID[MaxSupport];
 }Device_Info;

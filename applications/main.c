@@ -28,6 +28,7 @@ int main(void)
     LoadDevice2Memory();
     Key_Reponse_Init();
     button_Init();
+    Sync_Init();
     WiFi_Init();
     rf_433_start();
     RadioDequeueTaskInit();

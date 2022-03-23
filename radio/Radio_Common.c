@@ -181,6 +181,7 @@ void ReceiveData(struct ax5043 *dev)
                     break;
                 SpiReadSingleAddressRegister(dev,REG_AX5043_FIFODATA);
                 --ubDataLen;
+                memset(dev->RXBuff,0,sizeof(dev->RXBuff));
                 SpiReadData(dev,dev->RXBuff,ubDataLen);
                 dev->RxLen = ubDataLen;
                 ubTepm = SpiReadSingleAddressRegister(dev,REG_AX5043_IRQMASK0);

@@ -24,11 +24,10 @@ struct serial_configure config = RT_SERIAL_CONFIG_DEFAULT;  /* 初始化配置�
 #define WiFi_UART_NAME                   "uart1"
 
 rt_timer_t wifi_status_timer = RT_NULL;
-rt_timer_t wifi_detect_timer = RT_NULL;
-rt_timer_t wifi_sync_timer = RT_NULL;
 
 uint8_t wifi_status = 0xff;
 uint8_t wifi_retry = 0;
+uint8_t wifi_connected = 0;
 
 #define DBG_TAG "wifi_uart"
 #define DBG_LVL DBG_LOG
@@ -117,57 +116,43 @@ void wifi_status_timer_callback(void *parameter)
     extern uint8_t wifi_status;
     if(wifi_status != result)
     {
-        wifi_status = result;
         LOG_I("wifi_status is change to %d\r\n",result);
         wifi_led(result);
-        if(result == 4)
+        switch(result)
         {
-            Remote_Device_Clear();
-            qur_subdev_list();
+        case 2:
+            wifi_connected = 0;
+            break;
+        case 4:
+            if(wifi_connected==0)
+            {
+                wifi_connected = 1;
+                Remote_Device_Clear();
+                qur_subdev_list();
+            }
+            break;
         }
+        wifi_status = result;
     }
 }
-void wifi_detect_timer_callback(void *parameter)
-{
-    LOG_D("Wifi State is %d\r\n",wifi_status);
-    if(wifi_status==0xFF)
-    {
-        if(wifi_retry++<3)
-        {
-            rt_timer_start(wifi_status_timer);
-        }
-        else
-        {
-            LOG_D("WiFi Stop Retry\r\n");
-            return;
-        }
-        LOG_D("No WiFi\r\n");
-        wifi_led(0);
-    }
-    else if(wifi_status==1)
-    {
-        LOG_D("Wifi is AP Mode\r\n");
-    }
-    else if(wifi_status==2||3||4)
-    {
-        LOG_D("Wifi Init Success\r\n");
-    }
-}
-void WiFi_Init(void)
+void wifi_power_on(void)
 {
     rt_pin_mode(WIFI_EN,0);
     rt_pin_write(WIFI_EN,1);
+}
+MSH_CMD_EXPORT(wifi_power_on,wifi_power_on);
+void wifi_power_off(void)
+{
+    rt_pin_write(WIFI_EN,0);
+}
+MSH_CMD_EXPORT(wifi_power_off,wifi_power_off);
+void WiFi_Init(void)
+{
+    wifi_power_on();
     wifi_protocol_init();
     wifi_uart_init();
     wifi_service_init();
 
     wifi_status_timer = rt_timer_create("wifi_status",wifi_status_timer_callback,RT_NULL,1000,RT_TIMER_FLAG_SOFT_TIMER|RT_TIMER_FLAG_PERIODIC);
     rt_timer_start(wifi_status_timer);
-    wifi_detect_timer = rt_timer_create("wifi_detect",wifi_detect_timer_callback,RT_NULL,5000,RT_TIMER_FLAG_SOFT_TIMER|RT_TIMER_FLAG_ONE_SHOT);
-    //rt_timer_start(wifi_detect_timer);
 }
-void resetwork(void)
-{
-    wifi_uart_write_frame(WIFI_RESET_CMD, MCU_TX_VER, 0);
-}
-MSH_CMD_EXPORT(resetwork,resetwork);

@@ -27,6 +27,7 @@ extern Device_Info Global_Device;
 
 uint8_t Sync_Counter = 1;
 rt_timer_t Sync_Request_t = RT_NULL;
+rt_timer_t Sync_Timeout_t = RT_NULL;
 
 void WariningUpload(uint32_t from_id,uint32_t device_id,uint8_t type,uint8_t value)
 {
@@ -192,94 +193,41 @@ void DoorUpload(uint32_t from_id,uint32_t device_id,uint8_t state)
     rt_free(FromBuf);
     rt_free(DeviceBuf);
 }
-void Device_Add2Flash(uint32_t device_id,uint32_t from_id)
-{
-    if(Flash_Get_Key_Valid(device_id) == RT_ERROR)
-    {
-        if(device_id>=10000000 && device_id<20000000)
-        {
-            MainAdd_Flash(device_id);
-        }
-        if(device_id>=20000000 && device_id<30000000)
-        {
-            SlaveAdd_Flash(device_id,from_id);
-        }
-        else if(device_id>=30000000 && device_id<40000000)
-        {
-            DoorAdd_Flash(device_id,from_id);
-        }
-    }
-}
-void Device_Add2Wifi(uint32_t device_id,uint32_t from_id)
-{
-    if(Flash_Get_Key_Valid(device_id) == RT_EOK)
-    {
-        if(device_id>=10000000 && device_id<20000000)
-        {
-            Main_Add_WiFi(device_id);
-        }
-        if(device_id>=20000000 && device_id<30000000)
-        {
-            Slave_Add_WiFi(device_id);
-        }
-        else if(device_id>=30000000 && device_id<40000000)
-        {
-            Door_Add_WiFi(device_id);
-        }
-    }
-}
 void Device_Add2Flash_Wifi(uint32_t device_id,uint32_t from_id)
 {
-    if(Flash_Get_Key_Valid(device_id) == RT_ERROR)
+    if(device_id>=10000000 && device_id<20000000)
     {
-        if(device_id>=10000000 && device_id<20000000)
+        if(Flash_Get_Key_Valid(device_id) == RT_ERROR)
         {
             MainAdd_Flash(device_id);
+        }
+        if(Remote_Get_Key_Valid(device_id) == RT_ERROR)
+        {
+            Flash_Set_UploadFlag(device_id,0);
             Main_Add_WiFi(device_id);
         }
-        if(device_id>=20000000 && device_id<30000000)
-        {
-            SlaveAdd_Flash(device_id,from_id);
-            Slave_Add_WiFi(device_id);
-        }
-        else if(device_id>=30000000 && device_id<40000000)
-        {
-            DoorAdd_Flash(device_id,from_id);
-            Door_Add_WiFi(device_id);
-        }
     }
-}
-void Device_Add2Flash_Wifi_Direct(uint32_t device_id,uint32_t from_id)
-{
-    if(Flash_Get_Key_Valid(device_id) == RT_ERROR)
+    if(device_id>=20000000 && device_id<30000000)
     {
-        if(device_id>=10000000 && device_id<20000000)
-        {
-            MainAdd_Flash(device_id);
-            Main_Add_WiFi(device_id);
-        }
-        if(device_id>=20000000 && device_id<30000000)
+        if(Flash_Get_Key_Valid(device_id) == RT_ERROR)
         {
             SlaveAdd_Flash(device_id,from_id);
-            Slave_Add_WiFi(device_id);
         }
-        else if(device_id>=30000000 && device_id<40000000)
+        if(Remote_Get_Key_Valid(device_id) == RT_ERROR)
         {
-            DoorAdd_Flash(device_id,from_id);
-            Door_Add_WiFi(device_id);
+            Flash_Set_UploadFlag(device_id,0);
+            Slave_Add_WiFi(device_id);
         }
     }
-    else {
-        if(device_id>=10000000 && device_id<20000000)
+    else if(device_id>=30000000 && device_id<40000000)
+    {
+        if(Flash_Get_Key_Valid(device_id) == RT_ERROR)
         {
-            Main_Add_WiFi(device_id);
+            DoorAdd_Flash(device_id,from_id);
         }
-        if(device_id>=20000000 && device_id<30000000)
+        if(Remote_Get_Key_Valid(device_id) == RT_ERROR)
         {
-            Slave_Add_WiFi(device_id);
-        }
-        else if(device_id>=30000000 && device_id<40000000)
-        {
+            Flash_Set_UploadFlag(device_id,0);
             Door_Add_WiFi(device_id);
         }
     }
@@ -531,23 +479,6 @@ void Heart_Request(char *id_buf)
         }
     }
 }
-void Sync_Request_Callback(void *parameter)
-{
-    if(Sync_Counter<=Global_Device.Num)
-    {
-        if(Global_Device.ID[Sync_Counter]>0 && Global_Device.ID[Sync_Counter]<20000000 && Global_Device.Bind_ID[Sync_Counter]==0)
-        {
-            GatewayDataEnqueue(Global_Device.ID[Sync_Counter],0,0,4,0);
-            LOG_I("Sync_Request %s is download\r\n");
-        }
-        Sync_Counter++;
-    }
-    else
-    {
-        rt_timer_stop(Sync_Request_t);
-        //Remote_Sync();
-    }
-}
 void Remote_Device_Add(uint32_t device_id)
 {
     Remote_Device.ID[++Remote_Device.Num]=device_id;
@@ -569,42 +500,108 @@ uint8_t Remote_Get_Key_Valid(uint32_t Device_ID)//查询内存中的ID
     }
     return RT_ERROR;
 }
-void Sync_Request(void)
+rt_thread_t Sync_t = RT_NULL;
+rt_sem_t Sync_Once_Sem = RT_NULL;
+uint8_t Sync_Recv = 0;
+uint8_t Sync_Start = 0;
+uint8_t Get_Main_Valid(uint32_t device_id,uint32_t bind_id)
 {
-    Sync_Counter = 1;
-    if(Sync_Request_t==RT_NULL)
+    if(device_id>0 && device_id<20000000 && bind_id==0)
     {
-        Sync_Request_t = rt_timer_create("Sync_Request", Sync_Request_Callback, RT_NULL, 8000, RT_TIMER_FLAG_PERIODIC|RT_TIMER_FLAG_SOFT_TIMER);
+        return RT_EOK;
     }
-    rt_timer_start(Sync_Request_t);
+    return RT_ERROR;
 }
-void Sync_Stop(void)
+uint8_t Get_Next_Main(void)
 {
-    LOG_I("Sync_Stop\r\n");
-    rt_timer_stop(Sync_Request_t);
-}
-void Remote_Sync(void)
-{
-    LOG_I("Remote Num is %d,Global Num is %d\r\n",Remote_Device.Num,Global_Device.Num);
-    uint8_t Add_Flag = 1;
-    if(Global_Device.Num==0)
+    uint8_t Num;
+    Num = Sync_Counter;
+    while(Num--)
     {
-        return;
-    }
-    for(uint8_t i=1;i<=Global_Device.Num;i++)
-    {
-        Add_Flag = 1;
-        for(uint8_t num=1;num<=Remote_Device.Num;num++)
+        if(Get_Main_Valid(Global_Device.ID[Num],Global_Device.Bind_ID[Num])==RT_EOK)
         {
-            if(Global_Device.ID[i]==Remote_Device.ID[num])
+            Sync_Counter = Num;
+            return RT_EOK;
+        }
+    }
+    return RT_ERROR;
+}
+void Sync_Timeout_Callback(void *parameter)
+{
+    if(Get_Next_Main()==RT_EOK)
+    {
+        LOG_I("Sync is Success,Go Next one\r\n");
+        rt_sem_release(Sync_Once_Sem);
+    }
+    else
+    {
+        Sync_Start = 0;
+        LOG_I("Sync is Done\r\n");
+    }
+}
+void Sync_t_Callback(void *parameter)
+{
+    while(1)
+    {
+        rt_sem_take(Sync_Once_Sem,RT_WAITING_FOREVER);
+        Sync_Start = 1;
+        rt_thread_mdelay(10000);
+        Device_Add2Flash_Wifi(Global_Device.ID[Sync_Counter],0);
+        if(Global_Device.SyncRetry[Sync_Counter]<3)
+        {
+            Sync_Recv = 0;
+            GatewayDataEnqueue(Global_Device.ID[Sync_Counter],0,0,4,0);
+            LOG_I("Sync_Request %d is download\r\n",Global_Device.ID[Sync_Counter]);
+            rt_thread_mdelay(10000);
+            if(Sync_Recv==0)
             {
-                Add_Flag = 0;
-                break;
+                Global_Device.SyncRetry[Sync_Counter]++;
+                LOG_W("Sync_Request %d is fail,Retry num is %d\r\n",Global_Device.ID[Sync_Counter],Global_Device.SyncRetry[Sync_Counter]);
+                rt_sem_release(Sync_Once_Sem);
             }
         }
-        if(Add_Flag)
-        {
-            Device_Add2Wifi(Global_Device.ID[i],Global_Device.Bind_ID[i]);
+        else {
+            rt_timer_stop(Sync_Timeout_t);
+            if(Get_Next_Main()==RT_EOK){//同步重试次数用尽切换至下一个设备
+                rt_sem_release(Sync_Once_Sem);
+            }
+            else {//同步重试次数用尽且不存在下一个设备
+                Global_Device.SyncRetry[Sync_Counter] = 0;
+                LOG_I("Sync is Done\r\n");
+            }
         }
+    }
+}
+void Sync_Init(void)
+{
+    if(Sync_Once_Sem == RT_NULL)
+    {
+        Sync_Once_Sem = rt_sem_create("Sync_Once_Sem", 0, RT_IPC_FLAG_FIFO);
+    }
+    if(Sync_Timeout_t == RT_NULL)
+    {
+        Sync_Timeout_t = rt_timer_create("Sync_Timeout", Sync_Timeout_Callback, RT_NULL, 5000, RT_TIMER_FLAG_ONE_SHOT|RT_TIMER_FLAG_SOFT_TIMER);
+    }
+    if(Sync_t == RT_NULL)
+    {
+        Sync_t = rt_thread_create("sync", Sync_t_Callback, RT_NULL, 1024, 10, 10);
+        rt_thread_startup(Sync_t);
+    }
+}
+void Sync_Request(void)
+{
+    Sync_Counter = Global_Device.Num;
+    Get_Next_Main();
+    rt_sem_release(Sync_Once_Sem);
+}
+MSH_CMD_EXPORT(Sync_Request,Sync_Request);
+void Sync_Refresh(void)
+{
+    if(Sync_Start)
+    {
+        Sync_Recv = 1;
+        Global_Device.SyncRetry[Sync_Counter] = 0;
+        rt_timer_start(Sync_Timeout_t);
+        LOG_I("Sync_Refresh\r\n");
     }
 }

@@ -171,9 +171,3 @@ void rf_433_start(void)
     rf_433_send_timer = rt_timer_create("rf_433_send timeout", rf_433_send_timer_callback, RT_NULL, 1000, RT_TIMER_FLAG_ONE_SHOT|RT_TIMER_FLAG_SOFT_TIMER);
     rf_433_init();
 }
-uint8_t buf[]={0x31,0x31,0x32,0x32,0x33,0x33,0x34,0x34,0x35,0x35,0x36,0x36,0x37,0x37};
-void sendtest(void)
-{
-    Normal_send(&rf_433,buf,14);
-}
-MSH_CMD_EXPORT(sendtest,sendtest);
