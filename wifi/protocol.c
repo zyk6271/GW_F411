@@ -99,7 +99,7 @@ void uart_transmit_output(unsigned char value)
  */
 void all_data_update(void)
 {
-    //Sync_Request();
+
 }
 /******************************************************************************
                                 WARNING!!!    
@@ -1074,10 +1074,12 @@ void upgrade_package_choose(unsigned char package_sz)
  */
 unsigned char mcu_firm_update_handle(const unsigned char value[],unsigned long position,unsigned short length)
 {
-    #error "请自行完成MCU固件升级代码,完成后请删除该行"
+    //#error "请自行完成MCU固件升级代码,完成后请删除该行"
     if(length == 0) {
+        wifi_ota_end(value,position);
         //固件数据发送完成
     }else {
+        wifi_ota_receive(value,position,length);
         //固件数据处理
     }
     
@@ -1097,7 +1099,7 @@ unsigned char mcu_firm_update_handle(const unsigned char value[],unsigned long p
  */
 void subdev_upgrade_package_choose(unsigned char package_sz,unsigned char*sub_dev_id,unsigned char sub_dev_len)
 {
-    #error "请自行实现子设备升级代码,完成后请删除该行"
+    //#error "请自行实现子设备升级代码,完成后请删除该行"
     ////////////此次升级是针对对应的子设备的，子设备处理用户自行实现/////////////////
     
     unsigned short length = 0;
@@ -1116,7 +1118,7 @@ void subdev_upgrade_package_choose(unsigned char package_sz,unsigned char*sub_de
  */
 unsigned char subdev_firm_update_handle(unsigned char *sub_id_buf,const unsigned char value[],unsigned long position,unsigned short length)
 {
-    #error "请自行完成MCU固件升级代码,完成后请删除该行"
+    //#error "请自行完成MCU固件升级代码,完成后请删除该行"
     if(length == 0) {
         //固件数据发送完成
     }else {
@@ -1193,10 +1195,11 @@ void qur_subdev_ver_get(unsigned char* data_buf,unsigned short data_len)
     }
     sub_id = item->valuestring;
     
-    #error "请自行实现wifi模块查询子设备版本号代码,完成后请删除该行"
+    //#error "请自行实现wifi模块查询子设备版本号代码,完成后请删除该行"
+    //qur_subdev_ver_report(sub_id,"1.0.0");
     //请在此处填写子设备对应的mcu版本号
     /*
-    例如mcu版本号为1.0.3
+        例如mcu版本号为1.0.3
     qur_subdev_ver_report(sub_id,"1.0.3");
     */
 

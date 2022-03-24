@@ -30,7 +30,7 @@
 #define MAIN_PRODUCT_KEY "q3xnn9yqt55ifaxm"    //开发平台创建产品后生成的16位字符产品唯一标识
 #define GW_PRODUCT_KEY "rbptoajhwdfsdmbu"    //开发平台创建产品后生成的16位字符产品唯一标识
 
-#define MCU_VER "1.0.0"                                 //用户的软件版本,用于MCU固件升级,MCU升级版本需修改
+#define MCU_VER "2.0.0"                                 //用户的软件版本,用于MCU固件升级,MCU升级版本需修改
 
 //配网方式选择,默认为CONFIG_MODE_DEFAULT,只能三选一
 #define CONFIG_MODE     CONFIG_MODE_DEFAULT             //默认配网方式
@@ -67,12 +67,12 @@ WIFI 模块发送完所有的升级包，重新发送 01 命令字（3.2 查询�
 
 如需要支持MCU固件升级或者是子设备升级,请开启该宏
 ******************************************************************************/
-//#define         SUPPORT_MCU_FIRM_UPDATE                 //开启MCU固件升级功能(默认关闭)
+#define         SUPPORT_MCU_FIRM_UPDATE                 //开启MCU固件升级功能(默认关闭)
 #ifdef SUPPORT_MCU_FIRM_UPDATE
 //固件升级包大小选择    0x00:256byte(默认)  0x01:512byte  0x02：1024byte
-#define PACKAGE_SIZE                     0x00      //MCU固件升级包大小 256byte
+//#define PACKAGE_SIZE                     0x00      //MCU固件升级包大小 256byte
 //#define PACKAGE_SIZE                     0x01      //512byte
-//#define PACKAGE_SIZE                     0x02      //1024byte
+#define PACKAGE_SIZE                     0x02      //1024byte
 #endif
 /******************************************************************************
                          3:定义收发缓存:
@@ -82,16 +82,16 @@ WIFI 模块发送完所有的升级包，重新发送 01 命令字（3.2 查询�
 #define WIFI_UART_RECV_BUF_LMT             512              //串口数据接收缓存区大小,如MCU的RAM不够,可缩小
 #define WIFI_DATA_PROCESS_LMT          512              //串口数据处理缓存区大小,根据用户DP数据大小量定,建议大于24
 #else
-#define WIFI_UART_RECV_BUF_LMT             128              //串口数据接收缓存区大小,如MCU的RAM不够,可缩小
+#define WIFI_UART_RECV_BUF_LMT             4096              //串口数据接收缓存区大小,如MCU的RAM不够,可缩小
 
 //当选择升级包单包大小的时候，选择单包256byte，512byte，1024byte，必须要扩大该buf的大小
 //固件升级缓冲区,需大缓存
-#define WIFI_DATA_PROCESS_LMT          300              //单包256byte
+//#define WIFI_DATA_PROCESS_LMT          300              //单包256byte
 //#define WIFI_DATA_PROCESS_LMT          600              //单包512byte
-//#define WIFI_DATA_PROCESS_LMT          1200             //单包1024byte
+#define WIFI_DATA_PROCESS_LMT          4096             //单包1024byte
 #endif
 
-#define WIFIR_UART_SEND_BUF_LMT         512              //根据用户DP数据大小量定，用户可根据实际情况修改
+#define WIFIR_UART_SEND_BUF_LMT         4096              //根据用户DP数据大小量定，用户可根据实际情况修改
 
 /******************************************************************************
                         4:定义模块工作方式

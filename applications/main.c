@@ -16,6 +16,8 @@
 #include "wifi-uart.h"
 #include "heart.h"
 #include "dog.h"
+#include "board.h"
+#include "protocol.h"
 
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG
@@ -23,6 +25,7 @@
 
 int main(void)
 {
+    LOG_I("System Version is %s\r\n",MCU_VER);
     flash_Init();
     led_Init();
     LoadDevice2Memory();
