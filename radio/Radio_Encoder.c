@@ -150,14 +150,15 @@ void RadioDequeue(void *paramaeter)
 }
 void RadioDequeueTaskInit(void)
 {
-//    int *p;
-//    p=(int *)(0x0801FFFC);//这就是已知的地址，要强制类型转换
-//    Self_Id = *p;//从Flash加载ID
-    Self_Id = 0;
+    int *p;
+    p=(int *)(0x0800FFF0);//这就是已知的地址，要强制类型转换
+    Self_Id = *p;//从Flash加载ID
+    //Self_Id = 0;//加载为空值
     if(Self_Id==0xFFFFFFFF || Self_Id==0)
     {
         Self_Id = Self_Default_Id;
     }
+    LOG_I("Self ID is %d\r\n",Self_Id);
     Radio_Queue433 = rt_thread_create("Radio_Queue433", RadioDequeue, RT_NULL, 1024, 9, 10);
     if(Radio_Queue433)rt_thread_startup(Radio_Queue433);
 }
