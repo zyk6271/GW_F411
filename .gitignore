@@ -3,6 +3,7 @@
 *.dblite
 *.elf
 *.bin
+!GW_BL.bin
 *.hex
 *.axf
 *.pdb

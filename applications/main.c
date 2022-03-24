@@ -32,10 +32,10 @@ int main(void)
     Key_Reponse_Init();
     button_Init();
     Sync_Init();
-    WiFi_Init();
     rf_433_start();
     RadioDequeueTaskInit();
     Heart_Init();
+    WiFi_Init();
     while (1)
     {
         rt_thread_mdelay(1000);
