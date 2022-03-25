@@ -590,6 +590,7 @@ void Sync_Init(void)
 }
 void Sync_Request(void)
 {
+    rt_timer_stop(Sync_Timeout_t);
     Sync_Counter = Global_Device.Num;
     Get_Next_Main();
     rt_sem_release(Sync_Once_Sem);
