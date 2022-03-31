@@ -422,24 +422,8 @@ void LoadDevice2Memory(void)
             Global_Device.Heart[i] = Flash_Get_Key_Value(3,Global_Device.ID[i]);
             Global_Device.UploadFlag[i] = Flash_Get_Key_Value(4,Global_Device.ID[i]);
         }
-        //LOG_I("GOT ID is %ld,Device_Type is %d,Bind_ID is %ld\r\n",Global_Device.ID[i],Global_Device.Device_Type[i],Global_Device.Bind_ID[i]);
     }
     LOG_I("Nums is %d",Global_Device.Num);
-}
-void DeleteAllDevice(void)//数据载入到内存中
-{
-    uint16_t num = Global_Device.Num;
-    if(!num)
-    {
-        return;
-    }
-    while(num)
-    {
-        Local_Delete(Global_Device.ID[num]);
-        rt_thread_mdelay(200);
-        num--;
-    }
-    ef_env_set_default();
 }
 uint8_t Flash_Get_Heart(uint32_t Device_ID)//数据载入到内存中
 {

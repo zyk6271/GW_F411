@@ -81,6 +81,7 @@ void rf_433_init(void)
     Ax5043SetRegisters_RX(&rf_433);
     AX5043ReceiverON(&rf_433);
     rf_led(1);
+    beep_power(1);
 }
 void rf_433_send_timer_callback(void *parameter)
 {

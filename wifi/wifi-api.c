@@ -546,6 +546,7 @@ void Sync_t_Callback(void *parameter)
         rt_sem_take(Sync_Once_Sem,RT_WAITING_FOREVER);
         Sync_Start = 1;
         rt_thread_mdelay(10000);
+        if(Global_Device.ID[Sync_Counter]==0)continue;
         Device_Add2Flash_Wifi(Global_Device.ID[Sync_Counter],0);
         if(Global_Device.SyncRetry[Sync_Counter]<3)
         {
@@ -584,7 +585,7 @@ void Sync_Init(void)
     }
     if(Sync_t == RT_NULL)
     {
-        Sync_t = rt_thread_create("sync", Sync_t_Callback, RT_NULL, 1024, 10, 10);
+        Sync_t = rt_thread_create("sync", Sync_t_Callback, RT_NULL, 2048, 10, 10);
         rt_thread_startup(Sync_t);
     }
 }

@@ -38,7 +38,6 @@ int flash_Init(void);
 uint8_t Del_MainBind(uint32_t Device_ID);
 uint8_t Del_Device(uint32_t Device_ID);
 void LoadDevice2Memory(void);
-void DeleteAllDevice(void);
 uint32_t Flash_Get_Key_Value(uint8_t type,uint32_t key);
 uint8_t Flash_Get_Key_Valid(uint32_t Device_ID);
 uint32_t GetDoorID(uint32_t Main_ID);

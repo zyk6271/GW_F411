@@ -59,12 +59,10 @@ void Key_Reponse_Callback(void *parameter)
         }
         else if(K0_K1_Status==RT_EOK)
         {
+            LOG_I("Start Local Reset\r\n");
             beep_start(5);
-            DeleteAllDevice();
+            ef_env_set_default();
             reset_factory_setting();
-            LOG_I("Reboot now\r\n");
-            rt_thread_mdelay(3000);
-            rt_hw_cpu_reset();
         }
         else if(K0_Long_Status==RT_EOK)
         {

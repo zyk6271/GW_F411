@@ -920,25 +920,28 @@ void wifi_status_result(unsigned char result)
  */
 void inform_dev_del_status(unsigned char result)
 {
-    #error "请自行实现恢复出厂设置代码,完成后请删除该行"
+    //#error "请自行实现恢复出厂设置代码,完成后请删除该行"
     switch(result) {
-        case 0:
-            //本地恢复出厂
-        break;
-        case 1:
-            //远程移除
-        break;
-        case 2:
-            //本地移除
-        break;
-        case 3:
-            //远程恢复出厂
-        break;
-        case 4:
-            //清除数据，但是网关不离网
-        break;
+        case 0:            //本地恢复出厂
+            rt_hw_cpu_reset();
+            LOG_I("Local Reset Success\r\n");
+            break;
+        case 1:            //远程移除
+
+            break;
+        case 2:            //本地移除
+
+            break;
+        case 3:            //远程恢复出厂
+            LOG_I("Remote Reset Success\r\n");
+            ef_env_set_default();
+            rt_hw_cpu_reset();
+            break;
+        case 4:            //清除数据，但是网关不离网
+
+            break;
         default:
-        break;
+            break;
     }
 }
 #endif

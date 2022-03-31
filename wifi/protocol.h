@@ -30,7 +30,7 @@
 #define MAIN_PRODUCT_KEY "q3xnn9yqt55ifaxm"    //开发平台创建产品后生成的16位字符产品唯一标识
 #define GW_PRODUCT_KEY "rbptoajhwdfsdmbu"    //开发平台创建产品后生成的16位字符产品唯一标识
 
-#define MCU_VER "2.0.0"                                 //用户的软件版本,用于MCU固件升级,MCU升级版本需修改
+#define MCU_VER "2.0.1"                                 //用户的软件版本,用于MCU固件升级,MCU升级版本需修改
 
 //配网方式选择,默认为CONFIG_MODE_DEFAULT,只能三选一
 #define CONFIG_MODE     CONFIG_MODE_DEFAULT             //默认配网方式
@@ -179,7 +179,7 @@ wifi_status_result内部有#err提示,完成函数后请删除该#err
 并在protocol.c文件inform_dev_del_status函数内查看结果,
 inform_dev_del_status内部有#err提示,完成函数后请删除该#err
 ******************************************************************************/
-//#define         INFORM_DEV_DEV_DEL_ENABLE              //开启报告移除状态
+#define         INFORM_DEV_DEV_DEL_ENABLE              //开启报告移除状态
 
 /******************************************************************************
                       MCU是否需要支持本地删除子设备

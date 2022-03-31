@@ -120,6 +120,9 @@ void wifi_status_timer_callback(void *parameter)
         wifi_led(result);
         switch(result)
         {
+        case 1:
+            wifi_connected = 0;
+            break;
         case 2:
             wifi_connected = 0;
             break;
