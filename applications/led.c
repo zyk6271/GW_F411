@@ -77,6 +77,8 @@ void wifi_led(uint8_t type)
         agile_led_set_light_mode(WIFI_B, "200,0", -1);
         agile_led_start(WIFI_B);
         break;
+    default:
+        break;
     }
 }
 
@@ -121,7 +123,7 @@ void learn_success(void)
 }
 void learn_fail(void)
 {
-    LOG_W("Main is full\r\n");
+    LOG_W("Main is Full\r\n");
     agile_led_set_light_mode(beep, "50,50,200,200", 3);
     agile_led_start(beep);
 }

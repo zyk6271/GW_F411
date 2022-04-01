@@ -889,17 +889,7 @@ void wifi_test_result(unsigned char result,unsigned char rssi)
  */
 void wifi_status_result(unsigned char result)
 {
-//    extern uint8_t wifi_status;
-//    if(wifi_status != result)
-//    {
-//        wifi_status = result;
-//        LOG_I("wifi_status is change to %d\r\n",result);
-//        wifi_led(result);
-//        if(result == 4)
-//        {
-//            qur_subdev_list();
-//        }
-//    }
+
 }
 #endif
 
@@ -923,8 +913,8 @@ void inform_dev_del_status(unsigned char result)
     //#error "请自行实现恢复出厂设置代码,完成后请删除该行"
     switch(result) {
         case 0:            //本地恢复出厂
-            rt_hw_cpu_reset();
             LOG_I("Local Reset Success\r\n");
+            rt_hw_cpu_reset();
             break;
         case 1:            //远程移除
 

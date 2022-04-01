@@ -62,7 +62,7 @@ void service_callback(void *parameter)
 }
 void wifi_service_init(void)
 {
-    Reset_WiFi_Timer = rt_timer_create("Reset_WiFi_Timer", Reset_WiFi_Callback, RT_NULL, 1000, RT_TIMER_FLAG_SOFT_TIMER|RT_TIMER_FLAG_PERIODIC);
+    Reset_WiFi_Timer = rt_timer_create("Reset_WiFi_Timer", Reset_WiFi_Callback, RT_NULL, 2000, RT_TIMER_FLAG_SOFT_TIMER|RT_TIMER_FLAG_PERIODIC);
     WiFi_Service_Thread = rt_thread_create("wifi-service", service_callback, RT_NULL, 2048, 8, 10);
     if(WiFi_Service_Thread!=RT_NULL)rt_thread_startup(WiFi_Service_Thread);
 }

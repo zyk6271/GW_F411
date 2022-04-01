@@ -15,6 +15,10 @@
 #include "wifi-service.h"
 #include "led.h"
 
+#define DBG_TAG "wifi_uart"
+#define DBG_LVL DBG_LOG
+#include <rtdbg.h>
+
 /* 用于接收消息的信号量 */
 static struct rt_semaphore rx_sem;
 static rt_device_t serial;
@@ -23,17 +27,9 @@ struct serial_configure config = RT_SERIAL_CONFIG_DEFAULT;  /* 初始化配置�
 
 #define WiFi_UART_NAME                   "uart1"
 
-rt_timer_t wifi_status_timer = RT_NULL;
-
 uint8_t wifi_status = 0xff;
-uint8_t wifi_retry = 0;
 uint8_t wifi_connected = 0;
 
-#define DBG_TAG "wifi_uart"
-#define DBG_LVL DBG_LOG
-#include <rtdbg.h>
-
-/* 接收数据回调函数 */
 static rt_err_t uart_rx_ind(rt_device_t dev, rt_size_t size)
 {
     /* 串口接收到数据后产生中断，调用此回调函数，然后发送接收信号量 */
@@ -109,15 +105,13 @@ void wifi_uart_init(void)
         rt_thread_startup(WiFi_Uart_Thread);
     }
 }
-void wifi_status_timer_callback(void *parameter)
+void wifi_status_change(uint8_t result)
 {
-    uint8_t result = 0;
-    result = mcu_get_wifi_work_state();
-    extern uint8_t wifi_status;
     if(wifi_status != result)
     {
-        LOG_I("wifi_status is change to %d\r\n",result);
         wifi_led(result);
+        LOG_I("wifi_status is 0x%02X change to 0x%02X\r\n",wifi_status,result);
+        wifi_status = result;
         switch(result)
         {
         case 1:
@@ -125,6 +119,8 @@ void wifi_status_timer_callback(void *parameter)
             break;
         case 2:
             wifi_connected = 0;
+            break;
+        case 3:
             break;
         case 4:
             if(wifi_connected==0)
@@ -135,7 +131,6 @@ void wifi_status_timer_callback(void *parameter)
             }
             break;
         }
-        wifi_status = result;
     }
 }
 void wifi_power_on(void)
@@ -146,6 +141,7 @@ void wifi_power_on(void)
 MSH_CMD_EXPORT(wifi_power_on,wifi_power_on);
 void wifi_power_off(void)
 {
+    rt_pin_mode(WIFI_EN,0);
     rt_pin_write(WIFI_EN,0);
 }
 MSH_CMD_EXPORT(wifi_power_off,wifi_power_off);
@@ -155,7 +151,4 @@ void WiFi_Init(void)
     wifi_protocol_init();
     wifi_uart_init();
     wifi_service_init();
-
-    wifi_status_timer = rt_timer_create("wifi_status",wifi_status_timer_callback,RT_NULL,1000,RT_TIMER_FLAG_SOFT_TIMER|RT_TIMER_FLAG_PERIODIC);
-    rt_timer_start(wifi_status_timer);
 }

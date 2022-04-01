@@ -399,6 +399,7 @@ void data_handle(unsigned short offset)
         case WIFI_STATE_CMD:                                  //wifi联网状态
             wifi_work_state = wifi_data_process_buf[offset + DATA_START]; //记录模块当前联网状态
             wifi_uart_write_frame(WIFI_STATE_CMD, MCU_TX_VER, 0);
+            wifi_status_change(wifi_work_state);
 #ifdef WEATHER_ENABLE
             if(wifi_work_state == WIFI_CONNECTED && isWoSend == 0) { //当WIFI连接成功，打开天气数据且仅一次
                 mcu_open_weather();
