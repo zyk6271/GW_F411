@@ -408,8 +408,8 @@ void BackNormalPower(struct ax5043 *dev)
     if(dev->axradio_power_now)
     {
         dev->axradio_power_now = 0;
-        SpiWriteLongAddressRegister(dev,REG_AX5043_TXPWRCOEFFB1, 0x02);
-        SpiWriteLongAddressRegister(dev,REG_AX5043_TXPWRCOEFFB0, 0xEB);
+        SpiWriteLongAddressRegister(dev,REG_AX5043_TXPWRCOEFFB1, 0x07);
+        SpiWriteLongAddressRegister(dev,REG_AX5043_TXPWRCOEFFB0, 0x00);
         LOG_D("BackNormalPower Now\r\n");
     }
 }

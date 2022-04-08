@@ -84,7 +84,6 @@ void GatewaySyncSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
     Message Rx_message;
     if(rx_buffer[rx_len]=='A')
     {
-        LOG_D("GatewaySyncSolve verify ok\r\n");
         sscanf((const char *)&rx_buffer[2],"{%d,%d,%ld,%ld,%ld,%d,%d}",&Rx_message.ack,&Rx_message.type,&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Device_ID,&Rx_message.Rssi,&Rx_message.Data);
         if(Rx_message.Target_ID == Self_Id && Check_Valid(Rx_message.From_ID) == RT_EOK)
         {
@@ -133,9 +132,6 @@ void GatewaySyncSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
         else {
             LOG_W("GatewaySyncSolve ID %ld Error\r\n",Rx_message.From_ID);
         }
-    }
-    else {
-        LOG_W("GatewaySyncSolve verify fail\r\n");
     }
 }
 void GatewayWarningSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
@@ -194,17 +190,12 @@ void GatewayWarningSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
             LOG_W("GatewayWarningSolve ID %ld Error\r\n",Rx_message.From_ID);
         }
     }
-    else
-    {
-        LOG_W("GatewayControlSolve verify Fail\r\n");
-    }
 }
 void GatewayControlSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
 {
     Message Rx_message;
     if(rx_buffer[rx_len]=='C')
     {
-        LOG_D("GatewayControlSolve verify ok\r\n");
         sscanf((const char *)&rx_buffer[2],"{%d,%ld,%ld,%ld,%d,%d,%d}",&Rx_message.ack,&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Device_ID,&Rx_message.Rssi,&Rx_message.Command,&Rx_message.Data);
         if(Rx_message.Target_ID == Self_Id && Check_Valid(Rx_message.From_ID) == RT_EOK)
         {
@@ -282,10 +273,6 @@ void GatewayControlSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
          {
              LOG_W("GatewayControlSolve ID %ld Error\r\n",Rx_message.From_ID);
          }
-    }
-    else
-    {
-        LOG_W("GatewayControlSolve verify Fail\r\n");
     }
 }
 void rf433_rx_callback(int rssi,uint8_t *buffer,uint8_t len)
