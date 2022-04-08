@@ -500,6 +500,21 @@ uint8_t Remote_Get_Key_Valid(uint32_t Device_ID)//查询内存中的ID
     }
     return RT_ERROR;
 }
+uint8_t Remote_Device_Delete(uint32_t Device_ID)//查询内存中的ID
+{
+    uint16_t num = Remote_Device.Num;
+    if(!num)return RT_ERROR;
+    while(num)
+    {
+        if(Remote_Device.ID[num]==Device_ID)
+        {
+            Remote_Device.ID[num] = 0;
+            return RT_EOK;
+        }
+        num--;
+    }
+    return RT_ERROR;
+}
 rt_thread_t Sync_t = RT_NULL;
 rt_sem_t Sync_Once_Sem = RT_NULL;
 uint8_t Sync_Recv = 0;

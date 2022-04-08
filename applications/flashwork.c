@@ -320,6 +320,7 @@ uint8_t Del_Device(uint32_t Device_ID)
                 Del_MainNums();
             }
             LOG_I("ID %ld is delete\r\n",Global_Device.ID[num]);
+            Remote_Device_Delete(Device_ID);
             Flash_ID_Change(num,0);
             Global_Device.ID[num] = 0;
             Flash_Bind_Change(Device_ID,0);
