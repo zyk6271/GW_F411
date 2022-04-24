@@ -356,25 +356,21 @@ void Moto_CloseRemote(uint32_t device_id)
     LOG_I("Main %d Moto is Remote close\r\n",device_id);
     GatewayDataEnqueue(device_id,0,0,2,0);
 }
-MSH_CMD_EXPORT(Moto_CloseRemote,Moto_CloseRemote);
 void Moto_OpenRemote(uint32_t device_id)
 {
     LOG_I("Main %d Moto is Remote Open\r\n",device_id);
     GatewayDataEnqueue(device_id,0,0,2,1);
 }
-MSH_CMD_EXPORT(Moto_OpenRemote,Moto_OpenRemote);
 void Delay_CloseRemote(uint32_t device_id)
 {
     LOG_I("Main %d Delay is Remote close\r\n",device_id);
     GatewayDataEnqueue(device_id,0,0,1,0);
 }
-MSH_CMD_EXPORT(Delay_CloseRemote,Delay_CloseRemote);
 void Delay_OpenRemote(uint32_t device_id)
 {
     LOG_I("Main %d Delay is Remote Open\r\n",device_id);
     GatewayDataEnqueue(device_id,0,0,1,1);
 }
-MSH_CMD_EXPORT(Delay_OpenRemote,Delay_OpenRemote);
 void Heart_Report(uint32_t device_id,int rssi)
 {
     char *id_buf = rt_malloc(20);
