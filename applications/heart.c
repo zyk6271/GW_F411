@@ -47,7 +47,7 @@ void heart_callback(void *parameter)
                     rt_thread_mdelay(2000);//心跳后等待周期
                     if(Global_Device.HeartRecv[num])//RecvFlag
                     {
-                        Flash_Set_Heart(Global_Device.ID[num],1);
+                        Heart_Upload(Global_Device.ID[num],1);
                         Global_Device.HeartRetry[num] = 0;
                         rt_thread_mdelay(5000);//设备与设备之间的间隔
                         break;
@@ -75,7 +75,7 @@ void heart_callback(void *parameter)
                          case 4:
                              Global_Device.HeartRetry[num] = 0;
                              LOG_D("Rerty 5 fail\r\n");
-                             Flash_Set_Heart(Global_Device.ID[num],0);
+                             Heart_Upload(Global_Device.ID[num],0);
                              break;
                          }
                         rt_thread_mdelay(4000);//心跳后等待周期

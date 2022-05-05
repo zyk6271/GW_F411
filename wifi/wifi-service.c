@@ -54,6 +54,8 @@ void Reset_WiFi_Callback(void *parameter)
 }
 void service_callback(void *parameter)
 {
+    rt_thread_mdelay(200);
+    wifi_power_on();
     while(1)
     {
         wifi_uart_service();

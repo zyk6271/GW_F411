@@ -232,6 +232,31 @@ void Device_Add2Flash_Wifi(uint32_t device_id,uint32_t from_id)
         }
     }
 }
+uint8_t Set_Slave_Heart(uint32_t Device_ID,uint8_t heart)//数据载入到内存中
+{
+    uint16_t num = Global_Device.Num;
+    if(!num)
+    {
+        return 0;
+    }
+    while(num)
+    {
+        if(Global_Device.Bind_ID[num]==Device_ID)
+        {
+            if(heart){
+                if(Global_Device.Heart[num])
+                {
+                    Device_Up(Global_Device.ID[num]);
+                }
+            }
+            else {
+                Device_Down(Global_Device.ID[num]);
+            }
+        }
+        num--;
+    }
+    return 0;
+}
 void DeviceCheck(uint32_t device_id,uint32_t from_id)
 {
     Flash_Set_Heart(device_id,1);
@@ -371,23 +396,23 @@ void Delay_OpenRemote(uint32_t device_id)
     LOG_I("Main %d Delay is Remote Open\r\n",device_id);
     GatewayDataEnqueue(device_id,0,0,1,1);
 }
-void Heart_Report(uint32_t device_id,int rssi)
+void Main_Rssi_Report(uint32_t device_id,int rssi)
 {
     char *id_buf = rt_malloc(20);
     sprintf(id_buf,"%ld",device_id);
     if(rssi<-94)
     {
         mcu_dp_enum_update(DPID_SIGN_STATE,0,id_buf,my_strlen(id_buf));
-        LOG_I("Heart_Report %d is upload,rssi is %d,level is low\r\n",device_id,rssi);
+        LOG_I("Main_Rssi_Report %d is upload,rssi is %d,level is low\r\n",device_id,rssi);
     }
     else if(rssi>=-94 && rssi<-78)
     {
         mcu_dp_enum_update(DPID_SIGN_STATE,1,id_buf,my_strlen(id_buf));
-        LOG_I("Heart_Report %d is upload,rssi is %d,level is mid\r\n",device_id,rssi);
+        LOG_I("Main_Rssi_Report %d is upload,rssi is %d,level is mid\r\n",device_id,rssi);
     }
     else {
         mcu_dp_enum_update(DPID_SIGN_STATE,2,id_buf,my_strlen(id_buf));
-        LOG_I("Heart_Report %d is upload,rssi is %d,level is high\r\n",device_id,rssi);
+        LOG_I("Main_Rssi_Report %d is upload,rssi is %d,level is high\r\n",device_id,rssi);
     }
     rt_free(id_buf);
 }
@@ -422,16 +447,15 @@ void Heart_Upload(uint32_t device_id,uint8_t heart)
 {
     char *id = rt_malloc(20);
     sprintf(id,"%ld",device_id);
-    if(heart>0)
-    {
-        heart_beat_report(id,0);
-    }
+    heart_beat_report(id,0);
+    Flash_Set_Heart(device_id,heart);
     rt_free(id);
 }
 void Device_Up(uint32_t device_id)
 {
     char *id = rt_malloc(32);
     sprintf(id,"%ld",device_id);
+    heart_beat_report(id,0);
     user_updata_subden_online_state(0,id,1,1);
     rt_free(id);
 }

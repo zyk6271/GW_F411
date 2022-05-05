@@ -75,7 +75,7 @@ void NormalSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
                  Device_Learn(Rx_message);
                  break;
              }
-             Flash_Set_Heart(Rx_message.From_ID,1);
+             Heart_Upload(Rx_message.From_ID,1);
          }
      }
 }
@@ -92,8 +92,8 @@ void GatewaySyncSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
             {
                 GatewayDataEnqueue(Rx_message.From_ID,0,0,7,0);
             }
-            Heart_Report(Rx_message.From_ID,rssi);
-            Flash_Set_Heart(Rx_message.From_ID,1);
+            Main_Rssi_Report(Rx_message.From_ID,rssi);
+            Heart_Upload(Rx_message.From_ID,1);
             switch(Rx_message.type)
             {
             case 1:
@@ -108,6 +108,7 @@ void GatewaySyncSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
                 Sync_Refresh();
                 Device_Add2Flash_Wifi(Rx_message.Device_ID,Rx_message.From_ID);//增加终端
                 Flash_Set_Heart(Rx_message.Device_ID,1);
+                Device_Up(Rx_message.Device_ID);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//心跳
                 WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,2,Rx_message.Data);//终端电量
                 break;
@@ -124,6 +125,7 @@ void GatewaySyncSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
             case 6://添加设备
                 Device_Add2Flash_Wifi(Rx_message.Device_ID,Rx_message.From_ID);//增加终端
                 Flash_Set_Heart(Rx_message.Device_ID,1);
+                Device_Up(Rx_message.Device_ID);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//心跳
                 WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,2,Rx_message.Data);//终端低电量
                 break;
@@ -147,8 +149,8 @@ void GatewayWarningSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
             {
                 GatewayDataEnqueue(Rx_message.From_ID,0,0,7,0);
             }
-            Flash_Set_Heart(Rx_message.From_ID,1);
-            Heart_Report(Rx_message.From_ID,rssi);
+            Heart_Upload(Rx_message.From_ID,1);
+            Main_Rssi_Report(Rx_message.From_ID,rssi);
             LOG_D("WariningUpload From ID is %ld,Device ID is %ld,type is %d,value is %d\r\n",Rx_message.From_ID,Rx_message.Device_ID,Rx_message.Command,Rx_message.Data);
             switch(Rx_message.Command)
             {
@@ -204,8 +206,8 @@ void GatewayControlSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
             {
                 GatewayDataEnqueue(Rx_message.From_ID,0,0,7,0);
             }
-            Heart_Report(Rx_message.From_ID,rssi);
-            Flash_Set_Heart(Rx_message.From_ID,1);
+            Main_Rssi_Report(Rx_message.From_ID,rssi);
+            Heart_Upload(Rx_message.From_ID,1);
             switch(Rx_message.Command)
             {
             case 1:
@@ -214,10 +216,12 @@ void GatewayControlSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
                 {
                     CloseWarn_Main(Rx_message.From_ID);
                 }
+                Remote_Delay_WiFi(Rx_message.From_ID,0);
                 break;
             case 2:
                 DeviceCheck(Rx_message.Device_ID,Rx_message.From_ID);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//设备RSSI更新
+                Remote_Delay_WiFi(Rx_message.From_ID,0);
                 if(Rx_message.Data == 0 || Rx_message.Data == 1)
                 {
                     RemoteUpload(Rx_message.From_ID,Rx_message.Device_ID,Rx_message.Data);//终端开关阀
@@ -240,10 +244,6 @@ void GatewayControlSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
                     DeviceCheck(Rx_message.Device_ID,Rx_message.From_ID);
                     Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//设备RSSI更新
                 }
-                else //本地关闭
-                {
-                    Remote_Delay_WiFi(Rx_message.From_ID,Rx_message.Data);
-                }
                 break;
             case 4:
                 MotoUpload(Rx_message.From_ID,Rx_message.Data);
@@ -258,13 +258,10 @@ void GatewayControlSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
                 DeviceCheck(Rx_message.Device_ID,Rx_message.From_ID);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//设备RSSI更新
                 MotoUpload(Rx_message.From_ID,Rx_message.Data);//主控开关阀
+                Remote_Delay_WiFi(Rx_message.From_ID,0);
                 if(Rx_message.Data == 0)
                 {
                     CloseWarn_Slave(Rx_message.Device_ID);
-                }
-                else
-                {
-                    Remote_Delay_WiFi(Rx_message.From_ID,0);
                 }
                 break;
             }

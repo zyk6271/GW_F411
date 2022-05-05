@@ -61,12 +61,12 @@ void data_parsing(void)
     {
         ch = uart_sample_get_char();
         uart_receive_input(ch);
-        //LOG_RAW("%X",ch);
+        //LOG_RAW("Recv %X\r\n",ch);
     }
 }
 void WiFi_Byte_Send(uint8_t data)
 {
-    //LOG_D("Data %X is Send OK\r\n",data);
+    //LOG_RAW("Send %X\r\n",data);
     rt_device_write(serial,0,&data,1);
 }
 void wifi_uart_init(void)
@@ -147,7 +147,7 @@ void wifi_power_off(void)
 MSH_CMD_EXPORT(wifi_power_off,wifi_power_off);
 void WiFi_Init(void)
 {
-    wifi_power_on();
+    wifi_power_off();
     wifi_protocol_init();
     wifi_uart_init();
     wifi_service_init();

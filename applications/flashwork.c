@@ -457,21 +457,22 @@ uint8_t Flash_Set_Heart(uint32_t Device_ID,uint8_t heart)//数据载入到内存
             if(heart)
             {
                 Global_Device.HeartRecv[num] = 1;
-                Heart_Upload(Device_ID,1);
                 if(Global_Device.Heart[num]==0)
                 {
+                    Set_Slave_Heart(Device_ID,1);
                     Flash_Heart_Change(Device_ID,1);
                     Global_Device.Heart[num] = 1;
-                    LOG_I("Device %ld is back to online\r\n",Device_ID);
+                    LOG_I("Main Plus %ld is online now\r\n",Device_ID);
                 }
             }
             else
             {
                 if(Global_Device.Heart[num])
                 {
+                    Set_Slave_Heart(Device_ID,0);
                     Flash_Heart_Change(Device_ID,0);
                     Global_Device.Heart[num] = 0;
-                    LOG_W("Device %ld is fall to offline\r\n",Device_ID);
+                    LOG_W("Main Plus %ld is offline now\r\n",Device_ID);
                 }
             }
             return RT_EOK;

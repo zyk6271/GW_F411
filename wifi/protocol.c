@@ -306,12 +306,11 @@ void heart_beat_check(unsigned char* data_buf,unsigned short data_len)
     sub_id = item->valuestring;
     
     Heart_Request(sub_id);
-    LOG_D("Get Heart Check From WIFI,The id is %s",sub_id);
+    //LOG_I("Get Heart Check From WIFI,The id is %s",sub_id);
     //#error "请自行实现心跳检测代码,完成后请删除该行"
     /////////////////////////请在此处根据获取到的sub_id进行子设备心跳的回复////////////////////////
     //////////////////在线的设备需要回复心跳，连续2  个心跳周期不回复则认为该设备离线////////////////
     //这边只给出示例，具体用法请在mcu_api.c里面的heart_beat_report查看函数说明
-    //heart_beat_report(sub_id, 0);
 
     cJSON_Delete(root);
     return;

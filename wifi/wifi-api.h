@@ -42,7 +42,7 @@ void Moto_CloseRemote(uint32_t device_id);
 void Moto_OpenRemote(uint32_t device_id);
 void Delay_CloseRemote(uint32_t device_id);
 void Delay_OpenRemote(uint32_t device_id);
-void Heart_Report(uint32_t device_id,int rssi);
+void Main_Rssi_Report(uint32_t device_id,int rssi);
 void Ack_Report(uint32_t device_id);
 void Device_Up(uint32_t device_id);
 void Device_Down(uint32_t device_id);
