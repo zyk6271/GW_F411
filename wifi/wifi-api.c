@@ -163,6 +163,7 @@ void Slave_Heart(uint32_t device_id,uint8_t rssi)
 }
 void MotoUpload(uint32_t device_id,uint8_t state)
 {
+    Remote_Delay_WiFi(device_id,0);
     Flash_Set_Moto(device_id,state);
     char *Buf = rt_malloc(20);
     LOG_I("MotoUpload State is %d,device_id is %ld\r\n",state,device_id);
@@ -170,27 +171,12 @@ void MotoUpload(uint32_t device_id,uint8_t state)
     mcu_dp_bool_update(DPID_DEVICE_STATE,state,Buf,my_strlen(Buf)); //VALUE型数据上报;
     rt_free(Buf);
 }
-void RemoteUpload(uint32_t from_id,uint32_t device_id,uint8_t state)
+void DoorUpload(uint32_t device_id,uint8_t state)
 {
-    char *FromBuf = rt_malloc(20);
     char *DeviceBuf = rt_malloc(20);
-    LOG_I("RemoteUpload %ld from %ld is upload %d\r\n",device_id,from_id,state);
-    sprintf(FromBuf,"%ld",from_id);
+    LOG_I("DoorUpload %ld upload %d\r\n",device_id,state);
     sprintf(DeviceBuf,"%ld",device_id);
-    mcu_dp_bool_update(DPID_DEVICE_STATE,state,FromBuf,my_strlen(FromBuf)); //VALUE型数据上报;
-    rt_free(FromBuf);
-    rt_free(DeviceBuf);
-}
-void DoorUpload(uint32_t from_id,uint32_t device_id,uint8_t state)
-{
-    char *FromBuf = rt_malloc(20);
-    char *DeviceBuf = rt_malloc(20);
-    LOG_I("DoorUpload %ld from %ld is upload %d\r\n",device_id,from_id,state);
-    sprintf(FromBuf,"%ld",from_id);
-    sprintf(DeviceBuf,"%ld",device_id);
-    mcu_dp_bool_update(DPID_DEVICE_STATE,state,FromBuf,my_strlen(FromBuf)); //VALUE型数据上报;
     mcu_dp_bool_update(104,state,DeviceBuf,my_strlen(DeviceBuf)); //VALUE型数据上报;
-    rt_free(FromBuf);
     rt_free(DeviceBuf);
 }
 void Device_Add2Flash_Wifi(uint32_t device_id,uint32_t from_id)
