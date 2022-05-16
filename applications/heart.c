@@ -28,63 +28,42 @@ void heart_callback(void *parameter)
     while(1)
     {
         rt_thread_mdelay(15*60000);//检测周期
-        for(num=1;num<=Global_Device.Num;num++)
+        num = 1;
+        while(num <= Global_Device.Num)
         {
             if(Global_Device.ID[num]!=0 && Global_Device.Bind_ID[num]==0)
             {
-                for(uint8_t i=0;i<5;i++)
+                Global_Device.HeartRecv[num] = 0;
+                ChangeMaxPower(&rf_433);
+                LOG_D("Start Heart With %d,Retry num is %d\r\n",Global_Device.ID[num],Global_Device.HeartRetry[num]);
+                GatewayDataEnqueue(Global_Device.ID[num],0,0,3,0);//Send
+                rt_thread_mdelay(3000);//心跳后等待周期
+                BackNormalPower(&rf_433);
+                if(Global_Device.HeartRecv[num])//RecvFlag
                 {
-                    Global_Device.HeartRecv[num] = 0;
-                    if(Global_Device.HeartRetry[num]>2)
+                    Global_Device.HeartRetry[num] = 0;
+                    Heart_Upload(Global_Device.ID[num],1);
+                    rt_thread_mdelay(2000);//设备与设备之间的间隔
+                    num++;
+                }
+                else
+                {
+                    if(Global_Device.HeartRetry[num] < 5)
                     {
-                        ChangeMaxPower(&rf_433);
+                        LOG_D("Rerty %d fail\r\n",Global_Device.HeartRetry[num]++);
                     }
                     else
                     {
-                        BackNormalPower(&rf_433);
-                    }
-                    GatewayDataEnqueue(Global_Device.ID[num],0,0,3,0);//Send
-                    rt_thread_mdelay(2000);//心跳后等待周期
-                    if(Global_Device.HeartRecv[num])//RecvFlag
-                    {
-                        Heart_Upload(Global_Device.ID[num],1);
                         Global_Device.HeartRetry[num] = 0;
-                        rt_thread_mdelay(5000);//设备与设备之间的间隔
-                        break;
+                        Heart_Upload(Global_Device.ID[num],0);
+                        num++;
                     }
-                    else
-                    {
-                        switch(Global_Device.HeartRetry[num])
-                         {
-                         case 0:
-                             Global_Device.HeartRetry[num] = 1;
-                             LOG_D("Rerty 1 fail\r\n");
-                             break;
-                         case 1:
-                             Global_Device.HeartRetry[num] = 2;
-                             LOG_D("Rerty 2 fail\r\n");
-                             break;
-                         case 2:
-                             Global_Device.HeartRetry[num] = 3;
-                             LOG_D("Rerty 3 fail\r\n");
-                             break;
-                         case 3:
-                             Global_Device.HeartRetry[num] = 4;
-                             LOG_D("Rerty 4 fail\r\n");
-                             break;
-                         case 4:
-                             Global_Device.HeartRetry[num] = 0;
-                             LOG_D("Rerty 5 fail\r\n");
-                             Heart_Upload(Global_Device.ID[num],0);
-                             break;
-                         }
-                        rt_thread_mdelay(4000);//心跳后等待周期
-                    }
+                    rt_thread_mdelay(2000);//设备与设备之间的间隔
                 }
             }
             else
             {
-                continue;
+                num++;
             }
         }
     }
