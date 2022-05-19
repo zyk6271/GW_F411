@@ -22,6 +22,7 @@ typedef struct
     uint8_t Moto[MaxSupport];
     uint8_t Heart[MaxSupport];
     uint8_t HeartRetry[MaxSupport];
+    uint8_t HeartCount[MaxSupport];
     uint8_t HeartRecv[MaxSupport];
     uint8_t UploadFlag[MaxSupport];
     uint8_t SyncRetry[MaxSupport];

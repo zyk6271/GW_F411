@@ -37,10 +37,11 @@ void heart_callback(void *parameter)
                 ChangeMaxPower(&rf_433);
                 LOG_D("Start Heart With %d,Retry num is %d\r\n",Global_Device.ID[num],Global_Device.HeartRetry[num]);
                 GatewayDataEnqueue(Global_Device.ID[num],0,0,3,0);//Send
-                rt_thread_mdelay(3000);//心跳后等待周期
+                rt_thread_mdelay(2000);//心跳后等待周期
                 BackNormalPower(&rf_433);
                 if(Global_Device.HeartRecv[num])//RecvFlag
                 {
+                    Global_Device.HeartCount[num] = 0;
                     Global_Device.HeartRetry[num] = 0;
                     Heart_Upload(Global_Device.ID[num],1);
                     rt_thread_mdelay(2000);//设备与设备之间的间隔
@@ -48,17 +49,26 @@ void heart_callback(void *parameter)
                 }
                 else
                 {
-                    if(Global_Device.HeartRetry[num] < 5)
+                    if(Global_Device.HeartRetry[num] < 6)
                     {
-                        LOG_D("Rerty %d fail\r\n",Global_Device.HeartRetry[num]++);
+                        LOG_D("Rerty %d Max\r\n",Global_Device.HeartRetry[num]++);
                     }
                     else
                     {
+                        if(Global_Device.HeartCount[num] < 5)
+                        {
+                            Global_Device.HeartCount[num]++;
+                            LOG_D("Heart Offline With %d,num is %d\r\n",Global_Device.ID[num],Global_Device.HeartCount[num]);
+                        }
+                        else
+                        {
+                            Global_Device.HeartCount[num] = 0;
+                            Flash_Set_Heart(Global_Device.ID[num],0);
+                        }
                         Global_Device.HeartRetry[num] = 0;
-                        Heart_Upload(Global_Device.ID[num],0);
                         num++;
                     }
-                    rt_thread_mdelay(2000);//设备与设备之间的间隔
+                    rt_thread_mdelay(3000);//设备与设备之间的间隔
                 }
             }
             else
