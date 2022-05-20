@@ -51,19 +51,20 @@ void heart_callback(void *parameter)
                 {
                     if(Global_Device.HeartRetry[num] < 6)
                     {
-                        LOG_D("Rerty %d Max\r\n",Global_Device.HeartRetry[num]++);
+                        LOG_D("Rerty Again times %d\r\n",Global_Device.HeartRetry[num]++);
                     }
                     else
                     {
                         if(Global_Device.HeartCount[num] < 5)
                         {
                             Global_Device.HeartCount[num]++;
-                            LOG_D("Heart Offline With %d,num is %d\r\n",Global_Device.ID[num],Global_Device.HeartCount[num]);
+                            LOG_D("%d Rerty Stop,HeartCount is %d\r\n",Global_Device.ID[num],Global_Device.HeartCount[num]);
                         }
                         else
                         {
                             Global_Device.HeartCount[num] = 0;
                             Flash_Set_Heart(Global_Device.ID[num],0);
+                            LOG_D("%d Offline\r\n",Global_Device.ID[num]);
                         }
                         Global_Device.HeartRetry[num] = 0;
                         num++;
