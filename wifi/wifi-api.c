@@ -464,7 +464,6 @@ void Heart_Request(char *id_buf)
             if(Flash_Get_Heart(id))
             {
                 Device_Up(id);
-                heart_beat_report(id_buf,0);
             }
             else
             {
@@ -477,7 +476,6 @@ void Heart_Request(char *id_buf)
         if(Flash_Get_Heart(id))
         {
             Device_Up(id);
-            heart_beat_report(id_buf,0);
         }
         else
         {

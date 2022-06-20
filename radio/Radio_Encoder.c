@@ -63,6 +63,7 @@ void RadioSend(uint32_t Taget_Id,uint8_t counter,uint8_t Command,uint8_t Data)
     buf[30] = '\r';
     buf[31] = '\n';
     Normal_send(&rf_433,buf,32);
+    rf_433_send_timer_start();
     rt_free(buf);
 }
 void GatewayDataEnqueue(uint32_t target_id,uint32_t device_id,uint8_t rssi,uint8_t control,uint8_t value)
@@ -92,6 +93,7 @@ void GatewayDataSend(uint32_t target_id,uint32_t device_id,uint8_t rssi,uint8_t 
     char *buf = rt_malloc(64);
     sprintf(buf,"G{%08ld,%08ld,%08ld,%03d,%03d,%02d}G",target_id,Self_Id,device_id,rssi,control,value);
     Normal_send(&rf_433,buf,41);
+    rf_433_send_timer_start();
     rt_free(buf);
 }
 void RadioEnqueue(uint32_t Taget_Id,uint8_t counter,uint8_t Command,uint8_t Data)
