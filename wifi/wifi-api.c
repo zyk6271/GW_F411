@@ -626,3 +626,4 @@ void Sync_Refresh(void)
         LOG_I("Sync_Refresh\r\n");
     }
 }
+MSH_CMD_EXPORT(mcu_start_wifitest,mcu_start_wifitest);

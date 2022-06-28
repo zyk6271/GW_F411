@@ -166,7 +166,6 @@ unsigned char dp_download_handle(unsigned char dpid,const unsigned char value[],
     unsigned char ret;
     switch(dpid) {
         case DPID_CONTROL_STATE:
-            //门控开关阀处理函数
             ret = dp_download_control_state_handle(value,length,sub_id_buf,sub_id_len);
         break;
         default:
@@ -861,11 +860,22 @@ void wifi_test_result(unsigned char result,unsigned char rssi)
     if(result == 0) {
         //测试失败
         if(rssi == 0x00) {
+            LOG_E("No wifi\r\n");
+            wifi_led_factory(1);
             //未扫描到名称为tuya_mdev_test路由器,请检查
         }else if(rssi == 0x01) {
             //模块未授权
         }
     }else {
+        LOG_I("wifi rssi is %d\r\n",rssi);
+        if(rssi<10)
+        {
+            wifi_led_factory(2);
+        }
+        else
+        {
+            wifi_led_factory(3);
+        }
         //测试成功
         //rssi为信号强度(0-100, 0信号最差，100信号最强)
     }

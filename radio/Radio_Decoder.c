@@ -67,6 +67,20 @@ void NormalSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
          sscanf((const char *)&rx_buffer[1],"{%ld,%ld,%d,%d,%d}",&Rx_message.Target_ID,&Rx_message.From_ID,&Rx_message.Counter,&Rx_message.Command,&Rx_message.Data);
          if(Rx_message.Target_ID==Self_Id)
          {
+             if(Rx_message.From_ID == 98989898)
+             {
+                 LOG_I("Factory Test verify ok,RSSI is %d\r\n",rssi);
+                 rf_refresh();
+                 if(rssi>-70)
+                 {
+                     rf_led_factory(2);
+                 }
+                 else
+                 {
+                     rf_led_factory(1);
+                }
+                return;
+             }
              rf_led(3);
              LOG_D("NormalSolve verify ok\r\n");
              switch(Rx_message.Command)
@@ -128,6 +142,9 @@ void GatewaySyncSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
                 Device_Up(Rx_message.Device_ID);
                 Slave_Heart(Rx_message.Device_ID,Rx_message.Rssi);//心跳
                 WariningUpload(Rx_message.From_ID,Rx_message.Device_ID,2,Rx_message.Data);//终端低电量
+                break;
+            case 7://产测指令
+
                 break;
             }
         }
@@ -245,6 +262,7 @@ void GatewayControlSolve(int rssi,uint8_t *rx_buffer,uint8_t rx_len)
                 MotoUpload(Rx_message.From_ID,Rx_message.Data);
                 break;
             case 5:
+                Sync_Refresh();
                 MotoUpload(Rx_message.From_ID,Rx_message.Data);//主控开关阀
                 Ack_Report(Rx_message.From_ID);
                 InitWarn_Main(Rx_message.From_ID);//报警状态

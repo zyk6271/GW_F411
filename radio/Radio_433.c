@@ -67,7 +67,7 @@ void rf_433_sem_init(void)
 {
     IRQ1_Sem = rt_sem_create("IRQ1_Sem", 0, RT_IPC_FLAG_FIFO);
 }
-void rf_433_init(void)
+void rf_433_driver_init(void)
 {
     rf_433.config = rf_433_config_init();
     rf_433.socket = rf_433_radio_spi_init();
@@ -80,8 +80,6 @@ void rf_433_init(void)
     vcoi_rng_get(&rf_433);
     Ax5043SetRegisters_RX(&rf_433);
     AX5043ReceiverON(&rf_433);
-    rf_led(1);
-    beep_power(1);
 }
 void rf_433_send_timer_callback(void *parameter)
 {
@@ -167,14 +165,19 @@ void rf_433_task_callback(void *parameter)
 }
 void rf_433_start(void)
 {
-    rf_433_sem_init();
-    rf_433_send_timer = rt_timer_create("rf_433_send timeout", rf_433_send_timer_callback, RT_NULL, 1000, RT_TIMER_FLAG_ONE_SHOT|RT_TIMER_FLAG_SOFT_TIMER);
-    rf_433_task = rt_thread_create("rf_433_task", rf_433_task_callback, RT_NULL, 2048, 8, 10);
-    rt_thread_startup(rf_433_task);
     rf_433_init();
+    rf_led(1);
+    beep_power(1);
 }
 void rf_test(void)
 {
     rf_restart(&rf_433);
 }
-MSH_CMD_EXPORT(rf_test,rf_test);
+void rf_433_init(void)
+{
+    rf_433_sem_init();
+    rf_433_send_timer = rt_timer_create("rf_433_send timeout", rf_433_send_timer_callback, RT_NULL, 1000, RT_TIMER_FLAG_ONE_SHOT|RT_TIMER_FLAG_SOFT_TIMER);
+    rf_433_task = rt_thread_create("rf_433_task", rf_433_task_callback, RT_NULL, 2048, 8, 10);
+    rt_thread_startup(rf_433_task);
+    rf_433_driver_init();
+}

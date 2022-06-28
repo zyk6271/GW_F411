@@ -29,6 +29,7 @@ struct serial_configure config = RT_SERIAL_CONFIG_DEFAULT;  /* 初始化配置�
 
 uint8_t wifi_status = 0xff;
 uint8_t wifi_connected = 0;
+uint8_t WiFi_FactoryFlag = 0;
 
 static rt_err_t uart_rx_ind(rt_device_t dev, rt_size_t size)
 {
@@ -107,6 +108,7 @@ void wifi_uart_init(void)
 }
 void wifi_status_change(uint8_t result)
 {
+    if(WiFi_FactoryFlag)return;
     if(wifi_status != result)
     {
         wifi_led(result);
@@ -151,4 +153,13 @@ void WiFi_Init(void)
     wifi_protocol_init();
     wifi_uart_init();
     wifi_service_init();
+}
+void WiFi_FactoryInit(void)
+{
+    WiFi_FactoryFlag = 1;
+    wifi_power_off();
+    wifi_protocol_init();
+    wifi_uart_init();
+    wifi_service_init();
+    wifi_test();
 }

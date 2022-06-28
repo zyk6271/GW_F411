@@ -29,6 +29,7 @@ int main(void)
     flash_Init();
     led_Init();
     LoadDevice2Memory();
+    factory_detect();
     Key_Reponse_Init();
     button_Init();
     Sync_Init();
