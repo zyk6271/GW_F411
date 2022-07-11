@@ -297,7 +297,7 @@ upload_group_local_change_dp_result内部有#err提示,完成函数后请删除�
 并在protocol.c文件中，在结果处理函数内查看结果,
 这些函数内部有#err提示,完成函数后请删除该#err
 ******************************************************************************/
-//#define         SECURITY_PROTECTION_ENABLE            //开启安防传感相关功能
+#define         SECURITY_PROTECTION_ENABLE            //开启安防传感相关功能
 
 #ifdef SECURITY_PROTECTION_ENABLE
 /******************************************************************************

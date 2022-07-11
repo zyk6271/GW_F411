@@ -150,6 +150,12 @@ void wifi_uart_write_frame(unsigned char fr_type, unsigned char fr_ver, unsigned
     wifi_uart_tx_buf[len - 1] = check_sum;
     //
     wifi_uart_write_data((unsigned char *)wifi_uart_tx_buf, len);
+    printf("-->");
+    for(uint8_t i=0;i<len;i++)
+    {
+        printf("%02X ",wifi_uart_tx_buf[i]);
+    }
+    printf("\r\n");
 }
 
 /**

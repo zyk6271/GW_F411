@@ -23,8 +23,9 @@
 #define DBG_LVL DBG_LOG
 #include <rtdbg.h>
 
-rt_spi_flash_device_t fm25q16;
 char read_value_temp[64]={0};
+
+rt_spi_flash_device_t fm25q16;
 Device_Info Global_Device={0};
 
 int flash_Init(void)

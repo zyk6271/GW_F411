@@ -29,6 +29,98 @@ uint8_t Sync_Counter = 1;
 rt_timer_t Sync_Request_t = RT_NULL;
 rt_timer_t Sync_Timeout_t = RT_NULL;
 
+void test_up(void)
+{
+    unsigned char *device_id_buf = rt_malloc(20);
+    sprintf(device_id_buf,"%ld",18013764);
+
+    unsigned char *gw_buf = rt_malloc(20);
+    sprintf(gw_buf,"%ld",40000000);
+
+    unsigned char length = 0;
+    cJSON *root;
+    root = cJSON_CreateArray();
+    if(NULL == root) {
+        //可在此添加提示信息，如：printf("xxx");
+        return;
+    }
+
+    cJSON *device_node;
+    device_node = cJSON_CreateObject();
+    if(NULL == device_node) {
+        //可在此添加提示信息，如：printf("xxx");
+        return;
+    }
+    cJSON_AddStringToObject(device_node, "nodeId",device_id_buf);
+
+    cJSON *dps_node;
+    dps_node = cJSON_CreateObject();
+    if(NULL == dps_node) {
+        //可在此添加提示信息，如：printf("xxx");
+        return;
+    }
+    cJSON_AddNumberToObject(dps_node, "103",1);
+
+
+    cJSON_AddItemToObject(device_node, "dps", dps_node);
+    cJSON_AddItemToArray(root, device_node);
+
+    char* out = cJSON_PrintUnformatted(root);
+    cJSON_Delete(root);
+    if(NULL == out) {
+        //可在此添加提示信息，如：printf("xxx");
+        return;
+    }
+
+    LOG_I("buf is %s\r\n",out);
+
+    mcu_dp_raw_update(26,out,strlen(out),gw_buf,my_strlen(gw_buf));
+    mcu_dp_raw_update(26,out,strlen(out),device_id_buf,my_strlen(device_id_buf));
+
+    mcu_dp_enum_update(32,1,gw_buf,my_strlen(gw_buf));
+    mcu_dp_enum_update(32,1,device_id_buf,my_strlen(device_id_buf));
+
+    free(out);
+
+}
+MSH_CMD_EXPORT(test_up,test_up);
+void test1(void)
+{
+    unsigned short length = 0;
+    length = set_wifi_uart_byte(length, NEW_DEV_ALARM_DELAY_STATE_SUBCMD); //写入子命令0x02
+    wifi_uart_write_frame(SECURITY_PROTECT_ALARM_CMD, MCU_TX_VER, length);
+}
+MSH_CMD_EXPORT(test1,test1);
+void test2(void)
+{
+    unsigned char *device_id_buf = rt_malloc(20);
+    sprintf(device_id_buf,"%ld",18013764);
+    mcu_dp_bool_update(DPID_DEVICE_ALARM,1,device_id_buf,my_strlen(device_id_buf));
+    rt_free(device_id_buf);
+}
+MSH_CMD_EXPORT(test2,test2);
+void test3(void)
+{
+    unsigned short length = 0;
+    length = set_wifi_uart_byte(length, ALARM_STATE_SET_SUBCMD); //写入子命令0x02
+    length = set_wifi_uart_byte(length, 1); //写入子命令0x02
+    wifi_uart_write_frame(SECURITY_PROTECT_ALARM_CMD, MCU_TX_VER, length);
+}
+MSH_CMD_EXPORT(test3,test3);
+//void test2(void)
+//{
+//    unsigned short length = 0;
+//    length = set_wifi_uart_byte(length, ALARM_STATE_SET_SUBCMD); //写入子命令0x02
+//    wifi_uart_write_frame(SECURITY_PROTECT_ALARM_CMD, MCU_TX_VER, length);
+//    unsigned char *device_id_buf = rt_malloc(20);
+//    sprintf(device_id_buf,"%ld",18013764);
+//    mcu_dp_bool_update(103,0,device_id_buf,my_strlen(device_id_buf));
+//    rt_free(device_id_buf);
+//    length = 0;
+//    length = set_wifi_uart_byte(length, NEW_DEV_ALARM_DELAY_STATE_SUBCMD); //写入子命令0x02
+//    wifi_uart_write_frame(SECURITY_PROTECT_ALARM_CMD, MCU_TX_VER, length);
+//}
+//MSH_CMD_EXPORT(test2,test2);
 void WariningUpload(uint32_t from_id,uint32_t device_id,uint8_t type,uint8_t value)
 {
     unsigned char *device_id_buf = rt_malloc(20);
@@ -625,4 +717,8 @@ void Sync_Refresh(void)
         rt_timer_start(Sync_Timeout_t);
         LOG_I("Sync_Refresh\r\n");
     }
+}
+void Sync_FlagRefresh(void)
+{
+    Sync_Recv = 1;
 }
