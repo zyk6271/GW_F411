@@ -41,6 +41,11 @@
 ******************************************************************************/
 const DOWNLOAD_CMD_S download_cmd[] =
 {
+    {DPID_SWITCH_ALARM_SOUND, DP_TYPE_BOOL},
+    {DPID_ALARM_MSG, DP_TYPE_RAW},
+    {DPID_MASTER_STATE, DP_TYPE_ENUM},
+    {DPID_FACTORY_RESET, DP_TYPE_BOOL},
+    {DPID_ALARM_ACTIVE, DP_TYPE_STRING},
     {DPID_DEVICE_STATE, DP_TYPE_BOOL},
     {DPID_VALVE1_CHECK_FAIL, DP_TYPE_BOOL},
     {DPID_DEVICE_ALARM, DP_TYPE_BOOL},
@@ -141,6 +146,18 @@ static unsigned char dp_download_control_state_handle(const unsigned char value[
     else
         return ERROR;
 }
+static unsigned char dp_download_gw_state_handle(const unsigned char value[], unsigned short length, unsigned char *sub_id_buf, unsigned char sub_id_len)
+{
+    //示例:当前DP类型为enum
+    unsigned char ret;
+
+    //处理完DP数据后应有反馈
+    ret = mcu_dp_enum_update(32,mcu_get_dp_download_enum(value,length),sub_id_buf, sub_id_len);
+    if(ret == SUCCESS)
+        return SUCCESS;
+    else
+        return ERROR;
+}
 /******************************************************************************
                                 WARNING!!!                     
 此部分函数用户请勿修改!!
@@ -163,14 +180,27 @@ unsigned char dp_download_handle(unsigned char dpid,const unsigned char value[],
     完成用需要将处理结果反馈至APP端,否则APP会认为下发失败
     请在该函数根据子设备的id自行实现子设备的dpid处理
     ****************************************************************/
+    uint32_t sub_id = atol(sub_id_buf);
     unsigned char ret;
-    switch(dpid) {
-        case DPID_CONTROL_STATE:
-            //门控开关阀处理函数
-            ret = dp_download_control_state_handle(value,length,sub_id_buf,sub_id_len);
-        break;
-        default:
-        break;
+    if(sub_id>0){
+        switch(dpid)
+        {
+            case DPID_CONTROL_STATE:
+                ret = dp_download_control_state_handle(value,length,sub_id_buf,sub_id_len);
+                break;
+            default:
+                break;
+        }
+    }
+    else {
+        switch(dpid)
+        {
+            case 32:
+                ret = dp_download_gw_state_handle(value,length,sub_id_buf,sub_id_len);
+                break;
+            default:
+                break;
+        }
     }
     return ret;
 }

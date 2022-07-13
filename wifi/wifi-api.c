@@ -81,32 +81,156 @@ void test_up(void)
     mcu_dp_enum_update(32,1,device_id_buf,my_strlen(device_id_buf));
 
     free(out);
-
 }
 MSH_CMD_EXPORT(test_up,test_up);
-void test1(void)
+void test1(void)//C1 05
 {
     unsigned short length = 0;
-    length = set_wifi_uart_byte(length, NEW_DEV_ALARM_DELAY_STATE_SUBCMD); //写入子命令0x02
+    length = set_wifi_uart_byte(length, NEW_DEV_ALARM_DELAY_STATE_SUBCMD); //写入子命令0x05
     wifi_uart_write_frame(SECURITY_PROTECT_ALARM_CMD, MCU_TX_VER, length);
 }
 MSH_CMD_EXPORT(test1,test1);
-void test2(void)
+void warn0(void)//DP WARNING
 {
     unsigned char *device_id_buf = rt_malloc(20);
-    sprintf(device_id_buf,"%ld",18013764);
+    sprintf(device_id_buf,"%ld",11000000);
+    mcu_dp_bool_update(DPID_DEVICE_ALARM,0,device_id_buf,my_strlen(device_id_buf));
+    rt_free(device_id_buf);
+}
+MSH_CMD_EXPORT(warn0,warn0);
+void warn1(void)//DP WARNING
+{
+    unsigned char *device_id_buf = rt_malloc(20);
+    sprintf(device_id_buf,"%ld",11000000);
     mcu_dp_bool_update(DPID_DEVICE_ALARM,1,device_id_buf,my_strlen(device_id_buf));
     rt_free(device_id_buf);
 }
-MSH_CMD_EXPORT(test2,test2);
-void test3(void)
+MSH_CMD_EXPORT(warn1,warn1);
+void warn2(void)//DP WARNING
+{
+    unsigned char *device_id_buf = rt_malloc(20);
+    sprintf(device_id_buf,"%ld",11000000);
+    mcu_dp_bool_update(107,0,device_id_buf,my_strlen(device_id_buf));
+    rt_free(device_id_buf);
+}
+MSH_CMD_EXPORT(warn2,warn2);
+void warn3(void)//DP WARNING
+{
+    unsigned char *device_id_buf = rt_malloc(20);
+    sprintf(device_id_buf,"%ld",11000000);
+    mcu_dp_bool_update(107,1,device_id_buf,my_strlen(device_id_buf));
+    rt_free(device_id_buf);
+}
+MSH_CMD_EXPORT(warn3,warn3);
+void swarn0(void)//DP WARNING
+{
+    unsigned char *device_id_buf = rt_malloc(20);
+    sprintf(device_id_buf,"%ld",20049003);
+    mcu_dp_enum_update(1,0,device_id_buf,my_strlen(device_id_buf));
+    rt_free(device_id_buf);
+}
+MSH_CMD_EXPORT(swarn0,swarn0);
+void swarn1(void)//DP WARNING
+{
+    unsigned char *device_id_buf = rt_malloc(20);
+    sprintf(device_id_buf,"%ld",20049003);
+    mcu_dp_enum_update(1,1,device_id_buf,my_strlen(device_id_buf));
+    rt_free(device_id_buf);
+}
+MSH_CMD_EXPORT(swarn1,swarn1);
+void swarn2(void)//DP WARNING
+{
+    unsigned char *device_id_buf = rt_malloc(20);
+    sprintf(device_id_buf,"%ld",20049003);
+    mcu_dp_bool_update(104,0,device_id_buf,my_strlen(device_id_buf));
+    rt_free(device_id_buf);
+}
+MSH_CMD_EXPORT(swarn2,swarn2);
+void swarn3(void)//DP WARNING
+{
+    unsigned char *device_id_buf = rt_malloc(20);
+    sprintf(device_id_buf,"%ld",20049003);
+    mcu_dp_bool_update(104,1,device_id_buf,my_strlen(device_id_buf));
+    rt_free(device_id_buf);
+}
+MSH_CMD_EXPORT(swarn3,swarn3);
+void test3(void)//C1 00 01
 {
     unsigned short length = 0;
-    length = set_wifi_uart_byte(length, ALARM_STATE_SET_SUBCMD); //写入子命令0x02
-    length = set_wifi_uart_byte(length, 1); //写入子命令0x02
+    length = set_wifi_uart_byte(length, ALARM_STATE_SET_SUBCMD); //写入子命令0x00
+    length = set_wifi_uart_byte(length, 1);
     wifi_uart_write_frame(SECURITY_PROTECT_ALARM_CMD, MCU_TX_VER, length);
 }
 MSH_CMD_EXPORT(test3,test3);
+void test4(void)//C1 00 00
+{
+    unsigned short length = 0;
+    length = set_wifi_uart_byte(length, ALARM_STATE_SET_SUBCMD); //写入子命令0x00
+    length = set_wifi_uart_byte(length, 0); //写入子命令0x02
+    wifi_uart_write_frame(SECURITY_PROTECT_ALARM_CMD, MCU_TX_VER, length);
+}
+MSH_CMD_EXPORT(test4,test4);
+void test5(void)//0D 32
+{
+    unsigned char device_id_buf[]={0x30,0x30,0x30,0x30};
+    mcu_dp_enum_update(32,0,device_id_buf,4);
+}
+MSH_CMD_EXPORT(test5,test5);
+void dtest0(void)
+{
+    //30001001
+    unsigned char *device_id_buf = rt_malloc(20);
+    sprintf(device_id_buf,"%ld",30001001);
+    mcu_dp_enum_update(102,2,device_id_buf,my_strlen(device_id_buf));
+    rt_free(device_id_buf);
+}
+MSH_CMD_EXPORT(dtest0,dtest0);
+void dtest1(void)
+{
+    unsigned char *device_id_buf = rt_malloc(20);
+    sprintf(device_id_buf,"%ld",30001001);
+    mcu_dp_enum_update(102,0,device_id_buf,my_strlen(device_id_buf));
+    rt_free(device_id_buf);
+}
+MSH_CMD_EXPORT(dtest1,dtest1);
+void dtest2(void)
+{
+    //30001001
+    unsigned char *device_id_buf = rt_malloc(20);
+    sprintf(device_id_buf,"%ld",30001001);
+    mcu_dp_enum_update(101,0,device_id_buf,my_strlen(device_id_buf));
+    rt_free(device_id_buf);
+}
+MSH_CMD_EXPORT(dtest2,dtest2);
+void dtest3(void)
+{
+    unsigned char *device_id_buf = rt_malloc(20);
+    sprintf(device_id_buf,"%ld",30001001);
+    mcu_dp_enum_update(101,2,device_id_buf,my_strlen(device_id_buf));
+    rt_free(device_id_buf);
+}
+MSH_CMD_EXPORT(dtest3,dtest3);
+void raw_up(void)
+{
+    char raw_buf[]={"hello,world"};
+    unsigned char *device_id_buf = rt_malloc(20);
+    sprintf(device_id_buf,"%ld",20049003);
+    mcu_dp_raw_update(26,raw_buf,my_strlen(raw_buf),device_id_buf,my_strlen(device_id_buf));
+    rt_free(device_id_buf);
+}
+MSH_CMD_EXPORT(raw_up,raw_up);
+void up0(void)
+{
+    warn0();
+    test4();
+}
+MSH_CMD_EXPORT(up0,up0);
+void up1(void)
+{
+    warn1();
+    test3();
+}
+MSH_CMD_EXPORT(up1,up1);
 //void test2(void)
 //{
 //    unsigned short length = 0;

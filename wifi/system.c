@@ -150,12 +150,12 @@ void wifi_uart_write_frame(unsigned char fr_type, unsigned char fr_ver, unsigned
     wifi_uart_tx_buf[len - 1] = check_sum;
     //
     wifi_uart_write_data((unsigned char *)wifi_uart_tx_buf, len);
-    printf("-->");
+    printf("Send:====> ");
     for(uint8_t i=0;i<len;i++)
     {
         printf("%02X ",wifi_uart_tx_buf[i]);
     }
-    printf("\r\n");
+    printf(" <====\r\n");
 }
 
 /**
@@ -291,7 +291,6 @@ static unsigned char data_point_handle(const unsigned char value[],unsigned char
         //请在该函数根据子设备的id自行实现子设备的dpid处理，"0000"代表的是需要进行下发数据处理的是网关本身
         ret = dp_download_handle(dp_id, value + 4, dp_len, sub_id_buf, sub_id_len);
     }
-    
     return ret;
 }
 

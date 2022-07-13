@@ -61,7 +61,6 @@ void data_parsing(void)
     {
         ch = uart_sample_get_char();
         uart_receive_input(ch);
-        LOG_RAW("Recv %02X\r\n",ch);
     }
 }
 void WiFi_Byte_Send(uint8_t data)

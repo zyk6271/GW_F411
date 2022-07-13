@@ -355,6 +355,21 @@ mcu在wifi模块正确联网后可调用 get_green_time_with_zone() 函数发起
                         1:网关的dp数据点序列号重新定义
           **此为自动生成代码,如在开发平台有相关修改请重新下载MCU_SDK**
 ******************************************************************************/
+//报警声开关(可下发可上报)
+//备注:
+#define DPID_SWITCH_ALARM_SOUND 4
+//告警信息(只上报)
+//备注:
+#define DPID_ALARM_MSG 26
+//主机状态(可下发可上报)
+//备注:
+#define DPID_MASTER_STATE 32
+//恢复出厂(可下发可上报)
+//备注:
+#define DPID_FACTORY_RESET 34
+//主动报警(可下发可上报)
+//备注:
+#define DPID_ALARM_ACTIVE 45
 //主控阀门(可下发可上报)
 //备注:开阀方式1：设备自身开关阀(0关1开)
 #define DPID_DEVICE_STATE 101
